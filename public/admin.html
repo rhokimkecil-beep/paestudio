@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex,nofollow"/>
+<meta name="theme-color" content="#060608"/>
+<title>Admin · PaeSTUDIO</title>
+<link rel="icon" type="image/png" href="favicon.png"/>
+<style>
+:root{
+  color-scheme:dark;
+  --ink:#060608;--field:#0b0b0e;--line:#2c2c34;--line2:#474752;
+  --txt:#f6f6f8;--mut:#adadb9;--dim:#7d7d8a;--silver:#e4e4ec;
+  --violet:#a855f7;--ok:#5eead4;--bad:#ff7a9c;
+  --gloss:linear-gradient(180deg,#27272e 0%,#19191e 42%,#111115 100%);
+  --white:linear-gradient(180deg,#fff,#cfcfd8);
+  --btn:linear-gradient(100deg,#7c3aed,#c026d3);
+  --head:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--ink)}
+body{margin:0;min-height:100vh;color:var(--txt);font:15px/1.55 var(--body)}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(118deg,transparent 0 28%,#ffffff17 41%,#ffffff06 50%,transparent 61%),
+  linear-gradient(155deg,#060608 0%,#16161b 30%,#3a3a43 52%,#15151b 72%,#060608 100%)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 18px 60px}
+
+.top{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--line2);border-radius:999px;background:#121216;box-shadow:inset 0 1px 0 #ffffff14}
+.top img{width:32px;height:32px;object-fit:contain}
+.top b{font:800 17px var(--head);letter-spacing:-.02em}
+.top span{color:var(--dim);font-size:13px}
+.top .sp{flex:1}
+.btn{border:1px solid var(--line2);background:#ffffff0d;color:var(--txt);border-radius:12px;padding:10px 16px;font-weight:700;font-size:13.5px;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn:hover:not(:disabled){border-color:#fff}
+.btn.solid{border:0;background:var(--white);color:#111}
+.btn.violet{border:0;background:var(--btn);color:#fff}
+.btn.danger:hover:not(:disabled){border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:wait}
+.btn.sm{padding:7px 12px;font-size:12.5px;border-radius:10px}
+
+.card{margin-top:18px;padding:24px;border:1px solid var(--line);border-radius:22px;background:var(--gloss);box-shadow:inset 0 1px 0 #ffffff16,0 8px 24px #0006}
+h1,h2{margin:0;font-family:var(--head);letter-spacing:-.02em}
+h2{font-size:20px}
+.sub{margin:4px 0 0;color:var(--mut);font-size:13.5px}
+
+.login{max-width:420px;margin:60px auto 0}
+.login .logo{display:block;width:150px;margin:0 auto 14px}
+.field{margin-top:14px}
+.field>label{display:block;margin-bottom:6px;color:var(--silver);font-size:12.5px;font-weight:700}
+input[type=text],input[type=password],input[type=number],input[type=url],select,textarea{
+  width:100%;padding:12px 14px;border-radius:12px;outline:none;background:var(--field);border:1px solid var(--line);color:var(--txt)}
+input:hover,select:hover,textarea:hover{border-color:var(--line2)}
+input:focus,select:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 0 3px #a855f733}
+textarea{resize:vertical;min-height:84px}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23adadb9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m1 1.5 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.note{margin-top:6px;color:var(--dim);font-size:11.5px}
+.msg{margin-top:14px;padding:11px 14px;border-radius:12px;font-size:13px;border:1px solid var(--line2);background:#ffffff0a}
+.msg.err{border-color:#ff7a9c77;color:var(--bad)}
+.msg.ok{border-color:#2dd4bf77;color:var(--ok)}
+.msg.warn{border-color:#ffcf5a77;color:#ffcf5a}
+.full{width:100%;justify-content:center;margin-top:18px;padding:13px}
+
+.grid{display:grid;grid-template-columns:380px 1fr;gap:18px;align-items:start}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pricehint{margin-top:6px;font-size:12px;color:var(--ok);font-weight:700}
+
+.drop{margin-top:6px;display:grid;place-items:center;aspect-ratio:16/10;border:1.5px dashed var(--line2);border-radius:16px;background:#0b0b0e;color:var(--mut);cursor:pointer;overflow:hidden;position:relative;text-align:center;font-size:13px}
+.drop:hover{border-color:#fff}
+.drop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.drop span{padding:10px}
+.field>label.drop{display:grid;margin:6px 0 0;font-size:13px;font-weight:400;color:var(--mut)}
+.drop small{font-size:11.5px;color:var(--dim)}
+.chk{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12.5px;color:var(--silver);cursor:pointer}
+.chk input{accent-color:var(--violet)}
+
+.list{display:grid;gap:10px;margin-top:14px}
+.item{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--line);border-radius:16px;background:#0b0b0e}
+.item.editing{border-color:#fff}
+.thumb{width:84px;aspect-ratio:16/10;border-radius:10px;flex:none;background:linear-gradient(135deg,#3b3b45,#1b1b21);overflow:hidden;display:grid;place-items:center;color:var(--dim);font-size:11px}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.meta{flex:1;min-width:0}
+.meta b{display:block;font:700 14.5px var(--head);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta small{color:var(--mut);font-size:12px}
+.acts{display:flex;gap:6px;flex:none}
+.empty{padding:28px;border:1.5px dashed var(--line2);border-radius:16px;text-align:center;color:var(--dim);font-size:13px}
+
+@media (max-width:860px){.grid{grid-template-columns:1fr}.top span{display:none}}
+@media (max-width:520px){.row2{grid-template-columns:1fr}.item{flex-wrap:wrap}.acts{width:100%}.acts .btn{flex:1;justify-content:center}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <img src="favicon.png" alt=""/>
+    <b>PaeSTUDIO</b><span>Admin panel</span>
+    <i class="sp"></i>
+    <a class="btn sm" href="/">← Ke situs</a>
+    <button class="btn sm danger" id="logout" type="button" hidden>Keluar</button>
+  </header>
+
+  <div id="boot" class="card" style="text-align:center;color:var(--mut)">Memuat…</div>
+
+  <!-- LOGIN -->
+  <section class="card login" id="loginView" hidden>
+    <picture><source srcset="logo.webp" type="image/webp"/><img class="logo" src="logo.png" alt="" width="150" height="76"/></picture>
+    <h2 style="text-align:center">Login admin</h2>
+    <p class="sub" style="text-align:center">Masuk untuk mengelola produk.</p>
+    <div id="cfgWarn" class="msg warn" hidden></div>
+    <form id="loginForm" autocomplete="on">
+      <div class="field"><label for="u">Username</label><input id="u" name="username" type="text" autocomplete="username" required/></div>
+      <div class="field"><label for="p">Password</label><input id="p" name="password" type="password" autocomplete="current-password" required/></div>
+      <div id="loginMsg" class="msg err" hidden></div>
+      <button class="btn violet full" id="loginBtn" type="submit">Masuk</button>
+    </form>
+  </section>
+
+  <!-- DASHBOARD -->
+  <div id="dash" hidden>
+    <div id="dbWarn" class="msg warn" hidden style="margin-top:18px"></div>
+    <div class="grid">
+
+      <section class="card" style="margin-top:18px">
+        <h2 id="formTitle">Tambah produk</h2>
+        <p class="sub" id="formSub">Isi data lalu simpan. Produk langsung tampil di situs.</p>
+        <form id="pf">
+          <div class="field"><label>Gambar produk</label>
+            <label class="drop" id="drop" for="imgFile"><span id="dropText">Klik untuk pilih gambar<br/><small>PNG / JPG / WebP, otomatis dikompres</small></span></label>
+            <input id="imgFile" type="file" accept="image/png,image/jpeg,image/webp" hidden/>
+            <label class="chk" id="rmWrap" hidden><input id="rmImg" type="checkbox"/>Hapus gambar yang ada</label>
+            <div class="note" id="imgInfo"></div>
+          </div>
+          <div class="field"><label for="name">Nama produk</label><input id="name" type="text" maxlength="80" required placeholder="Contoh: Crown Mesh Pack"/></div>
+          <div class="row2">
+            <div class="field"><label for="cat">Kategori</label>
+              <select id="cat">
+                <option value="mesh">Mesh</option><option value="decal">Decal</option>
+                <option value="audio">Audio</option><option value="model">Model</option>
+                <option value="lainnya">Lainnya</option>
+              </select>
+            </div>
+            <div class="field"><label for="price">Harga (Rp)</label><input id="price" type="number" min="0" step="500" inputmode="numeric" required placeholder="25000"/></div>
+          </div>
+          <div class="pricehint" id="priceHint"></div>
+          <div class="field"><label for="desc">Deskripsi</label><textarea id="desc" maxlength="300" placeholder="Jelaskan singkat produknya…"></textarea></div>
+          <div class="field"><label for="url">Link beli / kontak</label><input id="url" type="url" placeholder="https://wa.me/628xxxxxxxxxx"/><div class="note">Tombol "Pesan" di situs mengarah ke sini. Boleh dikosongkan.</div></div>
+          <div class="field"><label for="tag">Label (opsional)</label><input id="tag" type="text" maxlength="20" placeholder="Baru, Promo, Best seller"/></div>
+          <div id="formMsg" class="msg" hidden></div>
+          <button class="btn solid full" id="saveBtn" type="submit">Simpan produk</button>
+          <button class="btn full" id="cancelBtn" type="button" hidden style="margin-top:10px">Batal edit</button>
+        </form>
+      </section>
+
+      <section class="card" style="margin-top:18px">
+        <h2>Daftar produk <small id="count" style="color:var(--dim);font-weight:500"></small></h2>
+        <div class="list" id="list"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var CATS = { mesh: "Mesh", decal: "Decal", audio: "Audio", model: "Model", lainnya: "Lainnya" };
+  var products = [], editingId = null, newImage = null, status = {};
+
+  function show(el, on) { el.hidden = !on; }
+  function say(el, text, kind) {
+    el.textContent = text || "";
+    el.className = "msg" + (kind ? " " + kind : "");
+    el.hidden = !text;
+  }
+  function rupiah(n) { return n > 0 ? "Rp " + Number(n).toLocaleString("id-ID") : "Gratis"; }
+
+  async function api(method, url, body) {
+    var r = await fetch(url, {
+      method: method,
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", "X-Requested-With": "paestudio" },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    var j = {};
+    try { j = await r.json(); } catch (e) {}
+    if (r.status === 401 && url.indexOf("/api/auth") !== 0) { showLogin(); }
+    if (!r.ok) throw new Error(j.error || "Gagal (" + r.status + ")");
+    return j;
+  }
+
+  /* ---------- tampilan ---------- */
+  function showLogin() {
+    show($("boot"), false); show($("dash"), false); show($("loginView"), true); show($("logout"), false);
+    if (!status.adminConfigured) {
+      say($("cfgWarn"), "ADMIN_PASSWORD belum diatur di Vercel. Buka Project → Settings → Environment Variables, tambahkan ADMIN_PASSWORD, lalu redeploy.", "warn");
+    } else say($("cfgWarn"), "");
+  }
+  function showDash() {
+    show($("boot"), false); show($("loginView"), false); show($("dash"), true); show($("logout"), true);
+    say($("dbWarn"), status.db ? "" : "Database belum dihubungkan. Di Vercel buka tab Storage → Create Database → Upstash Redis → Connect ke project, lalu redeploy.", "warn");
+    loadList();
+  }
+
+  async function boot() {
+    try {
+      status = await api("GET", "/api/auth");
+    } catch (e) {
+      show($("boot"), true);
+      $("boot").textContent = "Tidak bisa menghubungi server. Coba muat ulang halaman.";
+      return;
+    }
+    status.admin ? showDash() : showLogin();
+  }
+
+  /* ---------- login ---------- */
+  $("loginForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    say($("loginMsg"), "");
+    $("loginBtn").disabled = true;
+    try {
+      await api("POST", "/api/auth", { username: $("u").value, password: $("p").value });
+      $("p").value = "";
+      status.admin = true;
+      showDash();
+    } catch (err) {
+      say($("loginMsg"), err.message, "err");
+    } finally { $("loginBtn").disabled = false; }
+  });
+  $("logout").addEventListener("click", async function () {
+    try { await api("DELETE", "/api/auth"); } catch (e) {}
+    status.admin = false; products = []; resetForm(); showLogin();
+  });
+
+  /* ---------- daftar ---------- */
+  async function loadList() {
+    try {
+      var j = await api("GET", "/api/products?fresh=1");
+      products = j.products || [];
+      renderList();
+    } catch (e) { say($("formMsg"), e.message, "err"); }
+  }
+
+  function renderList() {
+    var box = $("list");
+    box.textContent = "";
+    $("count").textContent = products.length ? "(" + products.length + ")" : "";
+    if (!products.length) {
+      var d = document.createElement("div"); d.className = "empty";
+      d.textContent = "Belum ada produk. Tambahkan produk pertamamu di form sebelah.";
+      box.appendChild(d); return;
+    }
+    products.forEach(function (p) {
+      var it = document.createElement("div");
+      it.className = "item" + (p.id === editingId ? " editing" : "");
+      var th = document.createElement("div"); th.className = "thumb";
+      if (p.img) { var im = document.createElement("img"); im.src = p.img; im.alt = ""; im.loading = "lazy"; th.appendChild(im); }
+      else th.textContent = "tanpa gambar";
+      var meta = document.createElement("div"); meta.className = "meta";
+      var b = document.createElement("b"); b.textContent = p.name;
+      var s = document.createElement("small"); s.textContent = (CATS[p.cat] || p.cat) + " · " + rupiah(p.price) + (p.tag ? " · " + p.tag : "");
+      meta.append(b, s);
+      var acts = document.createElement("div"); acts.className = "acts";
+      var ed = document.createElement("button"); ed.type = "button"; ed.className = "btn sm"; ed.textContent = "Edit";
+      ed.onclick = function () { startEdit(p); };
+      var del = document.createElement("button"); del.type = "button"; del.className = "btn sm danger"; del.textContent = "Hapus";
+      del.onclick = function () { removeProduct(p, del); };
+      acts.append(ed, del);
+      it.append(th, meta, acts);
+      box.appendChild(it);
+    });
+  }
+
+  async function removeProduct(p, btn) {
+    if (!confirm('Hapus produk "' + p.name + '"? Tindakan ini tidak bisa dibatalkan.')) return;
+    btn.disabled = true;
+    try {
+      await api("DELETE", "/api/products?id=" + encodeURIComponent(p.id));
+      if (editingId === p.id) resetForm();
+      await loadList();
+    } catch (e) { alert(e.message); btn.disabled = false; }
+  }
+
+  /* ---------- form ---------- */
+  function setPreview(src) {
+    var drop = $("drop");
+    var old = drop.querySelector("img"); if (old) old.remove();
+    if (src) {
+      var im = document.createElement("img"); im.src = src; im.alt = "Pratinjau";
+      drop.appendChild(im);
+      $("dropText").style.display = "none";
+    } else $("dropText").style.display = "";
+  }
+
+  function resetForm() {
+    editingId = null; newImage = null;
+    $("pf").reset(); setPreview(""); $("imgInfo").textContent = ""; $("priceHint").textContent = "";
+    show($("rmWrap"), false); show($("cancelBtn"), false);
+    $("formTitle").textContent = "Tambah produk";
+    $("formSub").textContent = "Isi data lalu simpan. Produk langsung tampil di situs.";
+    $("saveBtn").textContent = "Simpan produk";
+    say($("formMsg"), "");
+    renderList();
+  }
+
+  function startEdit(p) {
+    editingId = p.id; newImage = null;
+    $("name").value = p.name; $("cat").value = p.cat; $("price").value = p.price;
+    $("desc").value = p.desc || ""; $("url").value = p.url || ""; $("tag").value = p.tag || "";
+    $("rmImg").checked = false; $("imgFile").value = "";
+    setPreview(p.img || ""); $("imgInfo").textContent = p.img ? "Pilih gambar baru untuk mengganti." : "";
+    show($("rmWrap"), !!p.img); show($("cancelBtn"), true);
+    $("formTitle").textContent = "Edit produk";
+    $("formSub").textContent = "Ubah data lalu simpan.";
+    $("saveBtn").textContent = "Simpan perubahan";
+    updateHint(); say($("formMsg"), "");
+    renderList();
+    $("name").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  $("cancelBtn").addEventListener("click", resetForm);
+
+  function updateHint() {
+    var v = $("price").value;
+    $("priceHint").textContent = v === "" ? "" : "Tampil di situs: " + rupiah(Number(v));
+  }
+  $("price").addEventListener("input", updateHint);
+
+  /* kompres gambar di browser supaya ringan */
+  function loadImage(file) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file), im = new Image();
+      im.onload = function () { URL.revokeObjectURL(url); resolve(im); };
+      im.onerror = function () { URL.revokeObjectURL(url); reject(new Error("Gambar tidak bisa dibaca")); };
+      im.src = url;
+    });
+  }
+  function toBlob(canvas, type, q) {
+    return new Promise(function (r) { canvas.toBlob(r, type, q); });
+  }
+  function blobToDataUrl(b) {
+    return new Promise(function (resolve, reject) {
+      var fr = new FileReader(); fr.onload = function () { resolve(fr.result); }; fr.onerror = reject; fr.readAsDataURL(b);
+    });
+  }
+  async function compress(file) {
+    var im = await loadImage(file);
+    var maxW = 900, scale = Math.min(1, maxW / im.naturalWidth);
+    var LIMIT = 300 * 1024, q = 0.85, blob, canvas = document.createElement("canvas");
+    for (var i = 0; i < 8; i++) {
+      canvas.width = Math.max(1, Math.round(im.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(im.naturalHeight * scale));
+      var ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(im, 0, 0, canvas.width, canvas.height);
+      blob = await toBlob(canvas, "image/webp", q);
+      if (!blob || blob.type !== "image/webp") {           // browser lama tanpa WebP
+        ctx.globalCompositeOperation = "destination-over";
+        ctx.fillStyle = "#111"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        blob = await toBlob(canvas, "image/jpeg", q);
+      }
+      if (blob.size <= LIMIT) break;
+      if (q > 0.55) q -= 0.1; else scale *= 0.85;
+    }
+    if (blob.size > 440 * 1024) throw new Error("Gambar masih terlalu besar setelah dikompres");
+    return { dataUrl: await blobToDataUrl(blob), size: blob.size, w: canvas.width, h: canvas.height };
+  }
+
+  $("imgFile").addEventListener("change", async function () {
+    var f = this.files && this.files[0];
+    if (!f) return;
+    $("imgInfo").textContent = "Mengompres gambar…";
+    try {
+      var c = await compress(f);
+      newImage = c.dataUrl; $("rmImg").checked = false;
+      setPreview(c.dataUrl);
+      $("imgInfo").textContent = c.w + "×" + c.h + " px · " + Math.round(c.size / 1024) + " KB";
+    } catch (e) {
+      newImage = null; $("imgInfo").textContent = ""; say($("formMsg"), e.message, "err");
+    }
+  });
+
+  $("pf").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    say($("formMsg"), "");
+    var body = {
+      name: $("name").value, cat: $("cat").value, price: $("price").value,
+      desc: $("desc").value, url: $("url").value, tag: $("tag").value
+    };
+    if (newImage) body.image = newImage;
+    if (editingId && $("rmImg").checked && !newImage) body.removeImage = true;
+    $("saveBtn").disabled = true;
+    try {
+      if (editingId) await api("PUT", "/api/products?id=" + encodeURIComponent(editingId), body);
+      else await api("POST", "/api/products", body);
+      var was = editingId ? "Perubahan disimpan." : "Produk ditambahkan.";
+      resetForm(); await loadList();
+      say($("formMsg"), was, "ok");
+    } catch (err) {
+      say($("formMsg"), err.message, "err");
+    } finally { $("saveBtn").disabled = false; }
+  });
+
+  boot();
+})();
+</script>
+</body>
+</html>
