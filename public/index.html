@@ -2070,7 +2070,29 @@ html[data-dt] #dtGuard{display:flex}
                     manSemi: mSemi,
                     manSpeed: mSpeed
                 };
-                row.append(head, r1, man, r2, r3, licRow(it), trimRow(it));
+                const prs = el("div", "erow");
+                prs.append(el("span", "elab", "PRESET"));
+                const prBtns = [];
+                [3.5, -2, -1.1].forEach(v => {
+                    const sp = Math.pow(2, v / 12);
+                    const b = el("button", "mini pv", (v > 0 ? "+" : "") + v.toFixed(1) + " st · " + sp.toFixed(2) + "×");
+                    b.type = "button";
+                    b.title = "Di game " + (1 / sp).toFixed(2) + "×";
+                    b.disabled = A.busy;
+                    const sync = () => b.classList.toggle("on", Math.abs((+it.semi || 0) - v) < 0.005);
+                    sync();
+                    b.onclick = () => {
+                        it.semi = v;
+                        sl.value = v;
+                        applyPreview(it);
+                        markDirty(it);
+                        prBtns.forEach(x => x.sync());
+                    };
+                    b.sync = sync;
+                    prBtns.push(b);
+                    prs.append(b);
+                });
+                row.append(head, r1, prs, man, r2, r3, licRow(it), trimRow(it));
                 refreshRow(it);
                 return row
             }
