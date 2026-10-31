@@ -12,8 +12,11 @@ const MAX_IMG_BYTES = 450 * 1024; // setelah dikompres di browser biasanya < 150
 function imgUrl(p) {
   return p.hasImg ? `/api/image?id=${p.id}&v=${p.v || 0}` : "";
 }
+function pricingOf(p) {
+  return p.pricing === "free" || p.pricing === "paid" ? p.pricing : (Number(p.price) > 0 ? "paid" : "free");
+}
 function publicView(p) {
-  return { id: p.id, name: p.name, cat: p.cat, price: p.price, desc: p.desc, url: p.url, tag: p.tag, img: imgUrl(p) };
+  return { id: p.id, name: p.name, cat: p.cat, pricing: pricingOf(p), price: pricingOf(p) === "free" ? 0 : p.price, desc: p.desc, url: p.url, tag: p.tag, img: imgUrl(p), createdAt: p.createdAt || 0 };
 }
 
 function sniff(buf) {
@@ -38,13 +41,18 @@ function clean(body) {
   const desc = String(body.desc || "").trim().slice(0, 300);
   const tag = String(body.tag || "").trim().slice(0, 20);
   const cat = CATS.includes(body.cat) ? body.cat : "";
-  const price = Math.round(Number(body.price));
+  // Jenis produk: "free" (gratis) atau "paid" (berbayar). Kalau tidak dikirim, ditebak dari harga.
+  let pricing = body.pricing;
+  if (pricing !== "free" && pricing !== "paid") pricing = Number(body.price) > 0 ? "paid" : "free";
+  const price = pricing === "free" ? 0 : Math.round(Number(body.price));
   let url = String(body.url || "").trim().slice(0, 500);
   if (!name) return { error: "Nama produk wajib diisi" };
   if (!cat) return { error: "Kategori tidak valid" };
-  if (!Number.isFinite(price) || price < 0 || price > 1000000000) return { error: "Harga harus angka 0 atau lebih" };
+  if (pricing === "paid" && (!Number.isFinite(price) || price <= 0 || price > 1000000000)) {
+    return { error: "Produk berbayar harus punya harga lebih dari 0" };
+  }
   if (url && !/^https?:\/\/[^\s]+$/i.test(url)) return { error: "Link harus diawali http:// atau https://" };
-  return { value: { name, desc, tag, cat, price, url } };
+  return { value: { name, desc, tag, cat, pricing, price, url } };
 }
 
 module.exports = async function handler(req, res) {
