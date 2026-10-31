@@ -1,6 +1,8 @@
 // POST /api/status  {assetId, apiKey}  -> { ok, state: "reviewing" | "approved" | "rejected" | "unknown" }
 // Hanya MEMBACA status moderasi aset dari Roblox Open Cloud. API key tidak disimpan atau dicatat.
 const auth = require("../lib/auth");
+const store = require("../lib/store");
+const users = require("../lib/users");
 
 const API = "https://apis.roblox.com/assets/v1";
 
@@ -29,6 +31,12 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method tidak diizinkan" });
   }
   if (!auth.sameSiteRequest(req)) return res.status(400).json({ error: "Request tidak valid" });
+
+  // Wajib login Discord.
+  let me = null;
+  try { me = store.configured ? await users.fromRequest(req) : null; }
+  catch (e) { console.error("session error:", e && e.message); return res.status(500).json({ error: "Terjadi kesalahan di server" }); }
+  if (!me) return res.status(401).json({ error: "Login Discord dulu.", code: "login" });
 
   const body = req.body && typeof req.body === "object" ? req.body : {};
   const assetId = String(body.assetId || "").trim();
