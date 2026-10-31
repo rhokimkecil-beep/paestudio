@@ -229,6 +229,30 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
 .idrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:#0b0b0e;border-radius:12px;padding:9px 12px;min-width:0}
 .idrow .info{flex:1;min-width:0}
 
+
+/* EDITOR AUDIO (gaya Nomen) */
+.arow{flex-direction:column;align-items:stretch;gap:12px;padding:16px;background:#0a0a0c}
+.ehead{display:flex;align-items:flex-start;gap:10px}
+.ehead .info{flex:1;min-width:0}
+.ehead .nm{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:normal;overflow-wrap:anywhere}
+.erow{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.erow input[type=range]{flex:1 1 200px;min-width:120px}
+.einfo{font:11.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--mut)}
+.elab{font:700 11px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.14em;color:var(--dim)}
+.mini.pv{letter-spacing:.06em;padding:9px 14px}
+.eman{padding:10px 12px;border:1px dashed var(--line2);border-radius:12px;background:#0f0f12}
+.eman label{display:flex;align-items:center;gap:8px}
+.eman input[type=number]{width:110px;padding:7px 9px;font-size:12px}
+.fmts{display:flex;gap:6px;margin-left:auto}
+.fmts button{border:1px solid var(--line2);background:#0f0f12;color:var(--mut);border-radius:9px;padding:9px 14px;font:700 11.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.06em}
+.fmts button:hover:not(:disabled){color:#fff;border-color:#fff}
+.fmts button.on{background:var(--white);color:#111;border-color:#fff}
+.fmts button:disabled{opacity:.5;cursor:not-allowed}
+.cvt{border:0;border-radius:10px;background:var(--white);color:#111;padding:10px 20px;font:800 12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.08em}
+.cvt:hover:not(:disabled){filter:brightness(.92)}
+.cvt:disabled{opacity:.5;cursor:not-allowed}
+@media (max-width:640px){.fmts{margin-left:0}.erow .einfo{flex:1 0 100%}}
+
 /* HISTORY */
 .hist-head{display:flex;align-items:center;gap:10px}
 .textbtn{border:1px solid var(--line2);background:transparent;color:var(--silver);font-size:12px;font-weight:700;padding:7px 14px;border-radius:999px}
@@ -503,31 +527,6 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
           </select>
           <div class="formnote">Bisa diganti per file di daftar. Upload hanya jalan kalau tiap file punya lisensi.</div>
         </div>
-      </div>
-
-      <div class="player" id="aPlayer">
-        <div class="ptitle" id="pTitle">Tekan ▶ pada file di daftar untuk memutar</div>
-        <div class="prow">
-          <button class="mini" id="pPrev" title="Sebelumnya" type="button">⏮</button>
-          <button class="mini" id="pPlay" title="Putar/jeda" type="button">▶</button>
-          <button class="mini" id="pNext" title="Berikutnya" type="button">⏭</button>
-          <input aria-label="Posisi lagu" id="pSeek" max="1000" min="0" type="range" value="0"/>
-          <span class="ptime" id="pTime">0:00 / 0:00</span>
-        </div>
-        <div class="prow">
-          <span class="ptime" style="min-width:0">Vol</span>
-          <input aria-label="Volume" id="pVol" max="100" min="0" style="flex:0 1 100px" type="range" value="100"/>
-          <select aria-label="Kecepatan preview dan hasil ekspor" id="pRate">
-            <option value="0.5">0.5×</option><option value="0.75">0.75×</option>
-            <option selected value="1">1×</option><option value="1.25">1.25×</option>
-            <option value="1.5">1.5×</option><option value="2">2×</option>
-          </select>
-          <button class="mini" id="pLoop" type="button">⟲ Ulang</button>
-          <button class="mini" id="pSec" title="Ulang hanya bagian Mulai–Akhir milik file yang diputar" type="button">⟲ Bagian</button>
-          <label class="chk"><input checked id="pAuto" type="checkbox"/>Lanjut otomatis</label>
-          <label class="chk"><input checked id="pPitch" type="checkbox"/>Jaga nada</label>
-        </div>
-        <audio id="pAudio" preload="metadata"></audio>
       </div>
 
       <div class="alist" id="aList"></div>
@@ -1153,6 +1152,11 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 busy: false
             };
             const fmtMB = b => (b / 1024 / 1024).toFixed(2) + " MB";
+            const fmtT = s => {
+                s = Math.max(0, s || 0);
+                return Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0")
+            }
+            ;
             const loaded = {};
             function loadScript(src) {
                 return loaded[src] || (loaded[src] = new Promise( (res, rej) => {
@@ -1188,11 +1192,105 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 a.remove();
                 setTimeout( () => URL.revokeObjectURL(u), 4000)
             }
+            /* --- inti: kecepatan/nada, durasi, encoder (diuji terpisah di Node) --- */
+            //#core-start
+            const FMT = {
+                mp3: {
+                    ext: "mp3",
+                    mime: "audio/mpeg"
+                },
+                ogg: {
+                    ext: "ogg",
+                    mime: "audio/ogg"
+                },
+                wav: {
+                    ext: "wav",
+                    mime: "audio/wav"
+                }
+            };
+            const speedOf = it => Math.pow(2, (it.semi || 0) / 12);
+            function selSecs(it) {
+                const full = it.dur || 0
+                  , a = Math.min(it.start || 0, full)
+                  , b = it.end > 0 ? Math.min(it.end, full) : full;
+                return Math.max(0, b - a)
+            }
+            const outSecs = it => selSecs(it) / speedOf(it);
+            // Semitone terkecil (kelipatan 0.1) agar hasil muat dalam maxSec. null = tidak perlu.
+            function fitSemi(sel, maxSec) {
+                if (!(sel > maxSec))
+                    return null;
+                return Math.min(24, Math.ceil(12 * Math.log2(sel / maxSec) * 10) / 10)
+            }
+            function resample(src, len, encLen, rate) {
+                if (rate === 1)
+                    return src;
+                const dst = new Float32Array(encLen);
+                for (let i = 0; i < encLen; i++) {
+                    const pos = i * rate
+                      , lo = Math.min(len - 1, Math.floor(pos))
+                      , hi = Math.min(len - 1, lo + 1)
+                      , frac = pos - lo;
+                    dst[i] = src[lo] + (src[hi] - src[lo]) * frac
+                }
+                return dst
+            }
+            function wavBlob(ch, sr) {
+                const n = ch[0].length
+                  , c = ch.length
+                  , buf = new ArrayBuffer(44 + n * c * 2)
+                  , v = new DataView(buf);
+                const w = (o, s) => {
+                    for (let i = 0; i < s.length; i++)
+                        v.setUint8(o + i, s.charCodeAt(i))
+                }
+                ;
+                w(0, "RIFF");
+                v.setUint32(4, 36 + n * c * 2, true);
+                w(8, "WAVE");
+                w(12, "fmt ");
+                v.setUint32(16, 16, true);
+                v.setUint16(20, 1, true);
+                v.setUint16(22, c, true);
+                v.setUint32(24, sr, true);
+                v.setUint32(28, sr * c * 2, true);
+                v.setUint16(32, c * 2, true);
+                v.setUint16(34, 16, true);
+                w(36, "data");
+                v.setUint32(40, n * c * 2, true);
+                let o = 44;
+                for (let i = 0; i < n; i++)
+                    for (let k = 0; k < c; k++) {
+                        const s = Math.max(-1, Math.min(1, ch[k][i]));
+                        v.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+                        o += 2
+                    }
+                return new Blob([buf],{
+                    type: "audio/wav"
+                })
+            }
+            //#core-end
+            function probeDuration(file) {
+                return new Promise(res => {
+                    const u = URL.createObjectURL(file)
+                      , a = new Audio();
+                    const done = d => {
+                        URL.revokeObjectURL(u);
+                        res(isFinite(d) ? d : 0)
+                    }
+                    ;
+                    a.preload = "metadata";
+                    a.onloadedmetadata = () => done(a.duration);
+                    a.onerror = () => done(0);
+                    a.src = u
+                }
+                )
+            }
             function addAudio(files) {
                 let skipped = 0;
                 [...files].forEach(f => {
-                    if (/\.(mp3|wav|ogg|flac|aac|m4a)$/i.test(f.name) || (f.type || "").startsWith("audio/"))
-                        A.items.push({
+                    if (/\.(mp3|wav|ogg|flac|aac|m4a)$/i.test(f.name) || (f.type || "").startsWith("audio/")) {
+                        const it = {
                             id: ++A.n,
                             file: f,
                             state: "wait",
@@ -1202,12 +1300,29 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                             end: 0,
                             fadeIn: 0,
                             fadeOut: 0,
+                            semi: 0,
+                            vol: 100,
+                            fmt: "mp3",
+                            dur: 0,
                             blob: null,
                             out: "",
+                            mime: "",
                             msg: "Menunggu diproses",
                             pct: 0
-                        });
-                    else
+                        };
+                        A.items.push(it);
+                        probeDuration(f).then(d => {
+                            it.dur = d;
+                            const mx = Math.max(1, Math.min(3600, +$("oMax").value || 420))
+                              , v = fitSemi(d, mx);
+                            if (v !== null) {
+                                it.semi = v;
+                                it.msg = "Lagu panjang: kecepatan diatur otomatis supaya muat " + fmtT(mx) + ". Ubah lewat slider atau MANUAL."
+                            }
+                            renderA()
+                        }
+                        )
+                    } else
                         skipped++
                 }
                 );
@@ -1215,70 +1330,311 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     toast(false, "Sebagian file dilewati", skipped + " file bukan audio yang didukung.");
                 renderA();
             }
+            /* --- pratinjau: memutar file asli dengan kecepatan/nada & volume yang dipilih --- */
+            const P = {
+                cur: null,
+                url: null
+            }
+              , aud = new Audio();
+            aud.preload = "metadata";
+            function applyPreview(it) {
+                if (P.cur !== it)
+                    return;
+                aud.preservesPitch = aud.mozPreservesPitch = aud.webkitPreservesPitch = false;
+                aud.playbackRate = Math.max(0.25, Math.min(4, speedOf(it)));
+                aud.volume = Math.max(0, Math.min(1, it.vol / 100))
+            }
+            function stopPreview() {
+                aud.pause();
+                aud.removeAttribute("src");
+                aud.load();
+                if (P.url)
+                    URL.revokeObjectURL(P.url);
+                P.url = null;
+                P.cur = null
+            }
+            function previewItem(it) {
+                if (P.cur === it) {
+                    aud.paused ? aud.play().catch( () => {}
+                    ) : aud.pause();
+                    return
+                }
+                stopPreview();
+                P.cur = it;
+                P.url = URL.createObjectURL(it.file);
+                aud.src = P.url;
+                aud.addEventListener("loadedmetadata", function once() {
+                    aud.removeEventListener("loadedmetadata", once);
+                    if (it.start > 0 && it.start < aud.duration)
+                        aud.currentTime = it.start
+                }
+                );
+                applyPreview(it);
+                aud.play().catch( () => {
+                    toast(false, "Tidak bisa diputar", "Browser tidak bisa memutar file ini.");
+                    stopPreview();
+                    renderA()
+                }
+                );
+                renderA()
+            }
+            aud.addEventListener("play", () => renderA());
+            aud.addEventListener("pause", () => {
+                if (P.cur)
+                    renderA()
+            }
+            );
+            aud.addEventListener("ended", () => {
+                stopPreview();
+                renderA()
+            }
+            );
+            aud.addEventListener("timeupdate", () => {
+                const it = P.cur;
+                if (!it)
+                    return;
+                if (it.end > 0 && aud.currentTime >= it.end) {
+                    aud.pause();
+                    aud.currentTime = it.start || 0
+                }
+                if (it.ui && it.ui.pos)
+                    it.ui.pos.textContent = fmtT(aud.currentTime) + " / " + fmtT(it.dur || aud.duration)
+            }
+            );
+            /* --- baris editor per file --- */
+            function el(tag, cls, text) {
+                const e = document.createElement(tag);
+                if (cls)
+                    e.className = cls;
+                if (text != null)
+                    e.textContent = text;
+                return e
+            }
+            function sInfo(it) {
+                const sp = speedOf(it)
+                  , st = (it.semi >= 0 ? "+" : "") + (+it.semi).toFixed(1);
+                return st + " st · " + sp.toFixed(2) + "× · keluar " + fmtT(outSecs(it)) + " · di game " + (1 / sp).toFixed(2) + "×"
+            }
+            function markDirty(it) {
+                if (it.blob || it.state === "done" || it.state === "up") {
+                    it.blob = null;
+                    it.state = "wait";
+                    it.pct = 0;
+                    it.msg = "Pengaturan diubah · proses ulang"
+                }
+                refreshRow(it);
+                syncButtons()
+            }
+            function refreshRow(it) {
+                const u = it.ui;
+                if (!u)
+                    return;
+                u.mt.textContent = it.msg;
+                u.mt.className = "mt" + (it.state === "done" || it.state === "up" ? " ok" : it.state === "err" ? " bad" : "");
+                u.sinfo.textContent = sInfo(it);
+                u.vinfo.textContent = it.vol + "%";
+                u.pos.textContent = (P.cur === it ? fmtT(aud.currentTime) : "0:00") + " / " + fmtT(it.dur);
+                const need = fitSemi(selSecs(it) / speedOf(it) * speedOf(it), Math.max(1, Math.min(3600, +$("oMax").value || 420)));
+                u.fit.hidden = need === null || (it.semi >= need);
+                u.dl.hidden = u.use.hidden = !it.blob;
+                u.use.hidden = !it.blob || it.fmt === "wav";
+                if (u.manSemi && document.activeElement !== u.manSemi)
+                    u.manSemi.value = (+it.semi).toFixed(2);
+                if (u.manSpeed && document.activeElement !== u.manSpeed)
+                    u.manSpeed.value = speedOf(it).toFixed(3)
+            }
+            function slider(min, max, step, val, on) {
+                const s = document.createElement("input");
+                s.type = "range";
+                s.min = min;
+                s.max = max;
+                s.step = step;
+                s.value = val;
+                s.disabled = A.busy;
+                s.oninput = () => on(+s.value);
+                return s
+            }
+            function buildRow(it) {
+                const row = el("div", "arow" + (P.cur === it ? " playing" : ""));
+                it.ui = {};
+                // kepala
+                const head = el("div", "ehead")
+                  , info = el("div", "info")
+                  , nm = el("div", "nm", it.file.name)
+                  , mt = el("div", "mt");
+                info.append(nm, mt);
+                const bar = el("div", "bar")
+                  , fill = document.createElement("i");
+                fill.style.width = it.pct + "%";
+                bar.append(fill);
+                if (it.state === "busy")
+                    info.append(bar);
+                const rm = el("button", "mini", "✕");
+                rm.type = "button";
+                rm.title = "Hapus";
+                rm.disabled = A.busy;
+                rm.onclick = () => {
+                    if (P.cur === it)
+                        stopPreview();
+                    A.items = A.items.filter(x => x !== it);
+                    renderA()
+                }
+                ;
+                head.append(info, rm);
+                // baris 1: preview + nada/kecepatan
+                const r1 = el("div", "erow")
+                  , pv = el("button", "mini pv", P.cur === it && !aud.paused ? "❚❚ PREVIEW" : "▶ PREVIEW");
+                pv.type = "button";
+                pv.onclick = () => previewItem(it);
+                const sl = slider(-12, 24, 0.1, it.semi || 0, v => {
+                    it.semi = v;
+                    applyPreview(it);
+                    markDirty(it)
+                }
+                );
+                sl.setAttribute("aria-label", "Nada dan kecepatan (semitone)");
+                const sinfo = el("span", "einfo")
+                  , fit = el("button", "mini", "Fit " + fmtT(Math.max(1, Math.min(3600, +$("oMax").value || 420))));
+                fit.type = "button";
+                fit.title = "Percepat otomatis hanya jika lagu lebih panjang dari batas durasi";
+                fit.onclick = () => {
+                    const mx = Math.max(1, Math.min(3600, +$("oMax").value || 420))
+                      , v = fitSemi(selSecs(it), mx);
+                    if (v === null)
+                        return;
+                    it.semi = v;
+                    if (selSecs(it) / speedOf(it) > mx + 0.5)
+                        toast(false, "Masih terlalu panjang", "Kecepatan maksimum 4× belum cukup. Potong durasi lewat Mulai/Akhir.");
+                    applyPreview(it);
+                    markDirty(it);
+                    sl.value = it.semi
+                }
+                ;
+                const rs = el("button", "mini", "Reset");
+                rs.type = "button";
+                rs.onclick = () => {
+                    it.semi = 0;
+                    sl.value = 0;
+                    applyPreview(it);
+                    markDirty(it)
+                }
+                ;
+                const pos = el("span", "einfo");
+                // MANUAL: ketik semitone atau kecepatan sendiri
+                const mn = el("button", "mini pv" + (it.manual ? " on" : ""), "MANUAL");
+                mn.type = "button";
+                mn.title = "Ketik nilai semitone atau kecepatan sendiri";
+                const man = el("div", "erow eman");
+                man.hidden = !it.manual;
+                const mkNum = (lab, min, max, step, onch) => {
+                    const l = el("label", "einfo", lab)
+                      , i = document.createElement("input");
+                    i.type = "number";
+                    i.min = min;
+                    i.max = max;
+                    i.step = step;
+                    i.inputMode = "decimal";
+                    i.disabled = A.busy;
+                    i.onchange = () => {
+                        const v = +i.value;
+                        if (!isFinite(v))
+                            return;
+                        onch(v);
+                        sl.value = it.semi;
+                        applyPreview(it);
+                        markDirty(it)
+                    }
+                    ;
+                    l.append(i);
+                    man.append(l);
+                    return i
+                }
+                ;
+                const mSemi = mkNum("Semitone (st)", -24, 36, 0.1, v => {
+                    it.semi = Math.max(-24, Math.min(36, Math.round(v * 100) / 100))
+                }
+                )
+                  , mSpeed = mkNum("Kecepatan (×)", 0.25, 8, 0.01, v => {
+                    it.semi = Math.max(-24, Math.min(36, Math.round(12 * Math.log2(Math.max(0.25, Math.min(8, v))) * 100) / 100))
+                }
+                );
+                mn.onclick = () => {
+                    it.manual = !it.manual;
+                    man.hidden = !it.manual;
+                    mn.classList.toggle("on", !!it.manual)
+                }
+                ;
+                r1.append(pv, mn, sl, sinfo, fit, rs, pos);
+                // baris 2: volume + format + convert
+                const r2 = el("div", "erow")
+                  , vl = el("span", "elab", "VOL")
+                  , vinfo = el("span", "einfo")
+                  , vs = slider(0, 100, 1, it.vol, v => {
+                    it.vol = v;
+                    applyPreview(it);
+                    markDirty(it)
+                }
+                );
+                vs.style.maxWidth = "260px";
+                vs.setAttribute("aria-label", "Volume");
+                const fm = el("div", "fmts");
+                ["ogg", "mp3", "wav"].forEach(k => {
+                    const b = el("button", it.fmt === k ? "on" : "", k.toUpperCase());
+                    b.type = "button";
+                    b.disabled = A.busy;
+                    b.onclick = () => {
+                        it.fmt = k;
+                        fm.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+                        markDirty(it)
+                    }
+                    ;
+                    fm.append(b)
+                }
+                );
+                const cv = el("button", "cvt", it.blob ? "CONVERT ULANG" : "CONVERT");
+                cv.type = "button";
+                cv.disabled = A.busy;
+                cv.onclick = () => convertSingle(it);
+                r2.append(vl, vs, vinfo, fm, cv);
+                // aksi hasil
+                const r3 = el("div", "erow")
+                  , dl = el("button", "mini", "↓ Download")
+                  , use = el("button", "mini", "Pakai di form");
+                dl.type = use.type = "button";
+                dl.onclick = () => saveBlob(it.blob, it.out);
+                use.onclick = () => useInForm(it);
+                r3.append(dl, use);
+                it.ui = {
+                    mt,
+                    sinfo,
+                    vinfo,
+                    pos,
+                    fit,
+                    dl,
+                    use,
+                    manSemi: mSemi,
+                    manSpeed: mSpeed
+                };
+                row.append(head, r1, man, r2, r3, licRow(it), trimRow(it));
+                refreshRow(it);
+                return row
+            }
+            function syncButtons() {
+                const conv = A.items.some(i => i.blob);
+                $("aProc").disabled = A.busy || !A.items.some(i => i.state === "wait" || i.state === "err");
+                $("aZip").disabled = A.busy || !conv;
+                $("aUp").disabled = A.busy || !A.items.some(i => i.blob && i.fmt !== "wav")
+            }
             function renderA() {
                 const list = $("aList");
                 list.innerHTML = "";
-                A.items.forEach(it => {
-                    const row = document.createElement("div");
-                    row.className = "arow" + (P.cur === it ? " playing" : "");
-                    const info = document.createElement("div");
-                    info.className = "info";
-                    const nm = document.createElement("div");
-                    nm.className = "nm";
-                    nm.textContent = it.file.name;
-                    const mt = document.createElement("div");
-                    mt.className = "mt" + (it.state === "done" || it.state === "up" ? " ok" : it.state === "err" ? " bad" : "");
-                    mt.textContent = it.msg;
-                    const bar = document.createElement("div");
-                    bar.className = "bar";
-                    const fill = document.createElement("i");
-                    fill.style.width = it.pct + "%";
-                    bar.append(fill);
-                    info.append(nm, mt);
-                    if (it.state === "busy")
-                        info.append(bar);
-                    row.append(info, playBtn(it));
-                    if (it.blob) {
-                        const dl = document.createElement("button");
-                        dl.type = "button";
-                        dl.className = "mini";
-                        dl.textContent = "↓";
-                        dl.title = "Download";
-                        dl.onclick = () => saveBlob(it.blob, it.out);
-                        const use = document.createElement("button");
-                        use.type = "button";
-                        use.className = "mini";
-                        use.textContent = "Pakai di form";
-                        use.onclick = () => useInForm(it);
-                        row.append(dl, use);
-                    }
-                    const rm = document.createElement("button");
-                    rm.type = "button";
-                    rm.className = "mini";
-                    rm.textContent = "✕";
-                    rm.title = "Hapus";
-                    rm.disabled = A.busy;
-                    rm.onclick = () => {
-                        if (P.cur === it)
-                            stopPlayer();
-                        A.items = A.items.filter(x => x !== it);
-                        renderA()
-                    }
-                    ;
-                    row.append(rm, licRow(it), trimRow(it));
-                    list.append(row);
-                }
-                );
-                const any = A.items.length > 0
-                  , conv = A.items.some(i => i.blob);
-                $("aProc").disabled = A.busy || !A.items.some(i => i.state === "wait" || i.state === "err");
-                $("aZip").disabled = A.busy || !conv;
-                $("aUp").disabled = A.busy || !conv;
+                A.items.forEach(it => list.append(buildRow(it)));
+                syncButtons()
             }
             function useInForm(it) {
                 const dt = new DataTransfer();
                 dt.items.add(new File([it.blob],it.out,{
-                    type: "audio/mpeg"
+                    type: it.mime || "audio/mpeg"
                 }));
                 $("file").files = dt.files;
                 $("file").dispatchEvent(new Event("change"));
@@ -1288,12 +1644,83 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     block: "start"
                 });
             }
+            /* --- encoder --- */
+            async function encodeMp3(encData, sr, chs, kbps, it, encLen) {
+                await ensureLame();
+                const to16 = f => {
+                    const o = new Int16Array(f.length);
+                    for (let i = 0; i < f.length; i++) {
+                        const v = Math.max(-1, Math.min(1, f[i]));
+                        o[i] = v < 0 ? v * 0x8000 : v * 0x7FFF
+                    }
+                    return o
+                }
+                ;
+                const L = to16(encData[0])
+                  , R = chs === 2 ? to16(encData[1]) : null;
+                const enc = new lamejs.Mp3Encoder(chs,sr,kbps)
+                  , parts = []
+                  , BLK = 1152;
+                for (let i = 0, k = 0; i < encLen; i += BLK,
+                k++) {
+                    const out = chs === 2 ? enc.encodeBuffer(L.subarray(i, i + BLK), R.subarray(i, i + BLK)) : enc.encodeBuffer(L.subarray(i, i + BLK));
+                    if (out.length)
+                        parts.push(new Uint8Array(out));
+                    if (k % 400 === 0) {
+                        it.pct = 20 + Math.round(75 * i / encLen);
+                        renderA();
+                        await tick()
+                    }
+                }
+                const tail = enc.flush();
+                if (tail.length)
+                    parts.push(new Uint8Array(tail));
+                return new Blob(parts,{
+                    type: "audio/mpeg"
+                })
+            }
+            async function encodeOgg(encData, sr, chs, it, encLen) {
+                if (!window.__oggLib)
+                    window.__oggLib = import("https://cdn.jsdelivr.net/npm/wasm-media-encoders@0.7.0/+esm");
+                let lib;
+                try {
+                    lib = await window.__oggLib
+                } catch {
+                    window.__oggLib = null;
+                    throw new Error("OGG_LOAD")
+                }
+                const enc = await lib.createOggEncoder();
+                enc.configure({
+                    channels: chs,
+                    sampleRate: sr
+                });
+                const parts = []
+                  , BLK = 16384;
+                for (let i = 0, k = 0; i < encLen; i += BLK,
+                k++) {
+                    const out = enc.encode(encData.map(d => d.subarray(i, Math.min(encLen, i + BLK))));
+                    if (out.length)
+                        parts.push(new Uint8Array(out));
+                    if (k % 20 === 0) {
+                        it.pct = 20 + Math.round(75 * i / encLen);
+                        renderA();
+                        await tick()
+                    }
+                }
+                const tail = enc.finalize();
+                if (tail.length)
+                    parts.push(new Uint8Array(tail));
+                return new Blob(parts,{
+                    type: "audio/ogg"
+                })
+            }
             async function convertOne(it) {
                 const norm = $("oNorm").checked
                   , wantMono = $("oMono").checked;
                 const maxSec = Math.max(1, Math.min(3600, +$("oMax").value || 420))
                   , kbps = +$("oKbps").value || 128
-                  , rate = Math.max(0.5, Math.min(2, +$("pRate").value || 1));
+                  , rate = speedOf(it)
+                  , gain = Math.max(0, Math.min(1, it.vol / 100));
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 try {
                     it.msg = "Membaca audio…";
@@ -1361,67 +1788,40 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                                     d[i] *= g
                         }
                     }
-                    // Terapkan playback rate ke sampel audio sebelum encoding agar efeknya permanen di file ekspor.
-                    // Rate > 1 mempercepat dan menaikkan pitch; rate < 1 memperlambat dan menurunkan pitch.
+                    if (gain < 1)
+                        for (const d of data)
+                            for (let i = 0; i < len; i++)
+                                d[i] *= gain;
+                    // Kecepatan & nada diterapkan ke sampel sebelum encoding (rate>1 lebih cepat dan lebih tinggi).
                     const encLen = Math.max(1, Math.floor(len / rate))
-                      , encData = data.map(src => {
-                        if (rate === 1)
-                            return src;
-                        const dst = new Float32Array(encLen);
-                        for (let i = 0; i < encLen; i++) {
-                            const pos = i * rate
-                              , lo = Math.min(len - 1, Math.floor(pos))
-                              , hi = Math.min(len - 1, lo + 1)
-                              , frac = pos - lo;
-                            dst[i] = src[lo] + (src[hi] - src[lo]) * frac;
-                        }
-                        return dst;
-                    }
-                    );
-                    it.msg = "Memuat encoder…";
-                    it.pct = 15;
+                      , encData = data.map(src => resample(src, len, encLen, rate));
+                    it.msg = "Mengonversi…";
+                    it.pct = 20;
                     renderA();
-                    await ensureLame();
-                    const to16 = f => {
-                        const o = new Int16Array(f.length);
-                        for (let i = 0; i < f.length; i++) {
-                            const v = Math.max(-1, Math.min(1, f[i]));
-                            o[i] = v < 0 ? v * 0x8000 : v * 0x7FFF
+                    let fmt = it.fmt, note = "", blob;
+                    if (fmt === "wav")
+                        blob = wavBlob(encData, sr);
+                    else if (fmt === "ogg") {
+                        try {
+                            blob = await encodeOgg(encData, sr, chs, it, encLen)
+                        } catch (e) {
+                            if (e.message !== "OGG_LOAD")
+                                throw e;
+                            fmt = "mp3";
+                            note = " · OGG gagal dimuat, dibuat MP3";
+                            blob = await encodeMp3(encData, sr, chs, kbps, it, encLen)
                         }
-                        return o
-                    }
-                    ;
-                    const L = to16(encData[0])
-                      , R = chs === 2 ? to16(encData[1]) : null;
-                    const enc = new lamejs.Mp3Encoder(chs,sr,kbps)
-                      , parts = []
-                      , BLK = 1152;
-                    it.msg = "Mengonversi MP3 pada kecepatan " + rate + "×…";
-                    for (let i = 0, k = 0; i < encLen; i += BLK,
-                    k++) {
-                        const out = chs === 2 ? enc.encodeBuffer(L.subarray(i, i + BLK), R.subarray(i, i + BLK)) : enc.encodeBuffer(L.subarray(i, i + BLK));
-                        if (out.length)
-                            parts.push(new Uint8Array(out));
-                        if (k % 400 === 0) {
-                            it.pct = 15 + Math.round(80 * i / encLen);
-                            renderA();
-                            await tick()
-                        }
-                    }
-                    const tail = enc.flush();
-                    if (tail.length)
-                        parts.push(new Uint8Array(tail));
-                    const blob = new Blob(parts,{
-                        type: "audio/mpeg"
-                    });
-                    if (blob.size > 20 * 1024 * 1024)
+                    } else
+                        blob = await encodeMp3(encData, sr, chs, kbps, it, encLen);
+                    if (fmt !== "wav" && blob.size > 20 * 1024 * 1024)
                         throw new Error("Hasil " + fmtMB(blob.size) + " melebihi batas 20 MB. Turunkan kualitas, pakai mono, atau perpendek durasi.");
                     it.blob = blob;
-                    it.out = it.file.name.replace(/\.[^.]+$/, "") + ".mp3";
+                    it.mime = FMT[fmt].mime;
+                    it.out = it.file.name.replace(/\.[^.]+$/, "") + "." + FMT[fmt].ext;
                     it.state = "done";
                     it.pct = 100;
                     const dur = encLen / sr;
-                    it.msg = `Siap · ${fmtMB(it.file.size)} → ${fmtMB(blob.size)} · ${Math.floor(dur / 60)}:${String(Math.floor(dur % 60)).padStart(2, "0")} · ekspor ${rate}×${trimmed ? " · dipotong" : ""}`;
+                    it.msg = `Siap · ${fmtMB(it.file.size)} → ${fmtMB(blob.size)} · ${fmtT(dur)} · ${fmt.toUpperCase()}${rate !== 1 ? " · " + rate.toFixed(2) + "×" : ""}${trimmed ? " · dipotong" : ""}${note}`;
                 } catch (e) {
                     it.state = "err";
                     it.blob = null;
@@ -1430,6 +1830,19 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 } finally {
                     ctx.close && ctx.close()
                 }
+            }
+            async function convertSingle(it) {
+                if (A.busy)
+                    return;
+                A.busy = true;
+                it.state = "busy";
+                renderA();
+                await convertOne(it);
+                if (it.state === "busy")
+                    it.state = "err";
+                A.busy = false;
+                renderA();
+                toast(it.state === "done", it.state === "done" ? "Konversi selesai" : "Konversi gagal", it.msg)
             }
             async function procAll() {
                 A.busy = true;
@@ -1457,10 +1870,12 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     const zip = new JSZip()
                       , used = new Set();
                     A.items.filter(i => i.blob).forEach(i => {
+                        const base = i.out.replace(/\.[^.]+$/, "")
+                          , ext = i.out.split(".").pop();
                         let n = i.out
                           , c = 1;
                         while (used.has(n.toLowerCase())) {
-                            n = i.out.replace(/\.mp3$/, "") + ` (${++c}).mp3`
+                            n = base + ` (${++c}).` + ext
                         }
                         used.add(n.toLowerCase());
                         zip.file(n, i.blob)
@@ -1490,7 +1905,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     $("key").focus();
                     return
                 }
-                const bad = A.items.filter(i => i.blob && i.state !== "up" && (!i.lic || ((i.lic === "ccby" || i.lic === "perm") && !i.credit.trim())));
+                const bad = A.items.filter(i => i.blob && i.fmt !== "wav" && i.state !== "up" && (!i.lic || ((i.lic === "ccby" || i.lic === "perm") && !i.credit.trim())));
                 if (bad.length) {
                     toast(false, "Lisensi belum lengkap", "Pilih lisensi untuk tiap file. CC BY dan izin tertulis wajib mengisi sumber/kredit.\nPerlu dicek: " + bad.slice(0, 5).map(i => i.out).join(", "));
                     return
@@ -1506,6 +1921,12 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 for (const it of A.items) {
                     if (!it.blob || it.state === "up")
                         continue;
+                    if (it.fmt === "wav") {
+                        it.msg = "WAV tidak bisa diunggah ke Roblox. Pilih MP3 atau OGG lalu convert ulang.";
+                        fail++;
+                        renderA();
+                        continue
+                    }
                     if (it.blob.size > MAX_UP) {
                         it.state = "done";
                         it.msg = "Dilewati: " + fmtMB(it.blob.size) + " melebihi batas upload sekitar 4 MB. Turunkan kualitas, pakai mono, atau potong durasi lalu proses ulang.";
@@ -1520,7 +1941,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     const d = new FormData();
                     d.append("type", "audio");
                     d.append("file", new File([it.blob],it.out,{
-                        type: "audio/mpeg"
+                        type: it.mime || "audio/mpeg"
                     }));
                     d.append("apiKey", key);
                     d.append("target", $("target").value);
@@ -1531,7 +1952,8 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                         const got = await sendUpload(d, f => {
                             it.pct = Math.round(f * 90);
                             it.msg = f >= 1 ? "Roblox memproses…" : "Mengunggah " + Math.round(f * 100) + "%";
-                            renderA()
+                            if (it.ui && it.ui.mt)
+                                it.ui.mt.textContent = it.msg
                         }
                         );
                         if (got.net)
@@ -1559,7 +1981,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                                 else
                                     it.msg = "Terunggah · Asset ID " + j.assetId + " · " + (MODL[st] || "").toLowerCase();
                                 it.state = st === "rejected" ? "err" : "up";
-                                renderA()
+                                refreshRow(it)
                             }
                             )
                         } else if (r.ok && j.ok && j.pending) {
@@ -1615,136 +2037,8 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 w.append(s, c);
                 return w
             }
-            /* ===== Pemutar ===== */
-            const P = {
-                cur: null,
-                conv: false,
-                url: null,
-                seek: false
-            }
-              , aud = $("pAudio");
-            const fmtT = s => {
-                s = Math.max(0, s || 0);
-                return Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0")
-            }
-            ;
-            function applyRate() {
-                const r = +$("pRate").value;
-                aud.defaultPlaybackRate = r;
-                aud.playbackRate = r;
-                aud.preservesPitch = aud.mozPreservesPitch = aud.webkitPreservesPitch = $("pPitch").checked
-            }
-            function playItem(it, force) {
-                if (!force && P.cur === it && P.conv === !!it.blob && aud.src) {
-                    aud.paused ? aud.play().catch( () => {}
-                    ) : aud.pause();
-                    return
-                }
-                if (P.url)
-                    URL.revokeObjectURL(P.url);
-                P.cur = it;
-                P.conv = !!it.blob;
-                P.url = URL.createObjectURL(it.blob || it.file);
-                aud.src = P.url;
-                applyRate();
-                $("pTitle").textContent = (it.blob ? it.out + " · hasil konversi" : it.file.name + " · file asli");
-                aud.play().catch( () => toast(false, "Tidak bisa diputar", "Browser tidak bisa memutar file ini."));
-                renderA();
-            }
-            function stopPlayer() {
-                aud.pause();
-                aud.removeAttribute("src");
-                aud.load();
-                if (P.url)
-                    URL.revokeObjectURL(P.url);
-                P.url = null;
-                P.cur = null;
-                $("pTitle").textContent = "Tekan ▶ pada file di daftar untuk memutar";
-                $("pSeek").value = 0;
-                $("pTime").textContent = "0:00 / 0:00";
-                $("pPlay").textContent = "▶"
-            }
-            function stepPlayer(d) {
-                const l = A.items;
-                if (!l.length)
-                    return;
-                const i = l.indexOf(P.cur);
-                playItem(l[((i < 0 ? (d > 0 ? -1 : 0) : i) + d + l.length) % l.length], true)
-            }
-            function playBtn(it) {
-                const b = document.createElement("button");
-                b.type = "button";
-                b.className = "mini";
-                const on = P.cur === it && !aud.paused;
-                b.textContent = on ? "❚❚" : "▶";
-                b.title = on ? "Jeda" : "Putar";
-                b.onclick = () => playItem(it);
-                return b
-            }
-            $("pPlay").onclick = () => {
-                if (P.cur)
-                    aud.paused ? aud.play().catch( () => {}
-                    ) : aud.pause();
-                else if (A.items[0])
-                    playItem(A.items[0], true)
-            }
-            ;
-            $("pPrev").onclick = () => stepPlayer(-1);
-            $("pNext").onclick = () => stepPlayer(1);
-            $("pVol").oninput = () => {
-                aud.volume = $("pVol").value / 100
-            }
-            ;
-            $("pRate").onchange = applyRate;
-            $("pPitch").onchange = applyRate;
-            $("pLoop").onclick = () => {
-                aud.loop = !aud.loop;
-                $("pLoop").classList.toggle("on", aud.loop)
-            }
-            ;
-            $("pSeek").addEventListener("input", () => {
-                P.seek = true;
-                if (aud.duration)
-                    aud.currentTime = $("pSeek").value / 1000 * aud.duration
-            }
-            );
-            ["change", "pointerup", "keyup"].forEach(ev => $("pSeek").addEventListener(ev, () => {
-                P.seek = false
-            }
-            ));
-            aud.addEventListener("timeupdate", () => {
-                if (!P.seek && aud.duration)
-                    $("pSeek").value = Math.round(aud.currentTime / aud.duration * 1000);
-                $("pTime").textContent = fmtT(aud.currentTime) + " / " + fmtT(aud.duration)
-            }
-            );
-            aud.addEventListener("loadedmetadata", () => {
-                $("pTime").textContent = "0:00 / " + fmtT(aud.duration)
-            }
-            );
-            aud.addEventListener("play", () => {
-                $("pPlay").textContent = "❚❚";
-                renderA()
-            }
-            );
-            aud.addEventListener("pause", () => {
-                $("pPlay").textContent = "▶";
-                renderA()
-            }
-            );
-            aud.addEventListener("ended", () => {
-                if ($("pAuto").checked && A.items.indexOf(P.cur) < A.items.length - 1)
-                    stepPlayer(1)
-            }
-            );
             function dirty(it) {
-                if (it.blob || it.state === "done" || it.state === "up") {
-                    it.blob = null;
-                    it.state = "wait";
-                    it.pct = 0;
-                    it.msg = "Pengaturan diubah · proses ulang"
-                }
-                renderA()
+                markDirty(it)
             }
             function trimRow(it) {
                 const w = document.createElement("div");
@@ -1760,7 +2054,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     i.value = it[k] || 0;
                     i.onchange = () => {
                         it[k] = Math.max(0, +i.value || 0);
-                        dirty(it)
+                        markDirty(it)
                     }
                     ;
                     l.append(i);
@@ -1772,14 +2066,15 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     b.type = "button";
                     b.className = "mini";
                     b.textContent = t;
-                    b.title = "Ambil dari posisi pemutar";
+                    b.title = "Ambil dari posisi pratinjau";
                     b.onclick = () => {
-                        if (P.cur !== it || P.conv) {
-                            toast(false, "Putar file asli dulu", "Tekan ▶ pada file ini sebelum diproses, lalu tekan tombol ini di posisi yang diinginkan.");
+                        if (P.cur !== it) {
+                            toast(false, "Putar dulu", "Tekan PREVIEW pada file ini, lalu tekan tombol ini di posisi yang diinginkan.");
                             return
                         }
                         it[k] = +aud.currentTime.toFixed(2);
-                        dirty(it)
+                        renderA();
+                        markDirty(it)
                     }
                     ;
                     w.append(b)
@@ -1787,22 +2082,6 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 );
                 return w
             }
-            $("pSec").onclick = () => {
-                P.sec = !P.sec;
-                $("pSec").classList.toggle("on", P.sec);
-                if (P.sec && P.cur && !P.conv && aud.currentTime < (P.cur.start || 0))
-                    aud.currentTime = P.cur.start || 0
-            }
-            ;
-            aud.addEventListener("timeupdate", () => {
-                if (P.sec && P.cur && !P.conv) {
-                    const a = P.cur.start || 0
-                      , b = P.cur.end > 0 ? P.cur.end : aud.duration;
-                    if (b > a && aud.currentTime >= b)
-                        aud.currentTime = a
-                }
-            }
-            );
             /* ===== Perpustakaan ID ===== */
             const CATS = ["DJ Remix", "Pop Punk", "Pop Sad", "Tradisional", "Funkot", "Dustep", "Dangdut", "Melayu", "Dugem", "Koplo", "Joget", "Pargoy", "Remix", "Pop"].sort( (a, b) => b.length - a.length);
             const lbGet = () => {
@@ -2048,6 +2327,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     addAudio(e.dataTransfer.files)
             }
             );
+            $("oMax").addEventListener("change", () => renderA());
             $("aProc").onclick = procAll;
             $("aZip").onclick = zipAll;
             $("aUp").onclick = uploadAll;
