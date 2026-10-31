@@ -115,7 +115,7 @@ input:disabled{opacity:.5;cursor:not-allowed}
 @media (max-width:860px){.grid{grid-template-columns:1fr}.top span{display:none}}
 @media (max-width:520px){.row2{grid-template-columns:1fr}.item{flex-wrap:wrap}.acts{width:100%}.acts .btn{flex:1;justify-content:center}}
 </style>
-</head>
+<style>html[data-dt] body>*:not(#dtGuard){display:none!important}#dtGuard{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:24px;text-align:center;background:#060608;color:#f6f6f8;font:700 18px/1.5 system-ui,sans-serif}html[data-dt] #dtGuard{display:flex}</style></head>
 <body>
 <div class="wrap">
 
@@ -626,6 +626,24 @@ input:disabled{opacity:.5;cursor:not-allowed}
   });
 
   boot();
+})();
+</script>
+<script>(function(){
+  var open=false;
+  function stop(e){e.preventDefault();e.stopPropagation();return false}
+  document.addEventListener("contextmenu",function(e){var t=e.target;if(t&&t.closest&&t.closest("input,textarea"))return;stop(e)},true);
+  document.addEventListener("keydown",function(e){
+    var c=e.ctrlKey||e.metaKey,k=e.code;
+    if(e.keyCode===123||k==="F12"||(c&&e.shiftKey&&(k==="KeyI"||k==="KeyJ"||k==="KeyC"||k==="KeyK"))||(c&&(k==="KeyU"||k==="KeyS"))||(e.metaKey&&e.altKey&&(k==="KeyI"||k==="KeyJ"||k==="KeyC"||k==="KeyU")))stop(e);
+  },true);
+  document.addEventListener("dragstart",function(e){if(e.target&&e.target.tagName==="IMG")e.preventDefault()});
+  var g=document.createElement("div");g.id="dtGuard";g.textContent="Developer tools terdeteksi. Tutup developer tools untuk melanjutkan.";document.body.appendChild(g);
+  function tick(){
+    var t=performance.now();debugger;
+    var hit=performance.now()-t>120;
+    if(hit!==open){open=hit;document.documentElement.toggleAttribute("data-dt",hit)}
+  }
+  setInterval(tick,1000);
 })();
 </script>
 </body>
