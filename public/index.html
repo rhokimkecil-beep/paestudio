@@ -233,12 +233,14 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
 .hist-head{display:flex;align-items:center;gap:10px}
 .textbtn{border:1px solid var(--line2);background:transparent;color:var(--silver);font-size:12px;font-weight:700;padding:7px 14px;border-radius:999px}
 .textbtn:hover{border-color:var(--bad);color:var(--bad)}
-#historyList{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+#historyList{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
 .historyitem{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--gloss);min-width:0}
 .miniicon{width:40px;height:40px;flex:none;display:grid;place-items:center;border-radius:12px;background:var(--white);color:#111;font-size:18px}
 .historyname{font:700 14px var(--head);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.historymeta{font-size:11px;color:var(--mut);margin-top:2px}
-.historyitem .historybtn{margin-left:auto}
+.historymeta{font-size:11px;color:var(--mut);margin-top:2px;overflow-wrap:anywhere}
+.historyitem{flex-wrap:wrap}
+.hactions{flex:1 0 100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-left:52px}
+.historyitem .historybadge{padding:6px 14px}
 .modb{flex:none;font-size:10.5px;font-weight:800;padding:4px 9px;border-radius:999px;background:#ffffff14;color:var(--mut)}
 .modb.approved{background:#5eead433;color:var(--ok)}
 .modb.rejected{background:#ff7a9c33;color:var(--bad)}
@@ -827,10 +829,14 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                         ck.textContent = "Cek moderasi"
                     }
                     ;
+                    body.style.flex = "1";
+                    const acts = document.createElement("div");
+                    acts.className = "hactions";
                     if (item.assetId)
-                        row.append(icon, body, mb, ck, cp, link);
+                        acts.append(mb, ck, cp, link);
                     else
-                        row.append(icon, body, cp, link);
+                        acts.append(cp, link);
+                    row.append(icon, body, acts);
                     list.append(row)
                 }
                 );
