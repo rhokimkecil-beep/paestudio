@@ -104,6 +104,14 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 input:disabled{opacity:.5;cursor:not-allowed}
 .empty{padding:28px;border:1.5px dashed var(--line2);border-radius:16px;text-align:center;color:var(--dim);font-size:13px}
 
+.pill.pro{background:var(--btn);color:#fff}
+.pill.wait{background:#ffcf5a22;color:#ffcf5a}
+.pill.none{background:#ffffff14;color:var(--mut)}
+.av{width:44px;height:44px;border-radius:50%;flex:none;background:#26262e;overflow:hidden;display:grid;place-items:center;color:var(--dim);font-size:11px;border:1px solid var(--line2)}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.srow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.srow input{flex:1;min-width:160px}
+.tabs{margin-top:18px}
 @media (max-width:860px){.grid{grid-template-columns:1fr}.top span{display:none}}
 @media (max-width:520px){.row2{grid-template-columns:1fr}.item{flex-wrap:wrap}.acts{width:100%}.acts .btn{flex:1;justify-content:center}}
 </style>
@@ -138,7 +146,12 @@ input:disabled{opacity:.5;cursor:not-allowed}
   <!-- DASHBOARD -->
   <div id="dash" hidden>
     <div id="dbWarn" class="msg warn" hidden style="margin-top:18px"></div>
-    <div class="grid">
+    <div class="seg tabs" id="paneSeg" role="group" aria-label="Bagian admin">
+      <button type="button" data-p="products" aria-pressed="true">Produk</button>
+      <button type="button" data-p="premium" aria-pressed="false">Premium</button>
+    </div>
+
+    <div class="grid" id="paneProducts">
 
       <section class="card" style="margin-top:18px">
         <h2 id="formTitle">Tambah produk</h2>
@@ -185,6 +198,52 @@ input:disabled{opacity:.5;cursor:not-allowed}
           <button type="button" data-f="paid" aria-pressed="false">Berbayar</button>
         </div>
         <div class="list" id="list"></div>
+      </section>
+    </div>
+
+    <!-- PREMIUM -->
+    <div class="grid" id="panePremium" hidden>
+      <section class="card" style="margin-top:18px">
+        <h2>Set premium</h2>
+        <p class="sub">Beri akses premium ke pengguna Discord. Selama aktif, batas 7 upload / 24 jam tidak berlaku untuknya.</p>
+        <form id="gf">
+          <div class="field"><label for="gId">Discord ID</label>
+            <input id="gId" type="text" inputmode="numeric" maxlength="25" required placeholder="123456789012345678" autocomplete="off"/>
+            <div class="note">Pengguna bisa menyalin ID-nya di tab Premium situs. Atau klik "Pilih" pada daftar di sebelah.</div>
+          </div>
+          <div class="row2">
+            <div class="field"><label for="gDays">Jumlah hari</label><input id="gDays" type="number" min="1" max="3650" step="1" required value="30" inputmode="numeric"/></div>
+            <div class="field"><label for="gMode">Cara</label>
+              <select id="gMode">
+                <option value="extend">Tambah sisa</option>
+                <option value="set">Dari sekarang</option>
+              </select>
+            </div>
+          </div>
+          <div class="seg" id="quick" role="group" aria-label="Pilihan cepat hari">
+            <button type="button" data-d="7">7 hari</button>
+            <button type="button" data-d="30">30 hari</button>
+            <button type="button" data-d="90">90 hari</button>
+            <button type="button" data-d="365">365 hari</button>
+          </div>
+          <div class="pricehint" id="gHint"></div>
+          <div id="gMsg" class="msg" hidden></div>
+          <button class="btn violet full" id="gBtn" type="submit">Aktifkan premium</button>
+        </form>
+      </section>
+
+      <section class="card" style="margin-top:18px">
+        <h2>Pengguna <small id="uCount" style="color:var(--dim);font-weight:500"></small></h2>
+        <div class="srow">
+          <input id="uQ" type="text" placeholder="Cari nama atau Discord ID…" aria-label="Cari pengguna" autocomplete="off"/>
+        </div>
+        <div class="seg" id="uSeg" role="group" aria-label="Filter pengguna">
+          <button type="button" data-u="all" aria-pressed="true">Semua</button>
+          <button type="button" data-u="pro" aria-pressed="false">Premium</button>
+          <button type="button" data-u="free" aria-pressed="false">Gratis</button>
+        </div>
+        <div class="list" id="uList"></div>
+        <div class="note">Daftar berisi orang yang pernah login Discord, atau yang ID-nya kamu beri premium lebih dulu.</div>
       </section>
     </div>
   </div>
@@ -260,7 +319,7 @@ input:disabled{opacity:.5;cursor:not-allowed}
   });
   $("logout").addEventListener("click", async function () {
     try { await api("DELETE", "/api/auth"); } catch (e) {}
-    status.admin = false; products = []; resetForm(); showLogin();
+    status.admin = false; products = []; users = []; resetForm(); showLogin();
   });
 
   /* ---------- daftar ---------- */
@@ -453,6 +512,117 @@ input:disabled{opacity:.5;cursor:not-allowed}
     } catch (err) {
       say($("formMsg"), err.message, "err");
     } finally { $("saveBtn").disabled = false; }
+  });
+
+  /* ---------- tab Produk / Premium ---------- */
+  var users = [], uFilter = "all", uQuery = "";
+  function fmtD(t) { return new Date(t).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }); }
+  function dLeft(t) { return Math.max(1, Math.ceil((t - Date.now()) / 86400000)); }
+  function uName(u) { return u.registered ? u.name : "Belum pernah login"; }
+
+  $("paneSeg").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-p]");
+    if (!b) return;
+    Array.prototype.forEach.call($("paneSeg").children, function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    show($("paneProducts"), b.dataset.p === "products");
+    show($("panePremium"), b.dataset.p === "premium");
+    if (b.dataset.p === "premium") loadUsers();
+  });
+
+  async function loadUsers() {
+    try {
+      var j = await api("GET", "/api/users");
+      users = j.users || [];
+      renderUsers(); updateGHint();
+    } catch (e) { say($("gMsg"), e.message, "err"); }
+  }
+
+  function renderUsers() {
+    var box = $("uList");
+    box.textContent = "";
+    var nPro = users.filter(function (u) { return u.premium; }).length;
+    $("uCount").textContent = users.length ? "(" + users.length + " · " + nPro + " premium)" : "";
+    var q = uQuery.toLowerCase();
+    var shown = users.filter(function (u) {
+      if (uFilter === "pro" && !u.premium) return false;
+      if (uFilter === "free" && u.premium) return false;
+      return !q || (u.name + " " + u.username + " " + u.id).toLowerCase().indexOf(q) !== -1;
+    });
+    if (!shown.length) {
+      var d = document.createElement("div"); d.className = "empty";
+      d.textContent = users.length ? "Tidak ada pengguna yang cocok." : "Belum ada pengguna. Mereka muncul di sini setelah login Discord di situs.";
+      box.appendChild(d); return;
+    }
+    shown.forEach(function (u) {
+      var it = document.createElement("div"); it.className = "item";
+      var av = document.createElement("div"); av.className = "av";
+      if (u.registered && u.avatar) { var im = document.createElement("img"); im.src = u.avatar; im.alt = ""; im.loading = "lazy"; av.appendChild(im); }
+      else av.textContent = "?";
+      var meta = document.createElement("div"); meta.className = "meta";
+      var b = document.createElement("b"); b.textContent = uName(u);
+      var pill = document.createElement("span");
+      if (u.premium) { pill.className = "pill pro"; pill.textContent = "PREMIUM"; }
+      else if (!u.registered) { pill.className = "pill wait"; pill.textContent = "MENUNGGU LOGIN"; }
+      else { pill.className = "pill none"; pill.textContent = "GRATIS"; }
+      var s = document.createElement("small");
+      s.textContent = u.id + (u.premium ? " · sampai " + fmtD(u.premiumUntil) + " (sisa " + dLeft(u.premiumUntil) + " hari)" : "");
+      meta.append(b, pill, s);
+      var acts = document.createElement("div"); acts.className = "acts";
+      var pick = document.createElement("button"); pick.type = "button"; pick.className = "btn sm"; pick.textContent = "Pilih";
+      pick.onclick = function () { $("gId").value = u.id; updateGHint(); $("gDays").focus(); };
+      acts.appendChild(pick);
+      if (u.premium) {
+        var rv = document.createElement("button"); rv.type = "button"; rv.className = "btn sm danger"; rv.textContent = "Cabut";
+        rv.onclick = function () { revoke(u, rv); };
+        acts.appendChild(rv);
+      }
+      it.append(av, meta, acts);
+      box.appendChild(it);
+    });
+  }
+
+  async function revoke(u, btn) {
+    if (!confirm("Cabut premium " + uName(u) + " (" + u.id + ")? Dia kembali ke batas 7 upload / 24 jam.")) return;
+    btn.disabled = true;
+    try { await api("DELETE", "/api/users?id=" + encodeURIComponent(u.id)); await loadUsers(); }
+    catch (e) { alert(e.message); btn.disabled = false; }
+  }
+
+  function updateGHint() {
+    var id = $("gId").value.trim(), days = Math.floor(Number($("gDays").value));
+    if (!/^\d{15,25}$/.test(id) || !(days >= 1)) { $("gHint").textContent = ""; return; }
+    var u = users.filter(function (x) { return x.id === id; })[0];
+    var base = $("gMode").value === "extend" && u && u.premiumUntil > Date.now() ? u.premiumUntil : Date.now();
+    $("gHint").textContent = (u ? uName(u) + " · " : "") + "Premium sampai " + fmtD(base + days * 86400000);
+  }
+  ["gId", "gDays"].forEach(function (id) { $(id).addEventListener("input", updateGHint); });
+  $("gMode").addEventListener("change", updateGHint);
+  $("quick").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-d]");
+    if (!b) return;
+    $("gDays").value = b.dataset.d; updateGHint();
+  });
+  $("uQ").addEventListener("input", function () { uQuery = $("uQ").value.trim(); renderUsers(); });
+  $("uSeg").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-u]");
+    if (!b) return;
+    uFilter = b.dataset.u;
+    Array.prototype.forEach.call($("uSeg").children, function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    renderUsers();
+  });
+
+  $("gf").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    say($("gMsg"), "");
+    $("gBtn").disabled = true;
+    try {
+      var j = await api("POST", "/api/users", { id: $("gId").value.trim(), days: Number($("gDays").value), mode: $("gMode").value });
+      var msg = "Premium aktif untuk " + uName(j.user) + " sampai " + fmtD(j.user.premiumUntil) + " (sisa " + dLeft(j.user.premiumUntil) + " hari).";
+      await loadUsers();
+      say($("gMsg"), msg, "ok");
+    } catch (err) {
+      say($("gMsg"), err.message, "err");
+    } finally { $("gBtn").disabled = false; }
   });
 
   boot();
