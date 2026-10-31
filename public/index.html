@@ -1333,13 +1333,21 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
             /* --- pratinjau: memutar file asli dengan kecepatan/nada & volume yang dipilih --- */
             const P = {
                 cur: null,
-                url: null
+                url: null,
+                mode: "orig"
             }
               , aud = new Audio();
             aud.preload = "metadata";
+            // mode "orig": lagu asli apa adanya. mode "fx": sesuai pengaturan (kecepatan/nada, volume, potong).
             function applyPreview(it) {
                 if (P.cur !== it)
                     return;
+                if (P.mode === "orig") {
+                    aud.preservesPitch = aud.mozPreservesPitch = aud.webkitPreservesPitch = true;
+                    aud.playbackRate = 1;
+                    aud.volume = 1;
+                    return
+                }
                 aud.preservesPitch = aud.mozPreservesPitch = aud.webkitPreservesPitch = false;
                 aud.playbackRate = Math.max(0.25, Math.min(4, speedOf(it)));
                 aud.volume = Math.max(0, Math.min(1, it.vol / 100))
@@ -1353,19 +1361,21 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 P.url = null;
                 P.cur = null
             }
-            function previewItem(it) {
-                if (P.cur === it) {
+            function previewItem(it, mode) {
+                mode = mode || "fx";
+                if (P.cur === it && P.mode === mode) {
                     aud.paused ? aud.play().catch( () => {}
                     ) : aud.pause();
                     return
                 }
                 stopPreview();
                 P.cur = it;
+                P.mode = mode;
                 P.url = URL.createObjectURL(it.file);
                 aud.src = P.url;
                 aud.addEventListener("loadedmetadata", function once() {
                     aud.removeEventListener("loadedmetadata", once);
-                    if (it.start > 0 && it.start < aud.duration)
+                    if (mode === "fx" && it.start > 0 && it.start < aud.duration)
                         aud.currentTime = it.start
                 }
                 );
@@ -1393,7 +1403,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 const it = P.cur;
                 if (!it)
                     return;
-                if (it.end > 0 && aud.currentTime >= it.end) {
+                if (P.mode === "fx" && it.end > 0 && aud.currentTime >= it.end) {
                     aud.pause();
                     aud.currentTime = it.start || 0
                 }
@@ -1483,9 +1493,13 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 head.append(info, rm);
                 // baris 1: preview + nada/kecepatan
                 const r1 = el("div", "erow")
-                  , pv = el("button", "mini pv", P.cur === it && !aud.paused ? "❚❚ PREVIEW" : "▶ PREVIEW");
-                pv.type = "button";
-                pv.onclick = () => previewItem(it);
+                  , pl = el("button", "mini pv", P.cur === it && P.mode === "orig" && !aud.paused ? "❚❚ PLAY" : "▶ PLAY")
+                  , pv = el("button", "mini pv", P.cur === it && P.mode === "fx" && !aud.paused ? "❚❚ PREVIEW" : "▶ PREVIEW");
+                pl.type = pv.type = "button";
+                pl.title = "Putar lagu asli, tidak terpengaruh pengaturan";
+                pv.title = "Dengarkan hasil sesuai pengaturan kecepatan/nada dan volume";
+                pl.onclick = () => previewItem(it, "orig");
+                pv.onclick = () => previewItem(it, "fx");
                 const sl = slider(-12, 24, 0.1, it.semi || 0, v => {
                     it.semi = v;
                     applyPreview(it);
@@ -1564,7 +1578,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     mn.classList.toggle("on", !!it.manual)
                 }
                 ;
-                r1.append(pv, mn, sl, sinfo, fit, rs, pos);
+                r1.append(pl, pv, mn, sl, sinfo, fit, rs, pos);
                 // baris 2: volume + format + convert
                 const r2 = el("div", "erow")
                   , vl = el("span", "elab", "VOL")
