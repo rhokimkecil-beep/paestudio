@@ -2,410 +2,2124 @@
 <html lang="id">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<meta name="robots" content="noindex,nofollow"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="theme-color" content="#060608"/>
-<title>Admin · PaeSTUDIO</title>
+<meta name="description" content="PaeSTUDIO — upload decal, audio, dan model ke Roblox, plus konverter audio di browser."/>
+<title>PaeSTUDIO · Roblox Asset Toolkit</title>
 <link rel="icon" type="image/png" href="favicon.png"/>
+<link rel="preload" as="image" href="logo.webp" type="image/webp"/>
 <style>
 :root{
   color-scheme:dark;
-  --ink:#060608;--field:#0b0b0e;--line:#2c2c34;--line2:#474752;
-  --txt:#f6f6f8;--mut:#adadb9;--dim:#7d7d8a;--silver:#e4e4ec;
-  --violet:#a855f7;--ok:#5eead4;--bad:#ff7a9c;
+  --ink:#060608; --field:#0b0b0e; --line:#2c2c34; --line2:#474752;
+  --txt:#f6f6f8; --mut:#adadb9; --dim:#7d7d8a; --silver:#e4e4ec;
+  --violet:#a855f7; --violet2:#7c3aed; --pink:#ff6fd8; --gold:#ffcf5a; --ok:#5eead4; --bad:#ff7a9c;
   --gloss:linear-gradient(180deg,#27272e 0%,#19191e 42%,#111115 100%);
-  --white:linear-gradient(180deg,#fff,#cfcfd8);
   --btn:linear-gradient(100deg,#7c3aed,#c026d3);
+  --white:linear-gradient(180deg,#ffffff,#cfcfd8);
+  --r:20px;
   --head:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
   --body:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 }
 *{box-sizing:border-box}
-html{background:var(--ink)}
+html{scroll-behavior:smooth;scroll-padding-top:90px;background:var(--ink)}
 body{margin:0;min-height:100vh;color:var(--txt);font:15px/1.55 var(--body)}
-body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background:linear-gradient(118deg,transparent 0 28%,#ffffff17 41%,#ffffff06 50%,transparent 61%),
-  linear-gradient(155deg,#060608 0%,#16161b 30%,#3a3a43 52%,#15151b 72%,#060608 100%)}
+/* Latar hitam-putih mengkilap yang bergerak pelan: dua layer fixed tanpa blur/mask (ringan untuk GPU) */
+body:before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:linear-gradient(125deg,#060608 0%,#16161b 14%,#4a4a54 28%,#d9d9e3 38%,#5a5a64 46%,#15151b 60%,#060608 72%,#33333b 86%,#060608 100%);
+  background-size:320% 320%;animation:pae-flow 18s ease-in-out infinite alternate;
+}
+body:after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(115deg,transparent 38%,#ffffff22 50%,transparent 62%);
+  background-size:260% 100%;animation:pae-shine 9s linear infinite;
+}
+@keyframes pae-flow{0%{background-position:0% 30%}100%{background-position:100% 70%}}
+@keyframes pae-shine{0%{background-position:140% 0}100%{background-position:-40% 0}}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
-[hidden]{display:none!important}
-.wrap{max-width:1040px;margin:0 auto;padding:20px 18px 60px}
+a{color:var(--silver)}
+.ico{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 40px}
 
-.top{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--line2);border-radius:999px;background:#121216;box-shadow:inset 0 1px 0 #ffffff14}
-.top img{width:32px;height:32px;object-fit:contain}
-.top b{font:800 17px var(--head);letter-spacing:-.02em}
-.top span{color:var(--dim);font-size:13px}
-.top .sp{flex:1}
-.btn{border:1px solid var(--line2);background:#ffffff0d;color:var(--txt);border-radius:12px;padding:10px 16px;font-weight:700;font-size:13.5px;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
-.btn:hover:not(:disabled){border-color:#fff}
+/* NAV */
+.nav{
+  position:sticky;top:12px;z-index:20;margin:12px auto 0;max-width:1180px;width:calc(100% - 28px);
+  display:flex;align-items:center;gap:14px;padding:8px 10px 8px 14px;border-radius:999px;
+  background:#121216;border:1px solid var(--line2);box-shadow:inset 0 1px 0 #ffffff14
+}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--txt);flex:none}
+.mark img{width:32px;height:32px;object-fit:contain}
+.mark span{font:800 18px/1 var(--head);letter-spacing:-.02em}
+.mark b{background:linear-gradient(90deg,#fff,#b9a2ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.links{display:flex;gap:4px;margin:0 auto;overflow-x:auto;scrollbar-width:none}
+.links::-webkit-scrollbar{display:none}
+.links button{border:0;background:transparent;color:var(--mut);padding:9px 14px;border-radius:999px;font-weight:600;font-size:13.5px;white-space:nowrap}
+.links button:hover{color:#fff;background:#ffffff12}
+.links button.active{color:#111;background:var(--white)}
+.live{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--mut);padding:7px 12px;border-radius:999px;border:1px solid var(--line);flex:none}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+
+/* HERO */
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:20px;align-items:center;padding:52px 0 30px}
+.kicker{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.kicker:before{content:"";width:26px;height:2px;background:var(--gold);border-radius:2px}
+.hero h1{margin:0 0 14px;font:800 clamp(46px,7.4vw,92px)/.95 var(--head);letter-spacing:-.045em}
+.hero h1 em{font-style:normal;display:block;background:linear-gradient(95deg,#fff 0%,#dcdce6 50%,#b9a2ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{margin:0 0 24px;max-width:46ch;color:var(--mut);font-size:16.5px}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px}
+.btn{display:inline-flex;align-items:center;gap:9px;border-radius:14px;padding:13px 20px;font-weight:700;font-size:14.5px;border:1px solid var(--line2);background:#ffffff0a;color:var(--txt);transition:transform .15s,border-color .15s}
+.btn:hover{transform:translateY(-2px);border-color:#fff}
 .btn.solid{border:0;background:var(--white);color:#111}
-.btn.violet{border:0;background:var(--btn);color:#fff}
-.btn.danger:hover:not(:disabled){border-color:var(--bad);color:var(--bad)}
-.btn:disabled{opacity:.5;cursor:wait}
-.btn.sm{padding:7px 12px;font-size:12.5px;border-radius:10px}
+.stats{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:0;padding:0}
+.stats li{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mut);padding:7px 12px;border-radius:10px;background:#ffffff0a;border:1px solid var(--line)}
+.stats strong{color:var(--txt);font-weight:600}
+.hero-art{display:grid;place-items:center;min-height:300px;background:radial-gradient(closest-side,#ffffff1c,#a855f722 45%,transparent 72%)}
+.hero-art img{width:min(100%,540px);height:auto;display:block}
 
-.card{margin-top:18px;padding:24px;border:1px solid var(--line);border-radius:22px;background:var(--gloss);box-shadow:inset 0 1px 0 #ffffff16,0 8px 24px #0006}
-h1,h2{margin:0;font-family:var(--head);letter-spacing:-.02em}
-h2{font-size:20px}
-.sub{margin:4px 0 0;color:var(--mut);font-size:13.5px}
+/* HEADINGS */
+.sh{display:flex;align-items:end;justify-content:space-between;gap:14px;margin:36px 0 14px}
+.sh h2{margin:0;font:800 26px/1.1 var(--head);letter-spacing:-.025em}
+.sh p{margin:4px 0 0;color:var(--mut);font-size:14px}
+.sh .tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:700}
 
-.login{max-width:420px;margin:60px auto 0}
-.login .logo{display:block;width:150px;margin:0 auto 14px}
-.field{margin-top:14px}
-.field>label{display:block;margin-bottom:6px;color:var(--silver);font-size:12.5px;font-weight:700}
-input[type=text],input[type=password],input[type=number],input[type=url],select,textarea{
-  width:100%;padding:12px 14px;border-radius:12px;outline:none;background:var(--field);border:1px solid var(--line);color:var(--txt)}
+/* PRODUK */
+.ptabs{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}
+.ptabs::-webkit-scrollbar{display:none}
+.ptab{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);background:#ffffff0a;color:var(--mut);padding:10px 16px;border-radius:999px;font-weight:700;font-size:13.5px;white-space:nowrap}
+.ptab:hover{color:#fff;border-color:#fff}
+.ptab small{font-size:11px;padding:1px 7px;border-radius:999px;background:#ffffff14;color:var(--mut)}
+.ptab[aria-selected="true"]{background:var(--white);color:#111;border-color:#fff}
+.ptab[aria-selected="true"] small{background:#0000001f;color:#222}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:14px}
+.prod{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--gloss);box-shadow:inset 0 1px 0 #ffffff14}
+.prod-img{position:relative;aspect-ratio:16/10;display:grid;place-items:center;color:#fff;background:var(--pi,linear-gradient(135deg,#7c3aed,#c026d3))}
+.prod-img:after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,#ffffff38,transparent 46%)}
+.prod-img .ico{position:relative;z-index:1;width:44px;height:44px;stroke-width:1.5}
+.prod-badge{position:absolute;z-index:1;left:12px;top:12px;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:999px;background:#000000b3;color:#fff}
+.prod-body{display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px;flex:1}
+.prod-cat{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.prod-name{font:700 16px/1.25 var(--head)}
+.prod-desc{margin:0;color:var(--mut);font-size:13px;flex:1}
+.prod-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px}
+.prod-price{font:800 16px var(--head)}
+.prod-btn{border-radius:10px;padding:8px 14px;font-weight:700;font-size:12.5px;text-decoration:none;background:var(--white);color:#111}
+.prod-btn:hover{filter:brightness(.92)}
+.pbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:2px 0 10px}
+.seg{display:inline-flex;padding:4px;gap:4px;border-radius:999px;border:1px solid var(--line2);background:#121216}
+.seg button{border:0;background:transparent;color:var(--mut);padding:9px 18px;border-radius:999px;font-weight:800;font-size:13.5px;white-space:nowrap}
+.seg button:hover{color:#fff}
+.seg button[aria-selected="true"]{background:var(--white);color:#111}
+.seg button small{margin-left:6px;font-size:11px;opacity:.7}
+.pbar .grow{flex:1 1 200px;min-width:160px}
+.pbar select{width:auto;min-width:170px}
+.prod-badge.free{background:#0f766e;color:#ecfeff}
+.prod-badge.tagb{left:auto;right:12px}
+.prod-btn.free{background:linear-gradient(100deg,#2dd4bf,#5eead4);color:#04201c}
+.prod-price.free{color:var(--ok)}
+.pm-mesh{--pi:linear-gradient(135deg,#7c3aed,#c026d3)}
+.pm-decal{--pi:linear-gradient(135deg,#14b8a6,#0e7490)}
+.pm-audio{--pi:linear-gradient(135deg,#f59e0b,#ea580c)}
+.pm-model{--pi:linear-gradient(135deg,#3b82f6,#6d28d9)}
+
+/* TOOL CARDS (bento) */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.tool{
+  position:relative;overflow:hidden;text-align:left;border-radius:var(--r);padding:20px;min-height:170px;
+  display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);color:var(--txt);
+  background:var(--gloss);box-shadow:inset 0 1px 0 #ffffff14;grid-column:span 2;
+  transition:transform .15s,border-color .15s
+}
+.tool:before{content:"";position:absolute;right:-50px;top:-50px;width:190px;height:190px;border-radius:50%;background:radial-gradient(closest-side,var(--glow,#a855f7),transparent);opacity:.22}
+.tool:hover{transform:translateY(-3px);border-color:#fff}
+.tool.active{border-color:#fff;box-shadow:inset 0 1px 0 #ffffff22,0 0 0 1px #ffffff55}
+.tool.big{grid-column:span 3;grid-row:span 2;min-height:360px;justify-content:flex-end}
+.tool.wide{grid-column:span 3}
+.t-ico{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:var(--ic,linear-gradient(135deg,#7c3aed,#c026d3));color:#fff;font-size:22px;margin-bottom:auto}
+.tool.big .t-ico{width:62px;height:62px;border-radius:18px;font-size:30px}
+.tool strong{font:700 18px/1.2 var(--head);letter-spacing:-.01em}
+.tool.big strong{font-size:28px}
+.tool span.d{color:var(--mut);font-size:13.5px;max-width:34ch}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.chips em{font-style:normal;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:7px;background:#ffffff0f;color:var(--silver);border:1px solid #ffffff14}
+.go-arrow{position:absolute;right:16px;top:16px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#ffffff0f;border:1px solid var(--line)}
+.tool:hover .go-arrow{background:#fff;color:#111;border-color:#fff}
+.c-mint{--glow:#2dd4bf;--ic:linear-gradient(135deg,#14b8a6,#0e7490)}
+.c-gold{--glow:#fbbf24;--ic:linear-gradient(135deg,#f59e0b,#ea580c)}
+.c-pink{--glow:#ff6fd8;--ic:linear-gradient(135deg,#ec4899,#9333ea)}
+.c-blue{--glow:#60a5fa;--ic:linear-gradient(135deg,#3b82f6,#6d28d9)}
+.c-rose{--glow:#fb7185;--ic:linear-gradient(135deg,#f43f5e,#be185d)}
+
+/* SHEETS */
+.stack{display:grid;gap:18px}
+.sheet{border-radius:24px;padding:26px;border:1px solid var(--line);background:var(--gloss);box-shadow:inset 0 1px 0 #ffffff16,0 8px 24px #0006}
+.sheet[hidden]{display:none}
+.sheet-h{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.step{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:none;font:800 15px var(--head);color:#111;background:var(--white)}
+.sheet-h h2{margin:0;font:800 21px/1.15 var(--head);letter-spacing:-.02em}
+.sheet-h p{margin:3px 0 0;color:var(--mut);font-size:13.5px}
+
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.field{min-width:0;margin-top:16px}
+.field.full{grid-column:1/-1}
+.field>label{display:flex;align-items:center;gap:7px;margin-bottom:7px;color:var(--silver);font-size:12.5px;font-weight:700}
+.field>label .ico{color:var(--violet)}
+input,select,textarea{width:100%;min-width:0;padding:12px 14px;border-radius:12px;outline:none;background:var(--field);border:1px solid var(--line);color:var(--txt)}
+input::placeholder,textarea::placeholder{color:var(--dim)}
 input:hover,select:hover,textarea:hover{border-color:var(--line2)}
 input:focus,select:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 0 3px #a855f733}
-textarea{resize:vertical;min-height:84px}
+textarea{resize:vertical;min-height:92px}
 select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23adadb9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m1 1.5 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
-.note{margin-top:6px;color:var(--dim);font-size:11.5px}
-.msg{margin-top:14px;padding:11px 14px;border-radius:12px;font-size:13px;border:1px solid var(--line2);background:#ffffff0a}
-.msg.err{border-color:#ff7a9c77;color:var(--bad)}
-.msg.ok{border-color:#2dd4bf77;color:var(--ok)}
-.msg.warn{border-color:#ffcf5a77;color:#ffcf5a}
-.full{width:100%;justify-content:center;margin-top:18px;padding:13px}
+input[type=file]{padding:9px;font-size:13px}
+input[type=file]::file-selector-button{border:0;border-radius:9px;background:var(--white);color:#111;padding:8px 14px;margin-right:12px;font-weight:700;cursor:pointer}
+input[type=range]{padding:0;border:0;background:none;accent-color:var(--violet);box-shadow:none}
+input[type=checkbox]{width:auto;accent-color:var(--violet)}
+.formnote{margin-top:8px;color:var(--dim);font-size:11.5px;line-height:1.45}
+.targetrow{display:grid;grid-template-columns:.8fr 1.2fr;gap:10px}
 
-.grid{display:grid;grid-template-columns:380px 1fr;gap:18px;align-items:start}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.pricehint{margin-top:6px;font-size:12px;color:var(--ok);font-weight:700}
+.dropzone{margin-top:20px;border:1.5px dashed var(--line2);border-radius:18px;padding:24px;text-align:center;background:#0b0b0e;color:var(--mut)}
+.dropzone .cloud{width:54px;height:54px;margin:0 auto 10px;border-radius:16px;display:grid;place-items:center;font-size:26px;color:#111;background:var(--white)}
+.dropzone strong{display:block;color:var(--txt);font:700 15px var(--head)}
+.dropzone p{margin:4px 0 0;font-size:12px}
+.submit{width:100%;margin-top:18px;border:0;border-radius:16px;padding:16px;font:800 16px var(--head);color:#fff;background:linear-gradient(100deg,#7c3aed 0%,#a21caf 55%,#db2777 100%);display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .15s}
+.submit:hover{filter:brightness(1.1);transform:translateY(-2px)}
+.submit:disabled{opacity:.6;cursor:wait;transform:none}
 
-.drop{margin-top:6px;display:grid;place-items:center;aspect-ratio:16/10;border:1.5px dashed var(--line2);border-radius:16px;background:#0b0b0e;color:var(--mut);cursor:pointer;overflow:hidden;position:relative;text-align:center;font-size:13px}
-.drop:hover{border-color:#fff}
-.drop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.drop span{padding:10px}
-.field>label.drop{display:grid;margin:6px 0 0;font-size:13px;font-weight:400;color:var(--mut)}
-.drop small{font-size:11.5px;color:var(--dim)}
-.chk{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12.5px;color:var(--silver);cursor:pointer}
-.chk input{accent-color:var(--violet)}
+/* audio tool */
+.adrop{margin-top:16px;border:1.5px dashed var(--line2);border-radius:18px;padding:24px;text-align:center;background:#0b0b0e;color:var(--mut)}
+.adrop.over{border-color:#fff;background:#1c1c22}
+.adrop strong{display:block;color:var(--txt);font:700 16px var(--head)}
+.adrop p{margin:4px 0 14px;font-size:12px}
+.abtn{display:inline-block;border-radius:11px;background:var(--white);color:#111;padding:10px 20px;font-weight:700;font-size:13px;cursor:pointer}
+.aopts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px;margin-top:4px}
+.chk{display:flex;align-items:center;gap:9px;margin-top:14px;color:var(--silver);font-size:13px;font-weight:600;cursor:pointer}
+.alist{margin-top:16px;display:flex;flex-direction:column;gap:10px}
+.aactions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.aactions button{flex:1 1 150px;border:1px solid var(--line2);border-radius:12px;background:#ffffff0a;color:var(--txt);padding:12px;font-weight:700;font-size:13px}
+.aactions button:hover:not(:disabled){border-color:#fff;background:#ffffff14}
+.aactions button.primary{border:0;background:var(--white);color:#111}
+.aactions button:disabled{opacity:.45;cursor:not-allowed}
 
-.list{display:grid;gap:10px;margin-top:14px}
-.item{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--line);border-radius:16px;background:#0b0b0e}
-.item.editing{border-color:#fff}
-.thumb{width:84px;aspect-ratio:16/10;border-radius:10px;flex:none;background:linear-gradient(135deg,#3b3b45,#1b1b21);overflow:hidden;display:grid;place-items:center;color:var(--dim);font-size:11px}
-.thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.meta{flex:1;min-width:0}
-.meta b{display:block;font:700 14.5px var(--head);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.meta small{color:var(--mut);font-size:12px}
-.acts{display:flex;gap:6px;flex:none}
-.empty{padding:28px;border:1.5px dashed var(--line2);border-radius:16px;text-align:center;color:var(--dim);font-size:13px}
+.player{margin-top:16px;border:1px solid var(--line);background:#0b0b0e;border-radius:16px;padding:14px}
+.ptitle{font:600 13px var(--head);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.prow input[type=range]{flex:1 1 110px;min-width:90px}
+.prow select{width:auto;padding:7px 30px 7px 10px;font-size:12px}
+.prow .chk{margin:0;font-size:12px}
+.ptime{font-size:11px;color:var(--mut);min-width:76px;text-align:center;font-variant-numeric:tabular-nums}
+.mini{flex:none;border:1px solid var(--line2);background:#ffffff0d;border-radius:9px;padding:7px 11px;font-size:12px;font-weight:700;color:var(--txt)}
+.mini:hover:not(:disabled){border-color:#fff;background:#ffffff18}
+.mini.on{background:var(--violet2);border-color:#fff}
+.mini:disabled{opacity:.45;cursor:not-allowed}
 
-@media (max-width:860px){.grid{grid-template-columns:1fr}.top span{display:none}}
-@media (max-width:520px){.row2{grid-template-columns:1fr}.item{flex-wrap:wrap}.acts{width:100%}.acts .btn{flex:1;justify-content:center}}
+.arow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;border:1px solid var(--line);background:#0b0b0e;border-radius:14px;padding:12px 14px;min-width:0}
+.arow.playing{border-color:#fff}
+.arow .info{flex:1;min-width:0}
+.nm{font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mt{font-size:11px;color:var(--mut);margin-top:2px}
+.mt.ok{color:var(--ok)}.mt.bad{color:var(--bad)}
+.bar{height:4px;background:#2c2c34;border-radius:4px;margin-top:7px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7c3aed,var(--pink))}
+.lic{flex:1 0 100%;display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
+.lic select,.lic input{padding:8px 10px;font-size:12px}
+.trim{flex:1 0 100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto auto;gap:8px;align-items:end}
+.trim label{font-size:10.5px;color:var(--mut);display:block}
+.trim input{padding:7px 9px;font-size:12px;margin-top:3px}
+.idrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:#0b0b0e;border-radius:12px;padding:9px 12px;min-width:0}
+.idrow .info{flex:1;min-width:0}
+
+/* HISTORY */
+.hist-head{display:flex;align-items:center;gap:10px}
+.textbtn{border:1px solid var(--line2);background:transparent;color:var(--silver);font-size:12px;font-weight:700;padding:7px 14px;border-radius:999px}
+.textbtn:hover{border-color:var(--bad);color:var(--bad)}
+#historyList{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.historyitem{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--gloss);min-width:0}
+.miniicon{width:40px;height:40px;flex:none;display:grid;place-items:center;border-radius:12px;background:var(--white);color:#111;font-size:18px}
+.historyname{font:700 14px var(--head);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.historymeta{font-size:11px;color:var(--mut);margin-top:2px}
+.historyitem .historybtn{margin-left:auto}
+.historybadge{flex:none;font-size:11px;font-weight:700;padding:6px 12px;border-radius:999px;color:#04201c;background:var(--ok);text-decoration:none}
+.empty{grid-column:1/-1;padding:30px;border:1.5px dashed var(--line2);border-radius:16px;text-align:center;color:var(--dim);font-size:13px}
+#history,.notes,.foot{content-visibility:auto;contain-intrinsic-size:auto 420px}
+
+/* NOTES */
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.note.contact{border-color:#5eead455;background:linear-gradient(180deg,#5eead414,#ffffff06)}
+.note.contact .ico{color:var(--ok)}
+.contact-num{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:9px 14px;border-radius:12px;background:var(--white);color:#111;font-weight:800;text-decoration:none;font-size:14px}
+.contact-num:hover{filter:brightness(.92)}
+.uprog{margin-top:14px;height:8px;border-radius:8px;background:#2c2c34;overflow:hidden}
+.uprog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7c3aed,var(--pink));transition:width .15s}
+.uprog.busy i{animation:pae-pulse 1s ease-in-out infinite alternate}
+@keyframes pae-pulse{from{opacity:.5}to{opacity:1}}
+.dropzone.over{border-color:#fff;background:#1c1c22}
+.historybtn{flex:none;border:1px solid var(--line2);background:#ffffff0d;color:var(--txt);border-radius:999px;padding:6px 10px;font-size:11px;font-weight:700}
+.historybtn:hover{border-color:#fff}
+.note{padding:20px;border-radius:var(--r);border:1px solid var(--line);background:#ffffff08}
+.note .ico{font-size:22px;color:var(--gold);margin-bottom:10px}
+.note h3{margin:0 0 6px;font:700 16px var(--head)}
+.note p{margin:0;color:var(--mut);font-size:13px}
+.foot{max-width:1180px;margin:0 auto;padding:26px 20px 40px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--dim);font-size:12px}
+.foot b{color:var(--silver)}
+
+/* TOAST */
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(440px,calc(100% - 24px));display:none;z-index:50;padding:16px 18px;border-radius:18px;background:#1b1b20;border:1px solid var(--line2);box-shadow:0 12px 30px #000c}
+#toast.ok{border-color:#2dd4bf99}
+#toast.err{border-color:#ff7a9c99}
+#tt{display:block;font:800 15px var(--head);margin-bottom:4px}
+#toast.ok #tt{color:var(--ok)}#toast.err #tt{color:var(--bad)}
+#tm{white-space:pre-line;color:#dcdce6;font-size:13px}
+.toastactions{display:flex;gap:8px;margin-top:12px}
+.toastactions>*{flex:1;border:1px solid var(--line2);border-radius:10px;padding:9px;background:#ffffff0d;color:var(--txt);text-align:center;text-decoration:none;font-weight:700;font-size:12.5px}
+
+.prod-img.has-img:after{display:none}
+.prod-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.foot a{color:var(--dim);text-decoration:none}.foot a:hover{color:var(--silver)}
+
+/* RESPONSIVE */
+@media (max-width:980px){
+  .hero{grid-template-columns:1fr;padding-top:34px}
+  .hero-art{order:-1;min-height:220px}
+  .hero-art img{width:min(78%,420px)}
+  .bento{grid-template-columns:repeat(2,1fr)}
+  .tool,.tool.wide{grid-column:span 1}
+  .tool.big{grid-column:span 2;grid-row:auto;min-height:230px}
+  .notes{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .nav{gap:8px;padding:7px 8px 7px 10px}
+  .mark span,.live{display:none}
+  .links{margin:0}
+  .wrap{padding:0 14px 30px}
+  .bento{grid-template-columns:1fr}
+  .tool,.tool.wide,.tool.big{grid-column:span 1;min-height:150px}
+  .formgrid,.aopts{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .sheet{padding:18px;border-radius:20px}
+  .trim{grid-template-columns:1fr 1fr}
+  .lic{grid-template-columns:1fr}
+  .sh{flex-direction:column;align-items:flex-start}
+  .pgrid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:420px){.pgrid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}body:before,body:after{animation:none}}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <header class="top">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 20h16"/></symbol>
+    <symbol id="i-cube" viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 9 8-4.5M12 12 4 7.5M12 12v9"/></symbol>
+    <symbol id="i-img" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-8 8"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9m-3 3 3 3m-6 0 2 2"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Zm0 0v5h5"/></symbol>
+    <symbol id="i-text" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Zm-3 9 2 2 4-4"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5V8ZM3 8l9 5 9-5M12 13v8"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M14.8 9.2a3.4 3.4 0 1 0 0 5.6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 9.5 4 4 0 0 1 17.5 18H7Zm5-6v5m0-5-2.2 2.2M12 12l2.2 2.2"/></symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24"><path d="M5 9h14M5 15h14M10 4 8 20m8-16-2 16"/></symbol>
+  </defs>
+</svg>
+
+<!-- NAV -->
+<header class="nav" id="home">
+  <a class="mark" href="#home" aria-label="PaeSTUDIO">
     <img src="favicon.png" alt=""/>
-    <b>PaeSTUDIO</b><span>Admin panel</span>
-    <i class="sp"></i>
-    <a class="btn sm" href="/">← Ke situs</a>
-    <button class="btn sm danger" id="logout" type="button" hidden>Keluar</button>
-  </header>
+    <span>Pae<b>STUDIO</b></span>
+  </a>
+  <nav class="links" aria-label="Navigasi">
+    <button class="active" data-nav="home" type="button">Beranda</button>
+    <button data-go="products" type="button">Produk</button>
+    <button data-nav="upload" type="button">Upload</button>
+    <button data-nav="audio" type="button">Konverter Audio</button>
+    <button data-nav="bulk" type="button">ID Audio</button>
+    <button data-nav="history" type="button">Riwayat</button>
+    <button data-nav="settings" type="button">Info</button>
+  </nav>
+  <span class="live"><i></i>Online</span>
+</header>
 
-  <div id="boot" class="card" style="text-align:center;color:var(--mut)">Memuat…</div>
+<main class="wrap">
 
-  <!-- LOGIN -->
-  <section class="card login" id="loginView" hidden>
-    <picture><source srcset="logo.webp" type="image/webp"/><img class="logo" src="logo.png" alt="" width="150" height="76"/></picture>
-    <h2 style="text-align:center">Login admin</h2>
-    <p class="sub" style="text-align:center">Masuk untuk mengelola produk.</p>
-    <div id="cfgWarn" class="msg warn" hidden></div>
-    <form id="loginForm" autocomplete="on">
-      <div class="field"><label for="u">Username</label><input id="u" name="username" type="text" autocomplete="username" required/></div>
-      <div class="field"><label for="p">Password</label><input id="p" name="password" type="password" autocomplete="current-password" required/></div>
-      <div id="loginMsg" class="msg err" hidden></div>
-      <button class="btn violet full" id="loginBtn" type="submit">Masuk</button>
-    </form>
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <p class="kicker">Roblox asset toolkit</p>
+      <h1>Pae<em>STUDIO</em></h1>
+      <p class="lead">Upload decal, audio, dan model langsung ke Roblox. Konversi dan rapikan audio di browser sebelum dikirim.</p>
+      <div class="cta">
+        <button class="btn solid" data-go="products" type="button"><svg class="ico"><use href="#i-box"/></svg>Lihat produk</button>
+        <button class="btn" data-nav="upload" type="button"><svg class="ico"><use href="#i-up"/></svg>Mulai upload</button>
+              </div>
+      <ul class="stats">
+        <li><svg class="ico"><use href="#i-shield"/></svg><span><strong>Open Cloud</strong> resmi Roblox</span></li>
+        <li><svg class="ico"><use href="#i-box"/></svg><span>Maks <strong>4 MB</strong> / file</span></li>
+        <li><svg class="ico"><use href="#i-key"/></svg><span>API key <strong>tidak disimpan</strong></span></li>
+      </ul>
+    </div>
+    <div class="hero-art">
+      <picture><source srcset="logo.webp" type="image/webp"/><img src="logo.png" alt="Logo Desy Mesh Content" width="900" height="458" fetchpriority="high" decoding="async"/></picture>
+    </div>
   </section>
 
-  <!-- DASHBOARD -->
-  <div id="dash" hidden>
-    <div id="dbWarn" class="msg warn" hidden style="margin-top:18px"></div>
-    <div class="grid">
-
-      <section class="card" style="margin-top:18px">
-        <h2 id="formTitle">Tambah produk</h2>
-        <p class="sub" id="formSub">Isi data lalu simpan. Produk langsung tampil di situs.</p>
-        <form id="pf">
-          <div class="field"><label>Gambar produk</label>
-            <label class="drop" id="drop" for="imgFile"><span id="dropText">Klik untuk pilih gambar<br/><small>PNG / JPG / WebP, otomatis dikompres</small></span></label>
-            <input id="imgFile" type="file" accept="image/png,image/jpeg,image/webp" hidden/>
-            <label class="chk" id="rmWrap" hidden><input id="rmImg" type="checkbox"/>Hapus gambar yang ada</label>
-            <div class="note" id="imgInfo"></div>
-          </div>
-          <div class="field"><label for="name">Nama produk</label><input id="name" type="text" maxlength="80" required placeholder="Contoh: Crown Mesh Pack"/></div>
-          <div class="row2">
-            <div class="field"><label for="cat">Kategori</label>
-              <select id="cat">
-                <option value="mesh">Mesh</option><option value="decal">Decal</option>
-                <option value="audio">Audio</option><option value="model">Model</option>
-                <option value="lainnya">Lainnya</option>
-              </select>
-            </div>
-            <div class="field"><label for="price">Harga (Rp)</label><input id="price" type="number" min="0" step="500" inputmode="numeric" required placeholder="25000"/></div>
-          </div>
-          <div class="pricehint" id="priceHint"></div>
-          <div class="field"><label for="desc">Deskripsi</label><textarea id="desc" maxlength="300" placeholder="Jelaskan singkat produknya…"></textarea></div>
-          <div class="field"><label for="url">Link beli / kontak</label><input id="url" type="url" placeholder="https://wa.me/628xxxxxxxxxx"/><div class="note">Tombol "Pesan" di situs mengarah ke sini. Boleh dikosongkan.</div></div>
-          <div class="field"><label for="tag">Label (opsional)</label><input id="tag" type="text" maxlength="20" placeholder="Baru, Promo, Best seller"/></div>
-          <div id="formMsg" class="msg" hidden></div>
-          <button class="btn solid full" id="saveBtn" type="submit">Simpan produk</button>
-          <button class="btn full" id="cancelBtn" type="button" hidden style="margin-top:10px">Batal edit</button>
-        </form>
-      </section>
-
-      <section class="card" style="margin-top:18px">
-        <h2>Daftar produk <small id="count" style="color:var(--dim);font-weight:500"></small></h2>
-        <div class="list" id="list"></div>
-      </section>
+  <!-- PRODUK -->
+  <section id="products">
+    <div class="sh">
+      <div><h2>Produk</h2><p>Pilih kategori untuk melihat produk.</p></div>
+      <span class="tag">Katalog</span>
     </div>
+    <div class="pbar">
+      <div class="seg" id="priceTabs" role="tablist" aria-label="Jenis produk"></div>
+      <input class="grow" id="prodQ" type="search" placeholder="Cari produk…" aria-label="Cari produk" autocomplete="off"/>
+      <select id="prodSort" aria-label="Urutkan produk">
+        <option value="new">Terbaru</option>
+        <option value="low">Harga terendah</option>
+        <option value="high">Harga tertinggi</option>
+        <option value="az">Nama A–Z</option>
+      </select>
+    </div>
+    <div class="ptabs" id="prodTabs" role="tablist" aria-label="Kategori produk"></div>
+    <div class="pgrid" id="prodGrid" role="tabpanel" aria-live="polite"></div>
+  </section>
+
+  <!-- TOOLS -->
+  <div class="sh">
+    <div><h2>Pilih alat</h2><p>Klik salah satu untuk langsung menuju formnya.</p></div>
+    <span class="tag">Upload · Convert · Manage</span>
+  </div>
+
+  <div class="bento" id="tabs">
+    <button class="tool big c-pink" data-action="upload" data-t="decal" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico"><svg class="ico"><use href="#i-up"/></svg></div>
+      <strong>Upload Asset</strong>
+      <span class="d">Kirim gambar, audio, model, atau decal ke Roblox dan dapatkan Asset ID-nya.</span>
+      <div class="chips"><em>Image</em><em>Audio</em><em>Model</em><em>Decal</em></div>
+    </button>
+
+    <button class="tool wide c-blue" data-action="model" data-t="file" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico"><svg class="ico"><use href="#i-cube"/></svg></div>
+      <strong>Import Model</strong>
+      <span class="d">Upload file RBXM, RBXMX, atau FBX.</span>
+      <div class="chips"><em>RBXM</em><em>RBXMX</em><em>FBX</em></div>
+    </button>
+
+    <button class="tool wide c-mint" data-action="decal" data-t="decal" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico"><svg class="ico"><use href="#i-img"/></svg></div>
+      <strong>Upload Decal</strong>
+      <span class="d">Unggah gambar dan dapatkan ID decal.</span>
+      <div class="chips"><em>PNG</em><em>JPG</em><em>BMP</em><em>TGA</em></div>
+    </button>
+
+    <button class="tool c-gold" data-t="audio" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico"><svg class="ico"><use href="#i-music"/></svg></div>
+      <strong>Konverter Audio</strong>
+      <span class="d">Ubah ke MP3, potong, dan atur fade.</span>
+      <div class="chips"><em>WAV</em><em>FLAC</em><em>M4A</em><em>AAC</em></div>
+    </button>
+
+    <button class="tool c-rose" data-action="bulk" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico"><svg class="ico"><use href="#i-list"/></svg></div>
+      <strong>Banyak ID Audio</strong>
+      <span class="d">Rapikan daftar ID audio sekaligus.</span>
+      <div class="chips"><em>Impor</em><em>Ekspor</em></div>
+    </button>
+
+    <button class="tool c-blue" data-action="history" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico"><svg class="ico"><use href="#i-clock"/></svg></div>
+      <strong>Riwayat</strong>
+      <span class="d">Lihat upload sebelumnya di browser ini.</span>
+      <div class="chips"><em>Asset</em><em>Audio</em></div>
+    </button>
+  </div>
+
+  <!-- WORKSPACE -->
+  <div class="sh">
+    <div><h2>Workspace</h2><p>Semua form ada di sini. Panel audio muncul saat kamu memilih Konverter Audio.</p></div>
+  </div>
+
+  <div class="stack">
+
+    <!-- Audio converter -->
+    <section class="sheet" hidden id="audioTool">
+      <div class="sheet-h">
+        <div class="step">A</div>
+        <div>
+          <h2>Konverter Audio</h2>
+          <p>Diproses di browser. File baru dikirim ke server saat kamu menekan upload.</p>
+        </div>
+      </div>
+
+      <div class="adrop" id="aDrop">
+        <strong>Seret audio ke sini</strong>
+        <p>MP3 · WAV · OGG · FLAC · AAC · M4A, bisa banyak file sekaligus</p>
+        <label class="abtn">Pilih file<input accept=".mp3,.wav,.ogg,.flac,.aac,.m4a,audio/*" hidden id="aFiles" multiple type="file"/></label>
+      </div>
+
+      <div class="aopts">
+        <label class="chk"><input checked id="oNorm" type="checkbox"/>Normalisasi volume</label>
+        <label class="chk"><input id="oMono" type="checkbox"/>Mono (file lebih kecil)</label>
+        <div class="field">
+          <label for="oMax"><svg class="ico"><use href="#i-clock"/></svg>Durasi maks (detik)</label>
+          <input id="oMax" inputmode="numeric" max="3600" min="1" type="number" value="420"/>
+          <div class="formnote">Batas umum audio Roblox: 7 menit (420 detik).</div>
+        </div>
+        <div class="field">
+          <label for="oKbps"><svg class="ico"><use href="#i-music"/></svg>Kualitas MP3</label>
+          <select id="oKbps">
+            <option value="96">96 kbps (kecil)</option>
+            <option selected value="128">128 kbps (seimbang)</option>
+            <option value="192">192 kbps (tinggi)</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="oLic"><svg class="ico"><use href="#i-copy"/></svg>Lisensi default untuk file baru</label>
+          <select id="oLic">
+            <option value="">Belum dipilih</option>
+            <option value="own">Karya sendiri</option>
+            <option value="cc0">CC0 / Public Domain</option>
+            <option value="ccby">CC BY (wajib kredit)</option>
+            <option value="perm">Izin tertulis dari pemilik hak</option>
+          </select>
+          <div class="formnote">Bisa diganti per file di daftar. Upload hanya jalan kalau tiap file punya lisensi.</div>
+        </div>
+      </div>
+
+      <div class="player" id="aPlayer">
+        <div class="ptitle" id="pTitle">Tekan ▶ pada file di daftar untuk memutar</div>
+        <div class="prow">
+          <button class="mini" id="pPrev" title="Sebelumnya" type="button">⏮</button>
+          <button class="mini" id="pPlay" title="Putar/jeda" type="button">▶</button>
+          <button class="mini" id="pNext" title="Berikutnya" type="button">⏭</button>
+          <input aria-label="Posisi lagu" id="pSeek" max="1000" min="0" type="range" value="0"/>
+          <span class="ptime" id="pTime">0:00 / 0:00</span>
+        </div>
+        <div class="prow">
+          <span class="ptime" style="min-width:0">Vol</span>
+          <input aria-label="Volume" id="pVol" max="100" min="0" style="flex:0 1 100px" type="range" value="100"/>
+          <select aria-label="Kecepatan preview dan hasil ekspor" id="pRate">
+            <option value="0.5">0.5×</option><option value="0.75">0.75×</option>
+            <option selected value="1">1×</option><option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option><option value="2">2×</option>
+          </select>
+          <button class="mini" id="pLoop" type="button">⟲ Ulang</button>
+          <button class="mini" id="pSec" title="Ulang hanya bagian Mulai–Akhir milik file yang diputar" type="button">⟲ Bagian</button>
+          <label class="chk"><input checked id="pAuto" type="checkbox"/>Lanjut otomatis</label>
+          <label class="chk"><input checked id="pPitch" type="checkbox"/>Jaga nada</label>
+        </div>
+        <audio id="pAudio" preload="metadata"></audio>
+      </div>
+
+      <div class="alist" id="aList"></div>
+
+      <label class="chk"><input id="oConfirm" type="checkbox"/>Saya punya hak atau lisensi untuk mengunggah semua audio ini</label>
+      <div class="aactions">
+        <button class="primary" disabled id="aProc" type="button">Proses semua</button>
+        <button disabled id="aZip" type="button">↓ Download ZIP</button>
+        <button disabled id="aUp" type="button">⇧ Upload semua</button>
+      </div>
+      <div class="formnote">Upload semua memakai API key, ID pemilik, dan deskripsi dari form upload di bawah. Gunakan hanya audio milikmu atau yang berlisensi bebas; Roblox tetap memeriksa hak cipta pada setiap upload.</div>
+    </section>
+
+    <!-- ID library -->
+    <section class="sheet" hidden id="idLib">
+      <div class="sheet-h">
+        <div class="step">#</div>
+        <div>
+          <h2>Banyak ID Audio</h2>
+          <p>Tempel banyak ID sekaligus, satu per baris, atau pakai tautan audio Roblox. Daftar tersimpan di browser ini.</p>
+        </div>
+      </div>
+      <div class="field">
+        <label for="lbPaste"><svg class="ico"><use href="#i-music"/></svg>Daftar ID audio / tautan Roblox</label>
+        <textarea id="lbPaste" placeholder="Contoh:&#10;123456789012&#10;987654321098&#10;https://www.roblox.com/library/123456789012/Nama-Audio&#10;Nama Lagu Remix 123456789012" rows="6"></textarea>
+        <div class="formnote">Fitur ini merapikan dan memvalidasi format ID, bukan membuat ID baru atau melewati izin/pembatasan audio Roblox.</div>
+      </div>
+      <div class="aactions">
+        <button class="primary" id="lbAdd" type="button">+ Cek &amp; tambah semua ID</button>
+        <button id="lbImp" type="button">Impor</button>
+        <button id="lbExp" type="button">Ekspor</button>
+        <button id="lbClr" type="button">Hapus semua</button>
+      </div>
+      <div class="aopts">
+        <div class="field"><input id="lbQ" placeholder="Cari nama atau ID"/></div>
+        <div class="field"><select aria-label="Kategori" id="lbCat"></select></div>
+      </div>
+      <div class="aactions"><button id="lbCopyAll" type="button">Salin ID hasil filter</button></div>
+      <div class="alist" id="lbList"></div>
+      <input accept=".json,.txt" hidden id="lbFile" type="file"/>
+    </section>
+
+    <!-- Upload form -->
+    <section class="sheet" id="upload">
+      <div class="sheet-h">
+        <div class="step">01</div>
+        <div>
+          <h2>Upload ke Roblox</h2>
+          <p id="hint">Upload gambar PNG/JPG/BMP/TGA.</p>
+        </div>
+      </div>
+
+      <form id="f">
+        <div class="formgrid">
+          <div class="field full">
+            <label for="file"><svg class="ico"><use href="#i-file"/></svg>Pilih file</label>
+            <input id="file" required type="file"/>
+          </div>
+          <div class="field">
+            <label for="key"><svg class="ico"><use href="#i-key"/></svg>Roblox API key</label>
+            <input autocomplete="off" id="key" placeholder="Tempel API key Roblox" required type="password"/>
+            <div class="formnote">Kunci tidak disimpan oleh halaman ini.</div>
+          </div>
+          <div class="field">
+            <label for="name"><svg class="ico"><use href="#i-pen"/></svg>Nama aset</label>
+            <input id="name" maxlength="50" placeholder="Contoh: Crown Mesh" required/>
+          </div>
+          <div class="field">
+            <label for="target"><svg class="ico"><use href="#i-user"/></svg>Upload ke</label>
+            <div class="targetrow">
+              <select id="target"><option value="user">Akun</option><option value="group">Grup</option></select>
+              <input aria-label="User ID" id="owner" inputmode="numeric" placeholder="User ID" required/>
+            </div>
+          </div>
+          <div class="field">
+            <label for="desc"><svg class="ico"><use href="#i-text"/></svg>Deskripsi</label>
+            <textarea id="desc" maxlength="1000" placeholder="Jelaskan tentang aset ini..." rows="3"></textarea>
+            <div class="formnote" id="count">0 / 1000 karakter</div>
+          </div>
+        </div>
+
+        <div class="dropzone">
+          <div class="cloud"><svg class="ico"><use href="#i-cloud"/></svg></div>
+          <strong id="dropTitle">Pilih file untuk memulai</strong>
+          <p id="dropSub">File diproses oleh server lalu dikirim ke Roblox.</p>
+          <p id="formats">Format yang didukung mengikuti tipe aset.</p>
+          <p>Bisa juga seret file ke kotak ini.</p>
+        </div>
+        <div class="uprog" id="uProg" hidden><i id="uBar"></i></div>
+
+        <button class="submit" id="go" type="submit">⇧ Upload sekarang</button>
+        <div class="formnote">Pastikan API key punya izin Assets (Read &amp; Write). Jangan bagikan API key ke orang lain.</div>
+      </form>
+    </section>
+  </div>
+
+  <!-- HISTORY -->
+  <section id="history">
+    <div class="sh">
+      <div><h2>Riwayat upload</h2><p>Tersimpan di browser ini saja, maksimal 20 terakhir.</p></div>
+      <div class="hist-head"><button class="textbtn" id="clearHistory" type="button">Hapus riwayat</button></div>
+    </div>
+    <div id="historyList">
+      <div class="empty">Belum ada riwayat upload di browser ini.</div>
+    </div>
+  </section>
+
+  <!-- NOTES -->
+  <div class="sh" id="settings"><div><h2>Info</h2><p>Hal singkat biar upload lancar, plus kontak owner.</p></div></div>
+  <section class="notes">
+    <div class="note">
+      <svg class="ico"><use href="#i-key"/></svg>
+      <h3>Siapkan API key</h3>
+      <p>Buat di Creator Hub, menu Open Cloud, lalu beri izin Assets (Read &amp; Write). Pastikan ID akun atau grup sudah benar.</p>
+    </div>
+    <div class="note">
+      <svg class="ico"><use href="#i-box"/></svg>
+      <h3>Ukuran file</h3>
+      <p>Batas server sekitar 4 MB per file. Untuk audio, turunkan kualitas MP3 di konverter kalau file terlalu besar.</p>
+    </div>
+    <div class="note">
+      <svg class="ico"><use href="#i-shield"/></svg>
+      <h3>Hak cipta</h3>
+      <p>Upload hanya aset milikmu atau yang berlisensi bebas. Roblox tetap memeriksa setiap upload dan hasilnya bergantung pada respons mereka.</p>
+    </div>
+    <div class="note contact" id="contact">
+      <svg class="ico"><use href="#i-user"/></svg>
+      <h3>Contact owner</h3>
+      <p>Mau pesan produk atau ada kendala? Hubungi owner lewat WhatsApp.</p>
+      <a class="contact-num" href="https://wa.me/6287729035761" target="_blank" rel="noopener">087729035761</a>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <span>© 2026 <b>PaeSTUDIO</b></span>
+  <span>Roblox asset uploader &amp; audio converter · Owner: <a href="https://wa.me/6287729035761" target="_blank" rel="noopener">087729035761</a> · <a href="/admin" rel="nofollow">Admin</a></span>
+</footer>
+
+<div aria-live="polite" id="toast" role="status">
+  <b id="tt"></b>
+  <div id="tm"></div>
+  <div class="toastactions">
+    <a id="open" rel="noopener" target="_blank">Buka aset</a>
+    <button id="close" type="button">Tutup</button>
   </div>
 </div>
 
 <script>
+
+            const H = {
+                decal: {
+                    hint: "Upload gambar PNG/JPG/BMP/TGA.",
+                    accept: ".png,.jpg,.jpeg,.bmp,.tga",
+                    formats: "Format: PNG · JPG · BMP · TGA",
+                    icon: "▧"
+                },
+                audio: {
+                    hint: "Upload audio MP3/OGG. Banyak file atau format lain otomatis masuk antrean konverter di atas.",
+                    accept: ".mp3,.ogg,.wav,.flac,.aac,.m4a,audio/*",
+                    formats: "Format: MP3 · OGG",
+                    icon: "♫"
+                },
+                file: {
+                    hint: "Upload model RBXM/RBXMX/FBX.",
+                    accept: ".rbxm,.rbxmx,.fbx",
+                    formats: "Format: RBXM · RBXMX · FBX",
+                    icon: "⬡"
+                }
+            };
+            let type = "decal";
+            const $ = id => document.getElementById(id);
+            function setType(t) {
+                if (!H[t])
+                    return;
+                type = t;
+                $("hint").textContent = H[t].hint;
+                $("file").accept = H[t].accept;
+                $("formats").textContent = H[t].formats;
+                $("audioTool").hidden = t !== "audio";
+                $("file").multiple = t === "audio";
+                $("idLib").hidden = t !== "audio";
+                document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("active", b.dataset.t === t));
+            }
+            $("tabs").addEventListener("click", e => {
+                const b = e.target.closest("button[data-t]");
+                if (b)
+                    setType(b.dataset.t)
+            }
+            );
+            $("target").addEventListener("change", () => {
+                $("owner").placeholder = $("target").value === "group" ? "Group ID" : "User ID";
+                $("owner").setAttribute("aria-label", $("target").value === "group" ? "Group ID" : "User ID")
+            }
+            );
+            $("file").addEventListener("change", () => {
+                const fl = [...$("file").files];
+                if (type === "audio" && (fl.length > 1 || fl.some(x => !/\.(mp3|ogg)$/i.test(x.name)))) {
+                    addAudio(fl);
+                    $("file").value = "";
+                    toast(true, "Masuk antrean", fl.length + " file ditambahkan ke Konverter Audio. Atur lisensi lalu tekan Upload semua.");
+                    $("audioTool").scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                    return
+                }
+                const f = $("file").files[0];
+                if (f) {
+                    $("dropTitle").textContent = f.name;
+                    $("dropSub").textContent = (f.size / 1024 / 1024).toFixed(2) + " MB · File dipilih";
+                    if (!$("name").value)
+                        $("name").value = f.name.replace(/\.[^.]+$/, "")
+                } else {
+                    $("dropTitle").textContent = "Pilih file untuk memulai";
+                    $("dropSub").textContent = "File diproses oleh server lalu dikirim ke Roblox."
+                }
+            }
+            );
+            $("desc").addEventListener("input", () => {
+                $("count").textContent = $("desc").value.length + " / 1000 karakter"
+            }
+            );
+            $("close").onclick = () => $("toast").style.display = "none";
+            function toast(ok, title, msg, url) {
+                const t = $("toast");
+                t.className = ok ? "ok" : "err";
+                t.style.display = "block";
+                $("tt").textContent = title;
+                $("tm").textContent = msg;
+                $("open").style.display = url ? "" : "none";
+                if (url)
+                    $("open").href = url;
+            }
+            function getHistory() {
+                try {
+                    return JSON.parse(localStorage.getItem("paeUploadHistory") || "[]")
+                } catch {
+                    return []
+                }
+            }
+            function renderHistory() {
+                const list = $("historyList")
+                  , items = getHistory();
+                list.innerHTML = "";
+                if (!items.length) {
+                    list.innerHTML = '<div class="empty">Belum ada riwayat upload di browser ini.</div>';
+                    return
+                }
+                items.slice(0, 12).forEach(item => {
+                    const row = document.createElement("div");
+                    row.className = "historyitem";
+                    const icon = document.createElement("div");
+                    icon.className = "miniicon";
+                    icon.textContent = H[item.type]?.icon || "⬡";
+                    const body = document.createElement("div");
+                    body.style.minWidth = "0";
+                    const name = document.createElement("div");
+                    name.className = "historyname";
+                    name.textContent = item.name;
+                    const meta = document.createElement("div");
+                    meta.className = "historymeta";
+                    meta.textContent = (item.type || "file").toUpperCase() + " · ID " + item.assetId;
+                    body.append(name, meta);
+                    const link = document.createElement("a");
+                    link.className = "historybadge";
+                    link.href = item.url;
+                    link.target = "_blank";
+                    link.rel = "noopener";
+                    link.textContent = "Buka";
+                    const cp = document.createElement("button");
+                    cp.type = "button";
+                    cp.className = "historybtn";
+                    cp.textContent = "Salin ID";
+                    cp.onclick = async () => {
+                        await copyText(String(item.assetId));
+                        cp.textContent = "Tersalin ✓";
+                        setTimeout( () => cp.textContent = "Salin ID", 1200)
+                    }
+                    ;
+                    link.style.marginLeft = "0";
+                    row.append(icon, body, cp, link);
+                    list.append(row)
+                }
+                );
+            }
+            $("clearHistory").onclick = () => {
+                localStorage.removeItem("paeUploadHistory");
+                renderHistory()
+            }
+            ;
+            document.querySelectorAll("[data-nav]").forEach(b => b.addEventListener("click", () => {
+                document.querySelectorAll("[data-nav]").forEach(x => x.classList.toggle("active", x === b));
+                const target = b.dataset.nav;
+                if (target === "home")
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+                else if (target === "upload")
+                    $("upload").scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                else if (target === "history")
+                    $("history").scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                else if (target === "audio" || target === "bulk") {
+                    setType("audio");
+                    $(target === "bulk" ? "idLib" : "audioTool").scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    })
+                } else if (target === "model" || target === "decal") {
+                    setType(target === "model" ? "file" : "decal");
+                    $("upload").scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    })
+                } else
+                    $("settings").scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    })
+            }
+            ));
+            document.querySelectorAll("#tabs [data-action]").forEach(b => b.addEventListener("click", () => {
+                const a = b.dataset.action;
+                if (a === "upload") {
+                    $("upload").scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    })
+                } else if (a === "model") {
+                    setType("file");
+                    $("upload").scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    })
+                } else if (a === "decal") {
+                    setType("decal");
+                    $("upload").scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    })
+                } else if (a === "bulk") {
+                    setType("audio");
+                    $("idLib").scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    })
+                } else if (a === "history")
+                    $("history").scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    })
+            }
+            ));
+            const MAX_UP = 4 * 1024 * 1024;
+            function setProg(frac, reset) {
+                const w = $("uProg");
+                w.hidden = false;
+                $("uBar").style.width = Math.round(Math.max(0, Math.min(1, frac)) * 100) + "%";
+                w.classList.toggle("busy", !reset && frac >= 1);
+                if (!reset && frac >= 1)
+                    $("go").textContent = "Roblox memproses…";
+                else if (!reset)
+                    $("go").textContent = "Mengunggah " + Math.round(frac * 100) + "%";
+            }
+            function sendUpload(formData, onProg) {
+                return new Promise(resolve => {
+                    const x = new XMLHttpRequest();
+                    x.open("POST", "/api/upload");
+                    x.timeout = 120000;
+                    if (x.upload && onProg)
+                        x.upload.onprogress = e => {
+                            if (e.lengthComputable)
+                                onProg(e.loaded / e.total)
+                        }
+                        ;
+                    x.onload = () => {
+                        let j;
+                        try {
+                            j = JSON.parse(x.responseText)
+                        } catch {
+                            j = {
+                                error: "Respons server tidak dapat dibaca"
+                            }
+                        }
+                        resolve({
+                            ok: x.status >= 200 && x.status < 300,
+                            status: x.status,
+                            j
+                        })
+                    }
+                    ;
+                    x.onerror = x.ontimeout = () => resolve({
+                        net: true
+                    });
+                    x.send(formData)
+                }
+                )
+            }
+            const dz = document.querySelector(".dropzone");
+            ["dragenter", "dragover"].forEach(ev => dz.addEventListener(ev, e => {
+                e.preventDefault();
+                dz.classList.add("over")
+            }
+            ));
+            ["dragleave", "drop"].forEach(ev => dz.addEventListener(ev, e => {
+                e.preventDefault();
+                dz.classList.remove("over")
+            }
+            ));
+            dz.addEventListener("drop", e => {
+                const fs = e.dataTransfer && e.dataTransfer.files;
+                if (fs && fs.length) {
+                    $("file").files = fs;
+                    $("file").dispatchEvent(new Event("change"))
+                }
+            }
+            );
+            $("f").onsubmit = async e => {
+                e.preventDefault();
+                const file = $("file").files[0];
+                if (!file)
+                    return;
+                if (file.size > MAX_UP) {
+                    toast(false, "File terlalu besar", "File " + fmtMB(file.size) + " melebihi batas sekitar 4 MB. Kecilkan file (untuk audio: turunkan kualitas atau pakai mono di Konverter Audio).");
+                    return
+                }
+                $("go").disabled = true;
+                $("go").textContent = "Mengunggah…";
+                setProg(0, true);
+                const d = new FormData();
+                d.append("type", type);
+                d.append("file", file);
+                d.append("apiKey", $("key").value.trim());
+                d.append("target", $("target").value);
+                d.append("ownerId", $("owner").value.trim());
+                d.append("name", $("name").value.trim());
+                d.append("description", $("desc").value);
+                try {
+                    const got = await sendUpload(d, f => setProg(f, false));
+                    if (got.net)
+                        throw new Error("net");
+                    const r = {
+                        ok: got.ok,
+                        status: got.status
+                    }
+                      , j = got.j;
+                    if (r.ok && j.ok && j.pending) {
+                        toast(true, "Upload diterima", j.message || "Roblox sedang memproses aset. Cek Creator Dashboard beberapa saat lagi.");
+                        return
+                    }
+                    if (r.ok && j.ok && j.assetId) {
+                        const items = getHistory();
+                        items.unshift({
+                            type,
+                            name: j.name || $("name").value,
+                            assetId: j.assetId,
+                            url: j.url || "",
+                            time: Date.now()
+                        });
+                        try {
+                            localStorage.setItem("paeUploadHistory", JSON.stringify(items.slice(0, 20)))
+                        } catch {}
+                        renderHistory();
+                        toast(true, "Upload berhasil", `${j.name || $("name").value}\nAsset ID: ${j.assetId}`, j.url);
+                    } else
+                        toast(false, "Upload gagal", j.error || `Server merespons dengan status ${r.status}`);
+                } catch (err) {
+                    toast(false, "Tidak dapat terhubung", "Periksa koneksi internet lalu coba lagi.")
+                } finally {
+                    $("uProg").hidden = true;
+                    $("go").disabled = false;
+                    $("go").textContent = "⇧  Upload Sekarang";
+                }
+            }
+            ;
+            $("tm").style.whiteSpace = "pre-line";
+            setType("decal");
+            renderHistory();
+            /* ===== Konverter audio (di browser) ===== */
+            const A = {
+                items: [],
+                n: 0,
+                busy: false
+            };
+            const fmtMB = b => (b / 1024 / 1024).toFixed(2) + " MB";
+            const loaded = {};
+            function loadScript(src) {
+                return loaded[src] || (loaded[src] = new Promise( (res, rej) => {
+                    const s = document.createElement("script");
+                    s.src = src;
+                    s.onload = res;
+                    s.onerror = () => {
+                        delete loaded[src];
+                        rej(new Error("Gagal memuat " + src))
+                    }
+                    ;
+                    document.head.appendChild(s)
+                }
+                ))
+            }
+            async function ensureLame() {
+                if (!window.lamejs)
+                    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js").catch( () => {
+                        throw new Error("Encoder MP3 gagal dimuat dari internet. Periksa koneksi lalu coba lagi.")
+                    }
+                    );
+                if (!window.lamejs || !window.lamejs.Mp3Encoder)
+                    throw new Error("Encoder MP3 tidak tersedia. Periksa koneksi internet lalu coba lagi.")
+            }
+            const tick = () => new Promise(r => setTimeout(r, 0));
+            function saveBlob(blob, name) {
+                const u = URL.createObjectURL(blob)
+                  , a = document.createElement("a");
+                a.href = u;
+                a.download = name;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout( () => URL.revokeObjectURL(u), 4000)
+            }
+            function addAudio(files) {
+                let skipped = 0;
+                [...files].forEach(f => {
+                    if (/\.(mp3|wav|ogg|flac|aac|m4a)$/i.test(f.name) || (f.type || "").startsWith("audio/"))
+                        A.items.push({
+                            id: ++A.n,
+                            file: f,
+                            state: "wait",
+                            lic: $("oLic").value,
+                            credit: "",
+                            start: 0,
+                            end: 0,
+                            fadeIn: 0,
+                            fadeOut: 0,
+                            blob: null,
+                            out: "",
+                            msg: "Menunggu diproses",
+                            pct: 0
+                        });
+                    else
+                        skipped++
+                }
+                );
+                if (skipped)
+                    toast(false, "Sebagian file dilewati", skipped + " file bukan audio yang didukung.");
+                renderA();
+            }
+            function renderA() {
+                const list = $("aList");
+                list.innerHTML = "";
+                A.items.forEach(it => {
+                    const row = document.createElement("div");
+                    row.className = "arow" + (P.cur === it ? " playing" : "");
+                    const info = document.createElement("div");
+                    info.className = "info";
+                    const nm = document.createElement("div");
+                    nm.className = "nm";
+                    nm.textContent = it.file.name;
+                    const mt = document.createElement("div");
+                    mt.className = "mt" + (it.state === "done" || it.state === "up" ? " ok" : it.state === "err" ? " bad" : "");
+                    mt.textContent = it.msg;
+                    const bar = document.createElement("div");
+                    bar.className = "bar";
+                    const fill = document.createElement("i");
+                    fill.style.width = it.pct + "%";
+                    bar.append(fill);
+                    info.append(nm, mt);
+                    if (it.state === "busy")
+                        info.append(bar);
+                    row.append(info, playBtn(it));
+                    if (it.blob) {
+                        const dl = document.createElement("button");
+                        dl.type = "button";
+                        dl.className = "mini";
+                        dl.textContent = "↓";
+                        dl.title = "Download";
+                        dl.onclick = () => saveBlob(it.blob, it.out);
+                        const use = document.createElement("button");
+                        use.type = "button";
+                        use.className = "mini";
+                        use.textContent = "Pakai di form";
+                        use.onclick = () => useInForm(it);
+                        row.append(dl, use);
+                    }
+                    const rm = document.createElement("button");
+                    rm.type = "button";
+                    rm.className = "mini";
+                    rm.textContent = "✕";
+                    rm.title = "Hapus";
+                    rm.disabled = A.busy;
+                    rm.onclick = () => {
+                        if (P.cur === it)
+                            stopPlayer();
+                        A.items = A.items.filter(x => x !== it);
+                        renderA()
+                    }
+                    ;
+                    row.append(rm, licRow(it), trimRow(it));
+                    list.append(row);
+                }
+                );
+                const any = A.items.length > 0
+                  , conv = A.items.some(i => i.blob);
+                $("aProc").disabled = A.busy || !A.items.some(i => i.state === "wait" || i.state === "err");
+                $("aZip").disabled = A.busy || !conv;
+                $("aUp").disabled = A.busy || !conv;
+            }
+            function useInForm(it) {
+                const dt = new DataTransfer();
+                dt.items.add(new File([it.blob],it.out,{
+                    type: "audio/mpeg"
+                }));
+                $("file").files = dt.files;
+                $("file").dispatchEvent(new Event("change"));
+                $("name").value = it.out.replace(/\.[^.]+$/, "").slice(0, 50);
+                $("upload").scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            }
+            async function convertOne(it) {
+                const norm = $("oNorm").checked
+                  , wantMono = $("oMono").checked;
+                const maxSec = Math.max(1, Math.min(3600, +$("oMax").value || 420))
+                  , kbps = +$("oKbps").value || 128
+                  , rate = Math.max(0.5, Math.min(2, +$("pRate").value || 1));
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                try {
+                    it.msg = "Membaca audio…";
+                    it.pct = 5;
+                    renderA();
+                    let buf;
+                    try {
+                        buf = await ctx.decodeAudioData(await it.file.arrayBuffer())
+                    } catch {
+                        throw new Error("File tidak dapat dibaca browser (rusak atau format tidak didukung)")
+                    }
+                    const sr = buf.sampleRate
+                      , total = buf.length
+                      , off = Math.min(total, Math.max(0, Math.floor((it.start || 0) * sr)))
+                      , avail = total - off
+                      , endLim = it.end > 0 ? Math.max(0, Math.min(total, Math.floor(it.end * sr)) - off) : avail
+                      , len = Math.min(endLim, Math.floor(maxSec * sr * rate))
+                      , trimmed = len < avail || off > 0;
+                    if (len < sr * 0.1)
+                        throw new Error("Rentang potong terlalu pendek. Periksa Mulai dan Akhir.");
+                    const mono = wantMono || buf.numberOfChannels === 1
+                      , chs = mono ? 1 : 2;
+                    const data = [];
+                    for (let c = 0; c < chs; c++)
+                        data.push(new Float32Array(len));
+                    if (mono) {
+                        const n = buf.numberOfChannels;
+                        for (let c = 0; c < n; c++) {
+                            const src = buf.getChannelData(c);
+                            for (let i = 0; i < len; i++)
+                                data[0][i] += src[off + i] / n
+                        }
+                    } else {
+                        data[0].set(buf.getChannelData(0).subarray(off, off + len));
+                        data[1].set(buf.getChannelData(1).subarray(off, off + len))
+                    }
+                    if (trimmed) {
+                        const fade = Math.min(len, Math.floor(sr * 0.05));
+                        for (const d of data)
+                            for (let i = 0; i < fade; i++)
+                                d[len - fade + i] *= 1 - i / fade
+                    }
+                    {
+                        const fi = Math.min(len, Math.floor((it.fadeIn || 0) * sr))
+                          , fo = Math.min(len, Math.floor((it.fadeOut || 0) * sr));
+                        for (const d of data) {
+                            for (let i = 0; i < fi; i++)
+                                d[i] *= i / fi;
+                            for (let i = 0; i < fo; i++)
+                                d[len - 1 - i] *= i / fo
+                        }
+                    }
+                    if (norm) {
+                        let peak = 0;
+                        for (const d of data)
+                            for (let i = 0; i < len; i++) {
+                                const v = Math.abs(d[i]);
+                                if (v > peak)
+                                    peak = v
+                            }
+                        if (peak > 0.0001) {
+                            const g = Math.min(10, 0.97 / peak);
+                            for (const d of data)
+                                for (let i = 0; i < len; i++)
+                                    d[i] *= g
+                        }
+                    }
+                    // Terapkan playback rate ke sampel audio sebelum encoding agar efeknya permanen di file ekspor.
+                    // Rate > 1 mempercepat dan menaikkan pitch; rate < 1 memperlambat dan menurunkan pitch.
+                    const encLen = Math.max(1, Math.floor(len / rate))
+                      , encData = data.map(src => {
+                        if (rate === 1)
+                            return src;
+                        const dst = new Float32Array(encLen);
+                        for (let i = 0; i < encLen; i++) {
+                            const pos = i * rate
+                              , lo = Math.min(len - 1, Math.floor(pos))
+                              , hi = Math.min(len - 1, lo + 1)
+                              , frac = pos - lo;
+                            dst[i] = src[lo] + (src[hi] - src[lo]) * frac;
+                        }
+                        return dst;
+                    }
+                    );
+                    it.msg = "Memuat encoder…";
+                    it.pct = 15;
+                    renderA();
+                    await ensureLame();
+                    const to16 = f => {
+                        const o = new Int16Array(f.length);
+                        for (let i = 0; i < f.length; i++) {
+                            const v = Math.max(-1, Math.min(1, f[i]));
+                            o[i] = v < 0 ? v * 0x8000 : v * 0x7FFF
+                        }
+                        return o
+                    }
+                    ;
+                    const L = to16(encData[0])
+                      , R = chs === 2 ? to16(encData[1]) : null;
+                    const enc = new lamejs.Mp3Encoder(chs,sr,kbps)
+                      , parts = []
+                      , BLK = 1152;
+                    it.msg = "Mengonversi MP3 pada kecepatan " + rate + "×…";
+                    for (let i = 0, k = 0; i < encLen; i += BLK,
+                    k++) {
+                        const out = chs === 2 ? enc.encodeBuffer(L.subarray(i, i + BLK), R.subarray(i, i + BLK)) : enc.encodeBuffer(L.subarray(i, i + BLK));
+                        if (out.length)
+                            parts.push(new Uint8Array(out));
+                        if (k % 400 === 0) {
+                            it.pct = 15 + Math.round(80 * i / encLen);
+                            renderA();
+                            await tick()
+                        }
+                    }
+                    const tail = enc.flush();
+                    if (tail.length)
+                        parts.push(new Uint8Array(tail));
+                    const blob = new Blob(parts,{
+                        type: "audio/mpeg"
+                    });
+                    if (blob.size > 20 * 1024 * 1024)
+                        throw new Error("Hasil " + fmtMB(blob.size) + " melebihi batas 20 MB. Turunkan kualitas, pakai mono, atau perpendek durasi.");
+                    it.blob = blob;
+                    it.out = it.file.name.replace(/\.[^.]+$/, "") + ".mp3";
+                    it.state = "done";
+                    it.pct = 100;
+                    const dur = encLen / sr;
+                    it.msg = `Siap · ${fmtMB(it.file.size)} → ${fmtMB(blob.size)} · ${Math.floor(dur / 60)}:${String(Math.floor(dur % 60)).padStart(2, "0")} · ekspor ${rate}×${trimmed ? " · dipotong" : ""}`;
+                } catch (e) {
+                    it.state = "err";
+                    it.blob = null;
+                    it.pct = 0;
+                    it.msg = e.message || "Gagal memproses"
+                } finally {
+                    ctx.close && ctx.close()
+                }
+            }
+            async function procAll() {
+                A.busy = true;
+                renderA();
+                for (const it of A.items) {
+                    if (it.state === "done" || it.state === "up")
+                        continue;
+                    it.state = "busy";
+                    await convertOne(it);
+                    if (it.state === "busy")
+                        it.state = "err";
+                    renderA();
+                    await tick()
+                }
+                A.busy = false;
+                renderA();
+                const ok = A.items.filter(i => i.blob).length
+                  , bad = A.items.filter(i => i.state === "err").length;
+                toast(bad === 0, bad ? "Selesai dengan catatan" : "Konversi selesai", `${ok} file siap${bad ? `, ${bad} gagal (lihat keterangan di daftar)` : ""}.`);
+            }
+            async function zipAll() {
+                try {
+                    if (!window.JSZip)
+                        await loadScript("vendor/jszip.min.js").catch( () => loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"));
+                    const zip = new JSZip()
+                      , used = new Set();
+                    A.items.filter(i => i.blob).forEach(i => {
+                        let n = i.out
+                          , c = 1;
+                        while (used.has(n.toLowerCase())) {
+                            n = i.out.replace(/\.mp3$/, "") + ` (${++c}).mp3`
+                        }
+                        used.add(n.toLowerCase());
+                        zip.file(n, i.blob)
+                    }
+                    );
+                    zip.file("LICENSES.txt", A.items.filter(i => i.blob).map(i => i.out + "\n  Lisensi: " + (LIC[i.lic] || "Belum dipilih") + "\n  Sumber/kredit: " + (i.credit || "-")).join("\n\n"));
+                    saveBlob(await zip.generateAsync({
+                        type: "blob"
+                    }), "paestudio-audio.zip");
+                } catch (e) {
+                    toast(false, "Gagal membuat ZIP", e.message)
+                }
+            }
+            function pushHistory(entry) {
+                const items = getHistory();
+                items.unshift(entry);
+                try {
+                    localStorage.setItem("paeUploadHistory", JSON.stringify(items.slice(0, 20)))
+                } catch {}
+                renderHistory()
+            }
+            async function uploadAll() {
+                const key = $("key").value.trim()
+                  , owner = $("owner").value.trim();
+                if (!key || !owner) {
+                    toast(false, "Data belum lengkap", "Isi Roblox API Key dan User ID/Group ID di form bawah dulu.");
+                    $("key").focus();
+                    return
+                }
+                const bad = A.items.filter(i => i.blob && i.state !== "up" && (!i.lic || ((i.lic === "ccby" || i.lic === "perm") && !i.credit.trim())));
+                if (bad.length) {
+                    toast(false, "Lisensi belum lengkap", "Pilih lisensi untuk tiap file. CC BY dan izin tertulis wajib mengisi sumber/kredit.\nPerlu dicek: " + bad.slice(0, 5).map(i => i.out).join(", "));
+                    return
+                }
+                if (!$("oConfirm").checked) {
+                    toast(false, "Konfirmasi dulu", "Centang pernyataan hak/lisensi sebelum upload.");
+                    return
+                }
+                A.busy = true;
+                renderA();
+                let ok = 0
+                  , fail = 0;
+                for (const it of A.items) {
+                    if (!it.blob || it.state === "up")
+                        continue;
+                    if (it.blob.size > MAX_UP) {
+                        it.state = "done";
+                        it.msg = "Dilewati: " + fmtMB(it.blob.size) + " melebihi batas upload sekitar 4 MB. Turunkan kualitas, pakai mono, atau potong durasi lalu proses ulang.";
+                        fail++;
+                        renderA();
+                        continue
+                    }
+                    it.msg = "Mengunggah ke Roblox…";
+                    it.state = "busy";
+                    it.pct = 50;
+                    renderA();
+                    const d = new FormData();
+                    d.append("type", "audio");
+                    d.append("file", new File([it.blob],it.out,{
+                        type: "audio/mpeg"
+                    }));
+                    d.append("apiKey", key);
+                    d.append("target", $("target").value);
+                    d.append("ownerId", owner);
+                    d.append("name", it.out.replace(/\.[^.]+$/, "").slice(0, 50));
+                    d.append("description", descFor(it));
+                    try {
+                        const got = await sendUpload(d, f => {
+                            it.pct = Math.round(f * 90);
+                            it.msg = f >= 1 ? "Roblox memproses…" : "Mengunggah " + Math.round(f * 100) + "%";
+                            renderA()
+                        }
+                        );
+                        if (got.net)
+                            throw new Error("net");
+                        const r = {
+                            ok: got.ok,
+                            status: got.status
+                        }
+                          , j = got.j;
+                        if (r.ok && j.ok && j.assetId) {
+                            it.state = "up";
+                            it.msg = "Terunggah · Asset ID " + j.assetId;
+                            ok++;
+                            pushHistory({
+                                type: "audio",
+                                name: j.name,
+                                assetId: j.assetId,
+                                url: j.url || "",
+                                time: Date.now()
+                            })
+                        } else if (r.ok && j.ok && j.pending) {
+                            it.state = "done";
+                            it.msg = "Diterima Roblox, masih diproses. Cek Creator Dashboard.";
+                            fail++
+                        } else {
+                            it.state = "done";
+                            it.msg = "Upload gagal: " + (j.error || ("status " + r.status));
+                            fail++
+                        }
+                    } catch {
+                        it.state = "done";
+                        it.msg = "Upload gagal: tidak dapat terhubung ke server";
+                        fail++
+                    }
+                    it.pct = 100;
+                    renderA();
+                }
+                A.busy = false;
+                renderA();
+                toast(fail === 0 && ok > 0, fail ? "Upload selesai dengan catatan" : "Upload selesai", `${ok} berhasil, ${fail} gagal.`);
+            }
+            const LIC = {
+                own: "Karya sendiri",
+                cc0: "CC0 / Public Domain",
+                ccby: "CC BY",
+                perm: "Izin tertulis pemilik hak"
+            };
+            function descFor(it) {
+                const tail = "\n\nLisensi: " + LIC[it.lic] + (it.credit.trim() ? " — " + it.credit.trim() : "");
+                return ($("desc").value.slice(0, Math.max(0, 1000 - tail.length)) + tail).trim()
+            }
+            function licRow(it) {
+                const w = document.createElement("div");
+                w.className = "lic";
+                const s = document.createElement("select");
+                s.innerHTML = $("oLic").innerHTML;
+                s.value = it.lic;
+                s.setAttribute("aria-label", "Lisensi");
+                s.onchange = () => {
+                    it.lic = s.value
+                }
+                ;
+                const c = document.createElement("input");
+                c.placeholder = "Sumber / pencipta / link lisensi";
+                c.maxLength = 120;
+                c.value = it.credit;
+                c.oninput = () => {
+                    it.credit = c.value
+                }
+                ;
+                w.append(s, c);
+                return w
+            }
+            /* ===== Pemutar ===== */
+            const P = {
+                cur: null,
+                conv: false,
+                url: null,
+                seek: false
+            }
+              , aud = $("pAudio");
+            const fmtT = s => {
+                s = Math.max(0, s || 0);
+                return Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0")
+            }
+            ;
+            function applyRate() {
+                const r = +$("pRate").value;
+                aud.defaultPlaybackRate = r;
+                aud.playbackRate = r;
+                aud.preservesPitch = aud.mozPreservesPitch = aud.webkitPreservesPitch = $("pPitch").checked
+            }
+            function playItem(it, force) {
+                if (!force && P.cur === it && P.conv === !!it.blob && aud.src) {
+                    aud.paused ? aud.play().catch( () => {}
+                    ) : aud.pause();
+                    return
+                }
+                if (P.url)
+                    URL.revokeObjectURL(P.url);
+                P.cur = it;
+                P.conv = !!it.blob;
+                P.url = URL.createObjectURL(it.blob || it.file);
+                aud.src = P.url;
+                applyRate();
+                $("pTitle").textContent = (it.blob ? it.out + " · hasil konversi" : it.file.name + " · file asli");
+                aud.play().catch( () => toast(false, "Tidak bisa diputar", "Browser tidak bisa memutar file ini."));
+                renderA();
+            }
+            function stopPlayer() {
+                aud.pause();
+                aud.removeAttribute("src");
+                aud.load();
+                if (P.url)
+                    URL.revokeObjectURL(P.url);
+                P.url = null;
+                P.cur = null;
+                $("pTitle").textContent = "Tekan ▶ pada file di daftar untuk memutar";
+                $("pSeek").value = 0;
+                $("pTime").textContent = "0:00 / 0:00";
+                $("pPlay").textContent = "▶"
+            }
+            function stepPlayer(d) {
+                const l = A.items;
+                if (!l.length)
+                    return;
+                const i = l.indexOf(P.cur);
+                playItem(l[((i < 0 ? (d > 0 ? -1 : 0) : i) + d + l.length) % l.length], true)
+            }
+            function playBtn(it) {
+                const b = document.createElement("button");
+                b.type = "button";
+                b.className = "mini";
+                const on = P.cur === it && !aud.paused;
+                b.textContent = on ? "❚❚" : "▶";
+                b.title = on ? "Jeda" : "Putar";
+                b.onclick = () => playItem(it);
+                return b
+            }
+            $("pPlay").onclick = () => {
+                if (P.cur)
+                    aud.paused ? aud.play().catch( () => {}
+                    ) : aud.pause();
+                else if (A.items[0])
+                    playItem(A.items[0], true)
+            }
+            ;
+            $("pPrev").onclick = () => stepPlayer(-1);
+            $("pNext").onclick = () => stepPlayer(1);
+            $("pVol").oninput = () => {
+                aud.volume = $("pVol").value / 100
+            }
+            ;
+            $("pRate").onchange = applyRate;
+            $("pPitch").onchange = applyRate;
+            $("pLoop").onclick = () => {
+                aud.loop = !aud.loop;
+                $("pLoop").classList.toggle("on", aud.loop)
+            }
+            ;
+            $("pSeek").addEventListener("input", () => {
+                P.seek = true;
+                if (aud.duration)
+                    aud.currentTime = $("pSeek").value / 1000 * aud.duration
+            }
+            );
+            ["change", "pointerup", "keyup"].forEach(ev => $("pSeek").addEventListener(ev, () => {
+                P.seek = false
+            }
+            ));
+            aud.addEventListener("timeupdate", () => {
+                if (!P.seek && aud.duration)
+                    $("pSeek").value = Math.round(aud.currentTime / aud.duration * 1000);
+                $("pTime").textContent = fmtT(aud.currentTime) + " / " + fmtT(aud.duration)
+            }
+            );
+            aud.addEventListener("loadedmetadata", () => {
+                $("pTime").textContent = "0:00 / " + fmtT(aud.duration)
+            }
+            );
+            aud.addEventListener("play", () => {
+                $("pPlay").textContent = "❚❚";
+                renderA()
+            }
+            );
+            aud.addEventListener("pause", () => {
+                $("pPlay").textContent = "▶";
+                renderA()
+            }
+            );
+            aud.addEventListener("ended", () => {
+                if ($("pAuto").checked && A.items.indexOf(P.cur) < A.items.length - 1)
+                    stepPlayer(1)
+            }
+            );
+            function dirty(it) {
+                if (it.blob || it.state === "done" || it.state === "up") {
+                    it.blob = null;
+                    it.state = "wait";
+                    it.pct = 0;
+                    it.msg = "Pengaturan diubah · proses ulang"
+                }
+                renderA()
+            }
+            function trimRow(it) {
+                const w = document.createElement("div");
+                w.className = "trim";
+                [["start", "Mulai (dtk)"], ["end", "Akhir (dtk, 0=habis)"], ["fadeIn", "Fade in (dtk)"], ["fadeOut", "Fade out (dtk)"]].forEach( ([k,lb]) => {
+                    const l = document.createElement("label");
+                    l.textContent = lb;
+                    const i = document.createElement("input");
+                    i.type = "number";
+                    i.min = "0";
+                    i.step = "0.1";
+                    i.inputMode = "decimal";
+                    i.value = it[k] || 0;
+                    i.onchange = () => {
+                        it[k] = Math.max(0, +i.value || 0);
+                        dirty(it)
+                    }
+                    ;
+                    l.append(i);
+                    w.append(l)
+                }
+                );
+                [["start", "[ Mulai"], ["end", "Akhir ]"]].forEach( ([k,t]) => {
+                    const b = document.createElement("button");
+                    b.type = "button";
+                    b.className = "mini";
+                    b.textContent = t;
+                    b.title = "Ambil dari posisi pemutar";
+                    b.onclick = () => {
+                        if (P.cur !== it || P.conv) {
+                            toast(false, "Putar file asli dulu", "Tekan ▶ pada file ini sebelum diproses, lalu tekan tombol ini di posisi yang diinginkan.");
+                            return
+                        }
+                        it[k] = +aud.currentTime.toFixed(2);
+                        dirty(it)
+                    }
+                    ;
+                    w.append(b)
+                }
+                );
+                return w
+            }
+            $("pSec").onclick = () => {
+                P.sec = !P.sec;
+                $("pSec").classList.toggle("on", P.sec);
+                if (P.sec && P.cur && !P.conv && aud.currentTime < (P.cur.start || 0))
+                    aud.currentTime = P.cur.start || 0
+            }
+            ;
+            aud.addEventListener("timeupdate", () => {
+                if (P.sec && P.cur && !P.conv) {
+                    const a = P.cur.start || 0
+                      , b = P.cur.end > 0 ? P.cur.end : aud.duration;
+                    if (b > a && aud.currentTime >= b)
+                        aud.currentTime = a
+                }
+            }
+            );
+            /* ===== Perpustakaan ID ===== */
+            const CATS = ["DJ Remix", "Pop Punk", "Pop Sad", "Tradisional", "Funkot", "Dustep", "Dangdut", "Melayu", "Dugem", "Koplo", "Joget", "Pargoy", "Remix", "Pop"].sort( (a, b) => b.length - a.length);
+            const lbGet = () => {
+                try {
+                    return JSON.parse(localStorage.getItem("paeIdLib") || "[]")
+                } catch {
+                    return []
+                }
+            }
+            ;
+            const lbSet = a => {
+                try {
+                    localStorage.setItem("paeIdLib", JSON.stringify(a))
+                } catch {
+                    toast(false, "Penyimpanan penuh", "Perpustakaan tidak bisa disimpan di browser ini.")
+                }
+            }
+            ;
+            function lbParse(t) {
+                const out = [];
+                t.split(/\r?\n/).forEach( (raw, idx) => {
+                    let l = raw.trim();
+                    if (!l || /^(--|>|#)/.test(l))
+                        return;
+                    let id = ""
+                      , nm = "";
+                    const urlMatch = l.match(/(?:roblox\.com\/(?:library|catalog|asset)\/(\d+)|[?&]id=(\d+))/i);
+                    if (urlMatch) {
+                        id = urlMatch[1] || urlMatch[2];
+                        nm = l.replace(/https?:\/\/\S+/ig, "").trim()
+                    } else if (/^\d{5,}$/.test(l)) {
+                        id = l;
+                        nm = "Lagu " + id
+                    } else {
+                        const m = l.match(/^(.*?)[\s,|:\t-]*(\d{5,})$/);
+                        if (!m)
+                            return;
+                        nm = m[1].trim();
+                        id = m[2]
+                    }
+                    if (!/^\d{5,}$/.test(id))
+                        return;
+                    let cat = "Lainnya";
+                    for (const c of CATS)
+                        if (nm.length > c.length && nm.toLowerCase().endsWith(c.toLowerCase())) {
+                            cat = c;
+                            nm = nm.slice(0, -c.length).trim();
+                            break
+                        }
+                    if (!nm)
+                        nm = "Lagu " + id;
+                    out.push({
+                        name: nm.slice(0, 80),
+                        cat,
+                        id
+                    })
+                }
+                );
+                return out
+            }
+            function lbMerge(list) {
+                const cur = lbGet()
+                  , seen = new Set(cur.map(x => x.id));
+                let n = 0;
+                list.forEach(x => {
+                    if (x && x.id && /^\d{5,}$/.test(String(x.id)) && !seen.has(String(x.id))) {
+                        seen.add(String(x.id));
+                        cur.push({
+                            name: String(x.name || "Tanpa nama").slice(0, 80),
+                            cat: String(x.cat || "Lainnya").slice(0, 30),
+                            id: String(x.id)
+                        });
+                        n++
+                    }
+                }
+                );
+                lbSet(cur);
+                lbRender();
+                return n
+            }
+            async function copyText(t) {
+                try {
+                    await navigator.clipboard.writeText(t)
+                } catch {
+                    const a = document.createElement("textarea");
+                    a.value = t;
+                    document.body.appendChild(a);
+                    a.select();
+                    document.execCommand("copy");
+                    a.remove()
+                }
+            }
+            function lbFiltered() {
+                const q = $("lbQ").value.trim().toLowerCase()
+                  , c = $("lbCat").value;
+                return lbGet().filter(x => (!c || x.cat === c) && (!q || x.name.toLowerCase().includes(q) || x.id.includes(q)))
+            }
+            function lbRender() {
+                const all = lbGet()
+                  , sel = $("lbCat")
+                  , keep = sel.value
+                  , cats = {};
+                all.forEach(x => cats[x.cat] = (cats[x.cat] || 0) + 1);
+                sel.innerHTML = "";
+                const o0 = document.createElement("option");
+                o0.value = "";
+                o0.textContent = "Semua kategori (" + all.length + ")";
+                sel.append(o0);
+                Object.keys(cats).sort().forEach(c => {
+                    const o = document.createElement("option");
+                    o.value = c;
+                    o.textContent = c + " (" + cats[c] + ")";
+                    sel.append(o)
+                }
+                );
+                sel.value = cats[keep] ? keep : "";
+                const f = lbFiltered()
+                  , list = $("lbList");
+                list.innerHTML = "";
+                if (!f.length) {
+                    const e = document.createElement("div");
+                    e.className = "empty";
+                    e.textContent = all.length ? "Tidak ada yang cocok." : "Perpustakaan masih kosong. Tempel daftar ID di atas.";
+                    list.append(e);
+                    return
+                }
+                f.slice(0, 100).forEach(x => {
+                    const r = document.createElement("div");
+                    r.className = "idrow";
+                    const i = document.createElement("div");
+                    i.className = "info";
+                    const n = document.createElement("div");
+                    n.className = "nm";
+                    n.textContent = x.name;
+                    const m = document.createElement("div");
+                    m.className = "mt";
+                    m.textContent = x.cat + " · " + x.id;
+                    i.append(n, m);
+                    const cp = document.createElement("button");
+                    cp.type = "button";
+                    cp.className = "mini";
+                    cp.textContent = "Salin ID";
+                    cp.onclick = async () => {
+                        await copyText(x.id);
+                        cp.textContent = "Tersalin ✓";
+                        setTimeout( () => cp.textContent = "Salin ID", 1200)
+                    }
+                    ;
+                    const rm = document.createElement("button");
+                    rm.type = "button";
+                    rm.className = "mini";
+                    rm.textContent = "✕";
+                    rm.title = "Hapus";
+                    rm.onclick = () => {
+                        lbSet(lbGet().filter(y => y.id !== x.id));
+                        lbRender()
+                    }
+                    ;
+                    r.append(i, cp, rm);
+                    list.append(r)
+                }
+                );
+                if (f.length > 100) {
+                    const e = document.createElement("div");
+                    e.className = "empty";
+                    e.textContent = "…dan " + (f.length - 100) + " lainnya. Persempit dengan pencarian atau kategori.";
+                    list.append(e)
+                }
+            }
+            $("lbAdd").onclick = () => {
+                const l = lbParse($("lbPaste").value);
+                if (!l.length) {
+                    toast(false, "Tidak ada ID terbaca", "Tempel ID angka (minimal 5 digit), tautan Roblox, atau Nama Lagu + ID; satu per baris.");
+                    return
+                }
+                const n = lbMerge(l);
+                $("lbPaste").value = "";
+                toast(true, "Pemeriksaan selesai", n + " ID baru ditambahkan, " + (l.length - n) + " sudah ada/duplikat. ID hanya divalidasi formatnya, bukan dicek akses audio Roblox.")
+            }
+            ;
+            $("lbQ").oninput = lbRender;
+            $("lbCat").onchange = lbRender;
+            $("lbCopyAll").onclick = async () => {
+                const f = lbFiltered();
+                if (!f.length)
+                    return;
+                await copyText(f.map(x => x.id).join("\n"));
+                toast(true, "Tersalin", f.length + " ID disalin, satu per baris.")
+            }
+            ;
+            $("lbExp").onclick = () => {
+                const a = lbGet();
+                if (!a.length) {
+                    toast(false, "Kosong", "Belum ada yang diekspor.");
+                    return
+                }
+                saveBlob(new Blob([JSON.stringify(a, null, 1)],{
+                    type: "application/json"
+                }), "paestudio-id-library.json")
+            }
+            ;
+            $("lbImp").onclick = () => $("lbFile").click();
+            $("lbFile").onchange = async e => {
+                const f = e.target.files[0];
+                e.target.value = "";
+                if (!f)
+                    return;
+                try {
+                    const t = await f.text();
+                    const l = t.trim().startsWith("[") ? JSON.parse(t) : lbParse(t);
+                    toast(true, "Impor selesai", lbMerge(l) + " ID baru ditambahkan.")
+                } catch {
+                    toast(false, "Impor gagal", "File tidak dapat dibaca.")
+                }
+            }
+            ;
+            $("lbClr").onclick = () => {
+                if (lbGet().length && confirm("Hapus semua ID di perpustakaan?")) {
+                    lbSet([]);
+                    lbRender()
+                }
+            }
+            ;
+            lbRender();
+            $("aFiles").addEventListener("change", e => {
+                addAudio(e.target.files);
+                e.target.value = ""
+            }
+            );
+            const aDrop = $("aDrop");
+            ["dragenter", "dragover"].forEach(ev => aDrop.addEventListener(ev, e => {
+                e.preventDefault();
+                aDrop.classList.add("over")
+            }
+            ));
+            ["dragleave", "drop"].forEach(ev => aDrop.addEventListener(ev, e => {
+                e.preventDefault();
+                aDrop.classList.remove("over")
+            }
+            ));
+            aDrop.addEventListener("drop", e => {
+                if (e.dataTransfer && e.dataTransfer.files)
+                    addAudio(e.dataTransfer.files)
+            }
+            );
+            $("aProc").onclick = procAll;
+            $("aZip").onclick = zipAll;
+            $("aUp").onclick = uploadAll;
+            renderA();
+        
+</script>
+<script>
+/* =====================================================================
+   Produk diambil dari /api/products (diisi lewat halaman /admin).
+   SAMPLES di bawah hanya tampil kalau database belum dihubungkan
+   (misalnya saat membuka file ini langsung dari komputer).
+   ===================================================================== */
 (function () {
-  "use strict";
-  var $ = function (id) { return document.getElementById(id); };
-  var CATS = { mesh: "Mesh", decal: "Decal", audio: "Audio", model: "Model", lainnya: "Lainnya" };
-  var products = [], editingId = null, newImage = null, status = {};
+  var CATS = [
+    { id: "all",   label: "Semua" },
+    { id: "mesh",  label: "Mesh",  icon: "i-cube"  },
+    { id: "decal", label: "Decal", icon: "i-img"   },
+    { id: "audio", label: "Audio", icon: "i-music" },
+    { id: "model", label: "Model", icon: "i-box"   },
+    { id: "lainnya", label: "Lainnya", icon: "i-box" }
+  ];
+  var KINDS = [
+    { id: "all",  label: "Semua" },
+    { id: "free", label: "Gratis" },
+    { id: "paid", label: "Berbayar" }
+  ];
+  var SAMPLES = [
+    { cat: "mesh",  pricing: "paid", name: "Crown Mesh Pack",   desc: "Mahkota 3D bergaya galaxy untuk avatar.",       price: 25000, tag: "Contoh", url: "#" },
+    { cat: "mesh",  pricing: "paid", name: "Star Wings",        desc: "Sayap bintang low-poly, ringan untuk mobile.",  price: 20000, tag: "Contoh", url: "#" },
+    { cat: "mesh",  pricing: "free", name: "Starter Hair",      desc: "Rambut sederhana gratis untuk mulai berkreasi.", price: 0,     tag: "Contoh", url: "#" },
+    { cat: "decal", pricing: "paid", name: "Galaxy Decal Pack", desc: "Kumpulan decal bertema galaksi dan bintang.",   price: 10000, tag: "Contoh", url: "#" },
+    { cat: "decal", pricing: "free", name: "Neon Sticker Mini", desc: "Beberapa stiker neon gratis untuk dekorasi.",   price: 0,     tag: "Contoh", url: "#" },
+    { cat: "audio", pricing: "paid", name: "Lo-fi Loop Pack",   desc: "Loop musik santai siap pakai untuk game.",      price: 15000, tag: "Contoh", url: "#" },
+    { cat: "model", pricing: "paid", name: "Mini Shop Model",   desc: "Model toko kecil format RBXM, tinggal tempel.", price: 35000, tag: "Contoh", url: "#" },
+    { cat: "model", pricing: "free", name: "Obby Checkpoint",   desc: "Satu checkpoint obby gratis, tinggal tempel.",  price: 0,     tag: "Contoh", url: "#" }
+  ];
 
-  function show(el, on) { el.hidden = !on; }
-  function say(el, text, kind) {
-    el.textContent = text || "";
-    el.className = "msg" + (kind ? " " + kind : "");
-    el.hidden = !text;
+  var PRODUCTS = [];
+  var priceEl = document.getElementById("priceTabs");
+  var tabsEl = document.getElementById("prodTabs");
+  var gridEl = document.getElementById("prodGrid");
+  var qEl = document.getElementById("prodQ");
+  var sortEl = document.getElementById("prodSort");
+  if (!tabsEl || !gridEl || !priceEl) return;
+  var NS = "http://www.w3.org/2000/svg", active = "all", kind = "all", query = "", sortBy = "new";
+
+  function icon(id) {
+    var s = document.createElementNS(NS, "svg");
+    s.setAttribute("class", "ico");
+    var u = document.createElementNS(NS, "use");
+    u.setAttribute("href", "#" + id);
+    s.appendChild(u);
+    return s;
   }
-  function rupiah(n) { return n > 0 ? "Rp " + Number(n).toLocaleString("id-ID") : "Gratis"; }
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function pricingOf(p) {
+    if (p.pricing === "free" || p.pricing === "paid") return p.pricing;
+    return Number(p.price) > 0 ? "paid" : "free";
+  }
+  function priceNum(p) { return pricingOf(p) === "free" ? 0 : Number(p.price) || 0; }
+  function priceText(p) {
+    return pricingOf(p) === "free" ? "Gratis" : "Rp " + priceNum(p).toLocaleString("id-ID");
+  }
+  function matchText(p) {
+    if (!query) return true;
+    return ((p.name || "") + " " + (p.desc || "") + " " + (p.tag || "")).toLowerCase().indexOf(query) !== -1;
+  }
+  function matchKind(p) { return kind === "all" || pricingOf(p) === kind; }
+  function countKind(k) {
+    return PRODUCTS.filter(function (p) { return k === "all" || pricingOf(p) === k; }).length;
+  }
+  function countCat(cat) {
+    return PRODUCTS.filter(function (p) { return matchKind(p) && matchText(p) && (cat === "all" || p.cat === cat); }).length;
+  }
+  function catOf(id) {
+    return CATS.filter(function (c) { return c.id === id; })[0] || CATS[0];
+  }
 
-  async function api(method, url, body) {
-    var r = await fetch(url, {
-      method: method,
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/json", "X-Requested-With": "paestudio" },
-      body: body ? JSON.stringify(body) : undefined
+  function renderPriceTabs() {
+    priceEl.textContent = "";
+    KINDS.forEach(function (k) {
+      var b = el("button", "");
+      b.type = "button";
+      b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", String(k.id === kind));
+      b.tabIndex = k.id === kind ? 0 : -1;
+      b.dataset.kind = k.id;
+      b.append(k.label, el("small", "", String(countKind(k.id))));
+      priceEl.appendChild(b);
     });
-    var j = {};
-    try { j = await r.json(); } catch (e) {}
-    if (r.status === 401 && url.indexOf("/api/auth") !== 0) { showLogin(); }
-    if (!r.ok) throw new Error(j.error || "Gagal (" + r.status + ")");
-    return j;
   }
 
-  /* ---------- tampilan ---------- */
-  function showLogin() {
-    show($("boot"), false); show($("dash"), false); show($("loginView"), true); show($("logout"), false);
-    if (!status.adminConfigured) {
-      say($("cfgWarn"), "ADMIN_PASSWORD belum diatur di Vercel. Buka Project → Settings → Environment Variables, tambahkan ADMIN_PASSWORD, lalu redeploy.", "warn");
-    } else say($("cfgWarn"), "");
-  }
-  function showDash() {
-    show($("boot"), false); show($("loginView"), false); show($("dash"), true); show($("logout"), true);
-    say($("dbWarn"), status.db ? "" : "Database belum dihubungkan. Di Vercel buka tab Storage → Create Database → Upstash Redis → Connect ke project, lalu redeploy.", "warn");
-    loadList();
+  function renderTabs() {
+    if (active !== "all" && countCat(active) === 0) active = "all";
+    tabsEl.textContent = "";
+    CATS.forEach(function (c) {
+      var n = countCat(c.id);
+      if (c.id !== "all" && n === 0) return;
+      var b = el("button", "ptab");
+      b.type = "button";
+      b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", String(c.id === active));
+      b.tabIndex = c.id === active ? 0 : -1;
+      b.dataset.cat = c.id;
+      b.append(c.label, el("small", "", String(n)));
+      tabsEl.appendChild(b);
+    });
   }
 
-  async function boot() {
-    try {
-      status = await api("GET", "/api/auth");
-    } catch (e) {
-      show($("boot"), true);
-      $("boot").textContent = "Tidak bisa menghubungi server. Coba muat ulang halaman.";
+  function sorted(list) {
+    var a = list.slice();
+    if (sortBy === "low") a.sort(function (x, y) { return priceNum(x) - priceNum(y); });
+    else if (sortBy === "high") a.sort(function (x, y) { return priceNum(y) - priceNum(x); });
+    else if (sortBy === "az") a.sort(function (x, y) { return String(x.name).localeCompare(String(y.name), "id"); });
+    else a.sort(function (x, y) { return (y.createdAt || 0) - (x.createdAt || 0); });
+    return a;
+  }
+
+  function renderGrid() {
+    gridEl.textContent = "";
+    var list = sorted(PRODUCTS.filter(function (p) {
+      return matchKind(p) && matchText(p) && (active === "all" || p.cat === active);
+    }));
+    if (!list.length) {
+      var msg = query ? "Tidak ada produk yang cocok dengan pencarianmu."
+        : kind === "free" ? "Belum ada produk gratis di kategori ini."
+        : kind === "paid" ? "Belum ada produk berbayar di kategori ini."
+        : "Belum ada produk di kategori ini.";
+      gridEl.appendChild(el("div", "empty", msg));
       return;
     }
-    status.admin ? showDash() : showLogin();
-  }
-
-  /* ---------- login ---------- */
-  $("loginForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    say($("loginMsg"), "");
-    $("loginBtn").disabled = true;
-    try {
-      await api("POST", "/api/auth", { username: $("u").value, password: $("p").value });
-      $("p").value = "";
-      status.admin = true;
-      showDash();
-    } catch (err) {
-      say($("loginMsg"), err.message, "err");
-    } finally { $("loginBtn").disabled = false; }
-  });
-  $("logout").addEventListener("click", async function () {
-    try { await api("DELETE", "/api/auth"); } catch (e) {}
-    status.admin = false; products = []; resetForm(); showLogin();
-  });
-
-  /* ---------- daftar ---------- */
-  async function loadList() {
-    try {
-      var j = await api("GET", "/api/products?fresh=1");
-      products = j.products || [];
-      renderList();
-    } catch (e) { say($("formMsg"), e.message, "err"); }
-  }
-
-  function renderList() {
-    var box = $("list");
-    box.textContent = "";
-    $("count").textContent = products.length ? "(" + products.length + ")" : "";
-    if (!products.length) {
-      var d = document.createElement("div"); d.className = "empty";
-      d.textContent = "Belum ada produk. Tambahkan produk pertamamu di form sebelah.";
-      box.appendChild(d); return;
-    }
-    products.forEach(function (p) {
-      var it = document.createElement("div");
-      it.className = "item" + (p.id === editingId ? " editing" : "");
-      var th = document.createElement("div"); th.className = "thumb";
-      if (p.img) { var im = document.createElement("img"); im.src = p.img; im.alt = ""; im.loading = "lazy"; th.appendChild(im); }
-      else th.textContent = "tanpa gambar";
-      var meta = document.createElement("div"); meta.className = "meta";
-      var b = document.createElement("b"); b.textContent = p.name;
-      var s = document.createElement("small"); s.textContent = (CATS[p.cat] || p.cat) + " · " + rupiah(p.price) + (p.tag ? " · " + p.tag : "");
-      meta.append(b, s);
-      var acts = document.createElement("div"); acts.className = "acts";
-      var ed = document.createElement("button"); ed.type = "button"; ed.className = "btn sm"; ed.textContent = "Edit";
-      ed.onclick = function () { startEdit(p); };
-      var del = document.createElement("button"); del.type = "button"; del.className = "btn sm danger"; del.textContent = "Hapus";
-      del.onclick = function () { removeProduct(p, del); };
-      acts.append(ed, del);
-      it.append(th, meta, acts);
-      box.appendChild(it);
-    });
-  }
-
-  async function removeProduct(p, btn) {
-    if (!confirm('Hapus produk "' + p.name + '"? Tindakan ini tidak bisa dibatalkan.')) return;
-    btn.disabled = true;
-    try {
-      await api("DELETE", "/api/products?id=" + encodeURIComponent(p.id));
-      if (editingId === p.id) resetForm();
-      await loadList();
-    } catch (e) { alert(e.message); btn.disabled = false; }
-  }
-
-  /* ---------- form ---------- */
-  function setPreview(src) {
-    var drop = $("drop");
-    var old = drop.querySelector("img"); if (old) old.remove();
-    if (src) {
-      var im = document.createElement("img"); im.src = src; im.alt = "Pratinjau";
-      drop.appendChild(im);
-      $("dropText").style.display = "none";
-    } else $("dropText").style.display = "";
-  }
-
-  function resetForm() {
-    editingId = null; newImage = null;
-    $("pf").reset(); setPreview(""); $("imgInfo").textContent = ""; $("priceHint").textContent = "";
-    show($("rmWrap"), false); show($("cancelBtn"), false);
-    $("formTitle").textContent = "Tambah produk";
-    $("formSub").textContent = "Isi data lalu simpan. Produk langsung tampil di situs.";
-    $("saveBtn").textContent = "Simpan produk";
-    say($("formMsg"), "");
-    renderList();
-  }
-
-  function startEdit(p) {
-    editingId = p.id; newImage = null;
-    $("name").value = p.name; $("cat").value = p.cat; $("price").value = p.price;
-    $("desc").value = p.desc || ""; $("url").value = p.url || ""; $("tag").value = p.tag || "";
-    $("rmImg").checked = false; $("imgFile").value = "";
-    setPreview(p.img || ""); $("imgInfo").textContent = p.img ? "Pilih gambar baru untuk mengganti." : "";
-    show($("rmWrap"), !!p.img); show($("cancelBtn"), true);
-    $("formTitle").textContent = "Edit produk";
-    $("formSub").textContent = "Ubah data lalu simpan.";
-    $("saveBtn").textContent = "Simpan perubahan";
-    updateHint(); say($("formMsg"), "");
-    renderList();
-    $("name").scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-  $("cancelBtn").addEventListener("click", resetForm);
-
-  function updateHint() {
-    var v = $("price").value;
-    $("priceHint").textContent = v === "" ? "" : "Tampil di situs: " + rupiah(Number(v));
-  }
-  $("price").addEventListener("input", updateHint);
-
-  /* kompres gambar di browser supaya ringan */
-  function loadImage(file) {
-    return new Promise(function (resolve, reject) {
-      var url = URL.createObjectURL(file), im = new Image();
-      im.onload = function () { URL.revokeObjectURL(url); resolve(im); };
-      im.onerror = function () { URL.revokeObjectURL(url); reject(new Error("Gambar tidak bisa dibaca")); };
-      im.src = url;
-    });
-  }
-  function toBlob(canvas, type, q) {
-    return new Promise(function (r) { canvas.toBlob(r, type, q); });
-  }
-  function blobToDataUrl(b) {
-    return new Promise(function (resolve, reject) {
-      var fr = new FileReader(); fr.onload = function () { resolve(fr.result); }; fr.onerror = reject; fr.readAsDataURL(b);
-    });
-  }
-  async function compress(file) {
-    var im = await loadImage(file);
-    var maxW = 900, scale = Math.min(1, maxW / im.naturalWidth);
-    var LIMIT = 300 * 1024, q = 0.85, blob, canvas = document.createElement("canvas");
-    for (var i = 0; i < 8; i++) {
-      canvas.width = Math.max(1, Math.round(im.naturalWidth * scale));
-      canvas.height = Math.max(1, Math.round(im.naturalHeight * scale));
-      var ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(im, 0, 0, canvas.width, canvas.height);
-      blob = await toBlob(canvas, "image/webp", q);
-      if (!blob || blob.type !== "image/webp") {           // browser lama tanpa WebP
-        ctx.globalCompositeOperation = "destination-over";
-        ctx.fillStyle = "#111"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        blob = await toBlob(canvas, "image/jpeg", q);
+    list.forEach(function (p) {
+      var c = catOf(p.cat), free = pricingOf(p) === "free";
+      var card = el("article", "prod");
+      var img = el("div", "prod-img pm-" + p.cat + (p.img ? " has-img" : ""));
+      if (p.img) {
+        var pic = document.createElement("img");
+        pic.src = p.img; pic.alt = p.name; pic.loading = "lazy"; pic.decoding = "async";
+        pic.width = 900; pic.height = 562;
+        img.appendChild(pic);
+      } else img.appendChild(icon(c.icon || "i-box"));
+      if (free) img.appendChild(el("span", "prod-badge free", "GRATIS"));
+      if (p.tag) img.appendChild(el("span", "prod-badge" + (free ? " tagb" : ""), p.tag));
+      var body = el("div", "prod-body");
+      var foot = el("div", "prod-foot");
+      foot.appendChild(el("span", "prod-price" + (free ? " free" : ""), priceText(p)));
+      if (p.url && /^https?:\/\//i.test(p.url)) {
+        var a = el("a", "prod-btn" + (free ? " free" : ""), free ? "Ambil gratis" : "Pesan");
+        a.href = p.url; a.target = "_blank"; a.rel = "noopener noreferrer";
+        foot.appendChild(a);
       }
-      if (blob.size <= LIMIT) break;
-      if (q > 0.55) q -= 0.1; else scale *= 0.85;
-    }
-    if (blob.size > 440 * 1024) throw new Error("Gambar masih terlalu besar setelah dikompres");
-    return { dataUrl: await blobToDataUrl(blob), size: blob.size, w: canvas.width, h: canvas.height };
+      body.append(el("span", "prod-cat", c.label), el("h3", "prod-name", p.name), el("p", "prod-desc", p.desc || ""), foot);
+      card.append(img, body);
+      gridEl.appendChild(card);
+    });
   }
 
-  $("imgFile").addEventListener("change", async function () {
-    var f = this.files && this.files[0];
-    if (!f) return;
-    $("imgInfo").textContent = "Mengompres gambar…";
-    try {
-      var c = await compress(f);
-      newImage = c.dataUrl; $("rmImg").checked = false;
-      setPreview(c.dataUrl);
-      $("imgInfo").textContent = c.w + "×" + c.h + " px · " + Math.round(c.size / 1024) + " KB";
-    } catch (e) {
-      newImage = null; $("imgInfo").textContent = ""; say($("formMsg"), e.message, "err");
-    }
+  function renderAll(focusSel) {
+    renderPriceTabs();
+    renderTabs();
+    renderGrid();
+    if (focusSel) { var t = document.querySelector(focusSel + ' [aria-selected="true"]'); if (t) t.focus(); }
+  }
+
+  priceEl.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-kind]");
+    if (b) { kind = b.dataset.kind; renderAll(); }
+  });
+  tabsEl.addEventListener("click", function (e) {
+    var b = e.target.closest(".ptab");
+    if (b) { active = b.dataset.cat; renderAll(); }
+  });
+  function arrows(box, sel, key, set) {
+    box.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      var tabs = Array.prototype.slice.call(box.querySelectorAll(sel));
+      var i = tabs.findIndex(function (t) { return t.getAttribute("aria-selected") === "true"; });
+      i = (i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+      e.preventDefault();
+      set(tabs[i].dataset[key]);
+      renderAll("#" + box.id);
+    });
+  }
+  arrows(tabsEl, ".ptab", "cat", function (v) { active = v; });
+  arrows(priceEl, "button", "kind", function (v) { kind = v; });
+
+  if (qEl) qEl.addEventListener("input", function () { query = qEl.value.trim().toLowerCase(); renderAll(); });
+  if (sortEl) sortEl.addEventListener("change", function () { sortBy = sortEl.value; renderGrid(); });
+
+  /* Tombol navigasi "Produk" / "Lihat produk" */
+  document.querySelectorAll("[data-go]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var t = document.getElementById(b.dataset.go);
+      if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.querySelectorAll(".links button").forEach(function (x) {
+        x.classList.toggle("active", x.dataset.go === b.dataset.go);
+      });
+    });
+  });
+  document.querySelectorAll(".links button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll(".links button").forEach(function (x) { x.classList.toggle("active", x === b); });
+    });
   });
 
-  $("pf").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    say($("formMsg"), "");
-    var body = {
-      name: $("name").value, cat: $("cat").value, price: $("price").value,
-      desc: $("desc").value, url: $("url").value, tag: $("tag").value
-    };
-    if (newImage) body.image = newImage;
-    if (editingId && $("rmImg").checked && !newImage) body.removeImage = true;
-    $("saveBtn").disabled = true;
-    try {
-      if (editingId) await api("PUT", "/api/products?id=" + encodeURIComponent(editingId), body);
-      else await api("POST", "/api/products", body);
-      var was = editingId ? "Perubahan disimpan." : "Produk ditambahkan.";
-      resetForm(); await loadList();
-      say($("formMsg"), was, "ok");
-    } catch (err) {
-      say($("formMsg"), err.message, "err");
-    } finally { $("saveBtn").disabled = false; }
-  });
-
-  boot();
+  /* Ambil produk dari server. Gagal/belum ada database -> pakai contoh. */
+  gridEl.appendChild(el("div", "empty", "Memuat produk…"));
+  var ctrl = typeof AbortController === "function" ? new AbortController() : null;
+  var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 7000) : 0;
+  fetch("/api/products", ctrl ? { signal: ctrl.signal } : undefined)
+    .then(function (r) { if (!r.ok) throw new Error("http"); return r.json(); })
+    .then(function (j) { PRODUCTS = j && j.configured ? (j.products || []) : SAMPLES; })
+    .catch(function () { PRODUCTS = SAMPLES; })
+    .then(function () { clearTimeout(timer); renderAll(); });
 })();
+
 </script>
 </body>
 </html>
