@@ -1,9 +1,13 @@
 // POST /api/upload  (multipart/form-data)
 // Fields: type (decal|audio|file), file, apiKey, target (user|group), ownerId, name, description
-// Response: { ok, assetId, name, url } | { ok, pending, message } | { error }
+// Wajib login Discord. Akun gratis dibatasi 7 upload / 24 jam (semua tipe), premium tanpa batas.
+// Response: { ok, assetId, name, url, quota? } | { ok, pending, message, quota? } | { error, code? }
+//   code: "login" (belum login) | "limit" (kuota habis)
 
 const fs = require("fs");
 const { formidable } = require("formidable");
+const store = require("../lib/store");
+const users = require("../lib/users");
 
 // Batas body Vercel Functions = 4.5 MB, sisakan sedikit untuk field lain.
 const MAX_FILE_BYTES = 4 * 1024 * 1024;
@@ -34,8 +38,13 @@ const API = "https://apis.roblox.com/assets/v1";
 const first = (v) => (Array.isArray(v) ? v[0] : v);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-function fail(res, status, error) {
-  return res.status(status).json({ error });
+function fail(res, status, error, extra) {
+  return res.status(status).json({ error, ...(extra || {}) });
+}
+
+function fmtWait(ms) {
+  const m = Math.max(1, Math.ceil(ms / 60000));
+  return m >= 60 ? `${Math.floor(m / 60)} jam ${m % 60} menit` : `${m} menit`;
 }
 
 async function robloxJson(resp) {
@@ -54,6 +63,17 @@ module.exports = async function handler(req, res) {
     res.setHeader("Allow", "POST");
     return fail(res, 405, "Method tidak diizinkan");
   }
+
+  // Wajib login Discord (dicek sebelum body diproses).
+  if (!store.configured) return fail(res, 503, "Database belum dihubungkan, login Discord belum bisa dipakai.");
+  let me;
+  try {
+    me = await users.fromRequest(req);
+  } catch (err) {
+    console.error("session error:", err && err.message);
+    return fail(res, 500, "Terjadi kesalahan di server");
+  }
+  if (!me) return fail(res, 401, "Login Discord dulu untuk upload.", { code: "login" });
 
   let fields, files;
   try {
@@ -87,6 +107,32 @@ module.exports = async function handler(req, res) {
   }
 
   const name = displayName || original.replace(/\.[^.]+$/, "").slice(0, 50) || "Asset";
+
+  // Kuota: akun gratis maks 7 upload / 24 jam. Slot diambil dulu, dikembalikan kalau upload gagal.
+  let reserved = false;
+  let accepted = false;
+  const quotaOut = async () => {
+    if (me.premium) return { premium: true };
+    try { return await users.getQuota(me.user.id); } catch { return undefined; }
+  };
+  if (!me.premium) {
+    try {
+      const r = await users.reserve(me.user.id);
+      if (!r.allowed) {
+        try { fs.unlinkSync(upload.filepath); } catch {}
+        const wait = r.quota.resetAt ? ` Kuota kembali dalam ${fmtWait(r.quota.resetAt - Date.now())}.` : "";
+        return fail(res, 429, `Batas ${users.FREE_LIMIT} upload per 24 jam sudah habis.${wait} Upgrade ke Premium untuk upload tanpa batas.`, {
+          code: "limit",
+          quota: r.quota,
+        });
+      }
+      reserved = true;
+    } catch (err) {
+      console.error("quota error:", err && err.message);
+      try { fs.unlinkSync(upload.filepath); } catch {}
+      return fail(res, 500, "Terjadi kesalahan di server");
+    }
+  }
 
   try {
     const buffer = fs.readFileSync(upload.filepath);
@@ -133,11 +179,13 @@ module.exports = async function handler(req, res) {
 
     if (op.done && op.response && op.response.assetId) {
       const assetId = String(op.response.assetId);
+      accepted = true;
       return res.status(200).json({
         ok: true,
         assetId,
         name,
         url: `https://create.roblox.com/store/asset/${assetId}`,
+        quota: await quotaOut(),
       });
     }
 
@@ -145,10 +193,12 @@ module.exports = async function handler(req, res) {
       return fail(res, 422, op.error.message || "Roblox gagal memproses aset");
     }
 
+    accepted = true;
     return res.status(200).json({
       ok: true,
       pending: true,
       message: "Roblox masih memproses aset. Cek Creator Dashboard beberapa saat lagi.",
+      quota: await quotaOut(),
     });
   } catch (err) {
     // Jangan pernah log API key.
@@ -158,6 +208,10 @@ module.exports = async function handler(req, res) {
     try {
       fs.unlinkSync(upload.filepath);
     } catch {}
+    // Upload gagal (ditolak Roblox / error): jangan potong kuota.
+    if (reserved && !accepted) {
+      try { await users.refund(me.user.id); } catch (e) { console.error("refund error:", e && e.message); }
+    }
   }
 };
 
