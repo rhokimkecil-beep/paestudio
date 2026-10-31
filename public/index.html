@@ -908,6 +908,15 @@ html[data-dt] #dtGuard{display:flex}
             }
             );
             $("file").addEventListener("change", () => {
+                {
+                    const f0 = $("file").files[0];
+                    if (f0) {
+                        const x = (f0.name.split(".").pop() || "").toLowerCase();
+                        const want = /^(png|jpe?g|bmp|tga)$/.test(x) ? "decal" : /^(mp3|ogg|wav|flac|aac|m4a)$/.test(x) ? "audio" : /^(rbxmx?|fbx)$/.test(x) ? "file" : type;
+                        if (want !== type)
+                            setType(want)
+                    }
+                }
                 const fl = [...$("file").files];
                 if (type === "audio" && (fl.length > 1 || fl.some(x => !/\.(mp3|ogg)$/i.test(x.name)))) {
                     addAudio(fl);
@@ -3051,6 +3060,7 @@ html[data-dt] #dtGuard{display:flex}
   function showTab(name,quiet){
     if(!panels.some(function(p){return p.dataset.panel===name}))name="home";
     cur=name;
+    if((name==="audio"||name==="bulk")&&typeof setType==="function")setType("audio");
     var locked=!!LOCK[name]&&!isIn();
     panels.forEach(function(p){p.hidden=!(p.dataset.panel===name&&!locked)});
     gate.hidden=!locked;
