@@ -24,13 +24,19 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:90px;background:var(--ink)}
 body{margin:0;min-height:100vh;color:var(--txt);font:15px/1.55 var(--body)}
-/* Latar hitam-putih mengkilap: satu layer fixed statis (tanpa blur/mask, murah untuk GPU) */
+/* Latar hitam-putih mengkilap yang bergerak pelan: dua layer fixed tanpa blur/mask (ringan untuk GPU) */
 body:before{
-  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background:
-    linear-gradient(118deg,transparent 0 28%,#ffffff17 41%,#ffffff06 50%,transparent 61%),
-    linear-gradient(155deg,#060608 0%,#16161b 30%,#3a3a43 52%,#15151b 72%,#060608 100%);
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:linear-gradient(125deg,#060608 0%,#16161b 14%,#4a4a54 28%,#d9d9e3 38%,#5a5a64 46%,#15151b 60%,#060608 72%,#33333b 86%,#060608 100%);
+  background-size:320% 320%;animation:pae-flow 18s ease-in-out infinite alternate;
 }
+body:after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(115deg,transparent 38%,#ffffff22 50%,transparent 62%);
+  background-size:260% 100%;animation:pae-shine 9s linear infinite;
+}
+@keyframes pae-flow{0%{background-position:0% 30%}100%{background-position:100% 70%}}
+@keyframes pae-shine{0%{background-position:140% 0}100%{background-position:-40% 0}}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 a{color:var(--silver)}
@@ -100,6 +106,18 @@ a{color:var(--silver)}
 .prod-price{font:800 16px var(--head)}
 .prod-btn{border-radius:10px;padding:8px 14px;font-weight:700;font-size:12.5px;text-decoration:none;background:var(--white);color:#111}
 .prod-btn:hover{filter:brightness(.92)}
+.pbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:2px 0 10px}
+.seg{display:inline-flex;padding:4px;gap:4px;border-radius:999px;border:1px solid var(--line2);background:#121216}
+.seg button{border:0;background:transparent;color:var(--mut);padding:9px 18px;border-radius:999px;font-weight:800;font-size:13.5px;white-space:nowrap}
+.seg button:hover{color:#fff}
+.seg button[aria-selected="true"]{background:var(--white);color:#111}
+.seg button small{margin-left:6px;font-size:11px;opacity:.7}
+.pbar .grow{flex:1 1 200px;min-width:160px}
+.pbar select{width:auto;min-width:170px}
+.prod-badge.free{background:#0f766e;color:#ecfeff}
+.prod-badge.tagb{left:auto;right:12px}
+.prod-btn.free{background:linear-gradient(100deg,#2dd4bf,#5eead4);color:#04201c}
+.prod-price.free{color:var(--ok)}
 .pm-mesh{--pi:linear-gradient(135deg,#7c3aed,#c026d3)}
 .pm-decal{--pi:linear-gradient(135deg,#14b8a6,#0e7490)}
 .pm-audio{--pi:linear-gradient(135deg,#f59e0b,#ea580c)}
@@ -220,12 +238,24 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
 .miniicon{width:40px;height:40px;flex:none;display:grid;place-items:center;border-radius:12px;background:var(--white);color:#111;font-size:18px}
 .historyname{font:700 14px var(--head);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .historymeta{font-size:11px;color:var(--mut);margin-top:2px}
-.historybadge{margin-left:auto;flex:none;font-size:11px;font-weight:700;padding:6px 12px;border-radius:999px;color:#04201c;background:var(--ok);text-decoration:none}
+.historyitem .historybtn{margin-left:auto}
+.historybadge{flex:none;font-size:11px;font-weight:700;padding:6px 12px;border-radius:999px;color:#04201c;background:var(--ok);text-decoration:none}
 .empty{grid-column:1/-1;padding:30px;border:1.5px dashed var(--line2);border-radius:16px;text-align:center;color:var(--dim);font-size:13px}
 #history,.notes,.foot{content-visibility:auto;contain-intrinsic-size:auto 420px}
 
 /* NOTES */
-.notes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.note.contact{border-color:#5eead455;background:linear-gradient(180deg,#5eead414,#ffffff06)}
+.note.contact .ico{color:var(--ok)}
+.contact-num{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:9px 14px;border-radius:12px;background:var(--white);color:#111;font-weight:800;text-decoration:none;font-size:14px}
+.contact-num:hover{filter:brightness(.92)}
+.uprog{margin-top:14px;height:8px;border-radius:8px;background:#2c2c34;overflow:hidden}
+.uprog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7c3aed,var(--pink));transition:width .15s}
+.uprog.busy i{animation:pae-pulse 1s ease-in-out infinite alternate}
+@keyframes pae-pulse{from{opacity:.5}to{opacity:1}}
+.dropzone.over{border-color:#fff;background:#1c1c22}
+.historybtn{flex:none;border:1px solid var(--line2);background:#ffffff0d;color:var(--txt);border-radius:999px;padding:6px 10px;font-size:11px;font-weight:700}
+.historybtn:hover{border-color:#fff}
 .note{padding:20px;border-radius:var(--r);border:1px solid var(--line);background:#ffffff08}
 .note .ico{font-size:22px;color:var(--gold);margin-bottom:10px}
 .note h3{margin:0 0 6px;font:700 16px var(--head)}
@@ -273,7 +303,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
   .pgrid{grid-template-columns:repeat(2,1fr)}
 }
 @media (max-width:420px){.pgrid{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}body:before,body:after{animation:none}}
 </style>
 </head>
 <body>
@@ -346,6 +376,16 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     <div class="sh">
       <div><h2>Produk</h2><p>Pilih kategori untuk melihat produk.</p></div>
       <span class="tag">Katalog</span>
+    </div>
+    <div class="pbar">
+      <div class="seg" id="priceTabs" role="tablist" aria-label="Jenis produk"></div>
+      <input class="grow" id="prodQ" type="search" placeholder="Cari produk…" aria-label="Cari produk" autocomplete="off"/>
+      <select id="prodSort" aria-label="Urutkan produk">
+        <option value="new">Terbaru</option>
+        <option value="low">Harga terendah</option>
+        <option value="high">Harga tertinggi</option>
+        <option value="az">Nama A–Z</option>
+      </select>
     </div>
     <div class="ptabs" id="prodTabs" role="tablist" aria-label="Kategori produk"></div>
     <div class="pgrid" id="prodGrid" role="tabpanel" aria-live="polite"></div>
@@ -568,7 +608,9 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
           <strong id="dropTitle">Pilih file untuk memulai</strong>
           <p id="dropSub">File diproses oleh server lalu dikirim ke Roblox.</p>
           <p id="formats">Format yang didukung mengikuti tipe aset.</p>
+          <p>Bisa juga seret file ke kotak ini.</p>
         </div>
+        <div class="uprog" id="uProg" hidden><i id="uBar"></i></div>
 
         <button class="submit" id="go" type="submit">⇧ Upload sekarang</button>
         <div class="formnote">Pastikan API key punya izin Assets (Read &amp; Write). Jangan bagikan API key ke orang lain.</div>
@@ -588,7 +630,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
   </section>
 
   <!-- NOTES -->
-  <div class="sh" id="settings"><div><h2>Sebelum mulai</h2><p>Tiga hal singkat biar upload lancar.</p></div></div>
+  <div class="sh" id="settings"><div><h2>Info</h2><p>Hal singkat biar upload lancar, plus kontak owner.</p></div></div>
   <section class="notes">
     <div class="note">
       <svg class="ico"><use href="#i-key"/></svg>
@@ -605,12 +647,18 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
       <h3>Hak cipta</h3>
       <p>Upload hanya aset milikmu atau yang berlisensi bebas. Roblox tetap memeriksa setiap upload dan hasilnya bergantung pada respons mereka.</p>
     </div>
+    <div class="note contact" id="contact">
+      <svg class="ico"><use href="#i-user"/></svg>
+      <h3>Contact owner</h3>
+      <p>Mau pesan produk atau ada kendala? Hubungi owner lewat WhatsApp.</p>
+      <a class="contact-num" href="https://wa.me/6287729035761" target="_blank" rel="noopener">087729035761</a>
+    </div>
   </section>
 </main>
 
 <footer class="foot">
   <span>© 2026 <b>PaeSTUDIO</b></span>
-  <span>Roblox asset uploader &amp; audio converter · <a href="/admin" rel="nofollow">Admin</a></span>
+  <span>Roblox asset uploader &amp; audio converter · Owner: <a href="https://wa.me/6287729035761" target="_blank" rel="noopener">087729035761</a> · <a href="/admin" rel="nofollow">Admin</a></span>
 </footer>
 
 <div aria-live="polite" id="toast" role="status">
@@ -723,7 +771,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     list.innerHTML = '<div class="empty">Belum ada riwayat upload di browser ini.</div>';
                     return
                 }
-                items.slice(0, 6).forEach(item => {
+                items.slice(0, 12).forEach(item => {
                     const row = document.createElement("div");
                     row.className = "historyitem";
                     const icon = document.createElement("div");
@@ -744,7 +792,18 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     link.target = "_blank";
                     link.rel = "noopener";
                     link.textContent = "Buka";
-                    row.append(icon, body, link);
+                    const cp = document.createElement("button");
+                    cp.type = "button";
+                    cp.className = "historybtn";
+                    cp.textContent = "Salin ID";
+                    cp.onclick = async () => {
+                        await copyText(String(item.assetId));
+                        cp.textContent = "Tersalin ✓";
+                        setTimeout( () => cp.textContent = "Salin ID", 1200)
+                    }
+                    ;
+                    link.style.marginLeft = "0";
+                    row.append(icon, body, cp, link);
                     list.append(row)
                 }
                 );
@@ -823,13 +882,82 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     })
             }
             ));
+            const MAX_UP = 4 * 1024 * 1024;
+            function setProg(frac, reset) {
+                const w = $("uProg");
+                w.hidden = false;
+                $("uBar").style.width = Math.round(Math.max(0, Math.min(1, frac)) * 100) + "%";
+                w.classList.toggle("busy", !reset && frac >= 1);
+                if (!reset && frac >= 1)
+                    $("go").textContent = "Roblox memproses…";
+                else if (!reset)
+                    $("go").textContent = "Mengunggah " + Math.round(frac * 100) + "%";
+            }
+            function sendUpload(formData, onProg) {
+                return new Promise(resolve => {
+                    const x = new XMLHttpRequest();
+                    x.open("POST", "/api/upload");
+                    x.timeout = 120000;
+                    if (x.upload && onProg)
+                        x.upload.onprogress = e => {
+                            if (e.lengthComputable)
+                                onProg(e.loaded / e.total)
+                        }
+                        ;
+                    x.onload = () => {
+                        let j;
+                        try {
+                            j = JSON.parse(x.responseText)
+                        } catch {
+                            j = {
+                                error: "Respons server tidak dapat dibaca"
+                            }
+                        }
+                        resolve({
+                            ok: x.status >= 200 && x.status < 300,
+                            status: x.status,
+                            j
+                        })
+                    }
+                    ;
+                    x.onerror = x.ontimeout = () => resolve({
+                        net: true
+                    });
+                    x.send(formData)
+                }
+                )
+            }
+            const dz = document.querySelector(".dropzone");
+            ["dragenter", "dragover"].forEach(ev => dz.addEventListener(ev, e => {
+                e.preventDefault();
+                dz.classList.add("over")
+            }
+            ));
+            ["dragleave", "drop"].forEach(ev => dz.addEventListener(ev, e => {
+                e.preventDefault();
+                dz.classList.remove("over")
+            }
+            ));
+            dz.addEventListener("drop", e => {
+                const fs = e.dataTransfer && e.dataTransfer.files;
+                if (fs && fs.length) {
+                    $("file").files = fs;
+                    $("file").dispatchEvent(new Event("change"))
+                }
+            }
+            );
             $("f").onsubmit = async e => {
                 e.preventDefault();
                 const file = $("file").files[0];
                 if (!file)
                     return;
+                if (file.size > MAX_UP) {
+                    toast(false, "File terlalu besar", "File " + fmtMB(file.size) + " melebihi batas sekitar 4 MB. Kecilkan file (untuk audio: turunkan kualitas atau pakai mono di Konverter Audio).");
+                    return
+                }
                 $("go").disabled = true;
                 $("go").textContent = "Mengunggah…";
+                setProg(0, true);
                 const d = new FormData();
                 d.append("type", type);
                 d.append("file", file);
@@ -839,18 +967,14 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 d.append("name", $("name").value.trim());
                 d.append("description", $("desc").value);
                 try {
-                    const r = await fetch("/api/upload", {
-                        method: "POST",
-                        body: d
-                    });
-                    let j;
-                    try {
-                        j = await r.json()
-                    } catch {
-                        j = {
-                            error: "Respons server tidak dapat dibaca"
-                        }
+                    const got = await sendUpload(d, f => setProg(f, false));
+                    if (got.net)
+                        throw new Error("net");
+                    const r = {
+                        ok: got.ok,
+                        status: got.status
                     }
+                      , j = got.j;
                     if (r.ok && j.ok && j.pending) {
                         toast(true, "Upload diterima", j.message || "Roblox sedang memproses aset. Cek Creator Dashboard beberapa saat lagi.");
                         return
@@ -874,6 +998,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 } catch (err) {
                     toast(false, "Tidak dapat terhubung", "Periksa koneksi internet lalu coba lagi.")
                 } finally {
+                    $("uProg").hidden = true;
                     $("go").disabled = false;
                     $("go").textContent = "⇧  Upload Sekarang";
                 }
@@ -1188,7 +1313,8 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
             }
             async function zipAll() {
                 try {
-                    await loadScript("vendor/jszip.min.js");
+                    if (!window.JSZip)
+                        await loadScript("vendor/jszip.min.js").catch( () => loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"));
                     const zip = new JSZip()
                       , used = new Set();
                     A.items.filter(i => i.blob).forEach(i => {
@@ -1241,6 +1367,13 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 for (const it of A.items) {
                     if (!it.blob || it.state === "up")
                         continue;
+                    if (it.blob.size > MAX_UP) {
+                        it.state = "done";
+                        it.msg = "Dilewati: " + fmtMB(it.blob.size) + " melebihi batas upload sekitar 4 MB. Turunkan kualitas, pakai mono, atau potong durasi lalu proses ulang.";
+                        fail++;
+                        renderA();
+                        continue
+                    }
                     it.msg = "Mengunggah ke Roblox…";
                     it.state = "busy";
                     it.pct = 50;
@@ -1256,18 +1389,19 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     d.append("name", it.out.replace(/\.[^.]+$/, "").slice(0, 50));
                     d.append("description", descFor(it));
                     try {
-                        const r = await fetch("/api/upload", {
-                            method: "POST",
-                            body: d
-                        });
-                        let j;
-                        try {
-                            j = await r.json()
-                        } catch {
-                            j = {
-                                error: "Respons server tidak dapat dibaca"
-                            }
+                        const got = await sendUpload(d, f => {
+                            it.pct = Math.round(f * 90);
+                            it.msg = f >= 1 ? "Roblox memproses…" : "Mengunggah " + Math.round(f * 100) + "%";
+                            renderA()
                         }
+                        );
+                        if (got.net)
+                            throw new Error("net");
+                        const r = {
+                            ok: got.ok,
+                            status: got.status
+                        }
+                          , j = got.j;
                         if (r.ok && j.ok && j.assetId) {
                             it.state = "up";
                             it.msg = "Terunggah · Asset ID " + j.assetId;
@@ -1786,22 +1920,30 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     { id: "model", label: "Model", icon: "i-box"   },
     { id: "lainnya", label: "Lainnya", icon: "i-box" }
   ];
+  var KINDS = [
+    { id: "all",  label: "Semua" },
+    { id: "free", label: "Gratis" },
+    { id: "paid", label: "Berbayar" }
+  ];
   var SAMPLES = [
-    { cat: "mesh",  name: "Crown Mesh Pack",   desc: "Mahkota 3D bergaya galaxy untuk avatar.",       price: "Rp 25.000", tag: "Contoh", url: "#" },
-    { cat: "mesh",  name: "Star Wings",        desc: "Sayap bintang low-poly, ringan untuk mobile.",  price: "Rp 20.000", tag: "Contoh", url: "#" },
-    { cat: "mesh",  name: "Chibi Hair Set",    desc: "Paket rambut chibi dengan beberapa varian.",    price: "Rp 30.000", tag: "Contoh", url: "#" },
-    { cat: "decal", name: "Galaxy Decal Pack", desc: "Kumpulan decal bertema galaksi dan bintang.",   price: "Rp 10.000", tag: "Contoh", url: "#" },
-    { cat: "decal", name: "Neon Sticker Set",  desc: "Stiker neon untuk dekorasi map dan avatar.",    price: "Rp 12.000", tag: "Contoh", url: "#" },
-    { cat: "audio", name: "Lo-fi Loop Pack",   desc: "Loop musik santai siap pakai untuk game.",      price: "Rp 15.000", tag: "Contoh", url: "#" },
-    { cat: "model", name: "Mini Shop Model",   desc: "Model toko kecil format RBXM, tinggal tempel.", price: "Rp 35.000", tag: "Contoh", url: "#" },
-    { cat: "model", name: "Obby Starter Kit",  desc: "Paket awal obby: checkpoint, kill part, tangga.", price: "Rp 40.000", tag: "Contoh", url: "#" }
+    { cat: "mesh",  pricing: "paid", name: "Crown Mesh Pack",   desc: "Mahkota 3D bergaya galaxy untuk avatar.",       price: 25000, tag: "Contoh", url: "#" },
+    { cat: "mesh",  pricing: "paid", name: "Star Wings",        desc: "Sayap bintang low-poly, ringan untuk mobile.",  price: 20000, tag: "Contoh", url: "#" },
+    { cat: "mesh",  pricing: "free", name: "Starter Hair",      desc: "Rambut sederhana gratis untuk mulai berkreasi.", price: 0,     tag: "Contoh", url: "#" },
+    { cat: "decal", pricing: "paid", name: "Galaxy Decal Pack", desc: "Kumpulan decal bertema galaksi dan bintang.",   price: 10000, tag: "Contoh", url: "#" },
+    { cat: "decal", pricing: "free", name: "Neon Sticker Mini", desc: "Beberapa stiker neon gratis untuk dekorasi.",   price: 0,     tag: "Contoh", url: "#" },
+    { cat: "audio", pricing: "paid", name: "Lo-fi Loop Pack",   desc: "Loop musik santai siap pakai untuk game.",      price: 15000, tag: "Contoh", url: "#" },
+    { cat: "model", pricing: "paid", name: "Mini Shop Model",   desc: "Model toko kecil format RBXM, tinggal tempel.", price: 35000, tag: "Contoh", url: "#" },
+    { cat: "model", pricing: "free", name: "Obby Checkpoint",   desc: "Satu checkpoint obby gratis, tinggal tempel.",  price: 0,     tag: "Contoh", url: "#" }
   ];
 
   var PRODUCTS = [];
+  var priceEl = document.getElementById("priceTabs");
   var tabsEl = document.getElementById("prodTabs");
   var gridEl = document.getElementById("prodGrid");
-  if (!tabsEl || !gridEl) return;
-  var NS = "http://www.w3.org/2000/svg", active = "all";
+  var qEl = document.getElementById("prodQ");
+  var sortEl = document.getElementById("prodSort");
+  if (!tabsEl || !gridEl || !priceEl) return;
+  var NS = "http://www.w3.org/2000/svg", active = "all", kind = "all", query = "", sortBy = "new";
 
   function icon(id) {
     var s = document.createElementNS(NS, "svg");
@@ -1817,21 +1959,48 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     if (text != null) e.textContent = text;
     return e;
   }
-  function priceText(p) {
-    if (typeof p.price === "number") return p.price > 0 ? "Rp " + p.price.toLocaleString("id-ID") : "Gratis";
-    return p.price || "";
+  function pricingOf(p) {
+    if (p.pricing === "free" || p.pricing === "paid") return p.pricing;
+    return Number(p.price) > 0 ? "paid" : "free";
   }
-  function count(cat) {
-    return cat === "all" ? PRODUCTS.length : PRODUCTS.filter(function (p) { return p.cat === cat; }).length;
+  function priceNum(p) { return pricingOf(p) === "free" ? 0 : Number(p.price) || 0; }
+  function priceText(p) {
+    return pricingOf(p) === "free" ? "Gratis" : "Rp " + priceNum(p).toLocaleString("id-ID");
+  }
+  function matchText(p) {
+    if (!query) return true;
+    return ((p.name || "") + " " + (p.desc || "") + " " + (p.tag || "")).toLowerCase().indexOf(query) !== -1;
+  }
+  function matchKind(p) { return kind === "all" || pricingOf(p) === kind; }
+  function countKind(k) {
+    return PRODUCTS.filter(function (p) { return k === "all" || pricingOf(p) === k; }).length;
+  }
+  function countCat(cat) {
+    return PRODUCTS.filter(function (p) { return matchKind(p) && matchText(p) && (cat === "all" || p.cat === cat); }).length;
   }
   function catOf(id) {
     return CATS.filter(function (c) { return c.id === id; })[0] || CATS[0];
   }
 
+  function renderPriceTabs() {
+    priceEl.textContent = "";
+    KINDS.forEach(function (k) {
+      var b = el("button", "");
+      b.type = "button";
+      b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", String(k.id === kind));
+      b.tabIndex = k.id === kind ? 0 : -1;
+      b.dataset.kind = k.id;
+      b.append(k.label, el("small", "", String(countKind(k.id))));
+      priceEl.appendChild(b);
+    });
+  }
+
   function renderTabs() {
+    if (active !== "all" && countCat(active) === 0) active = "all";
     tabsEl.textContent = "";
     CATS.forEach(function (c) {
-      var n = count(c.id);
+      var n = countCat(c.id);
       if (c.id !== "all" && n === 0) return;
       var b = el("button", "ptab");
       b.type = "button";
@@ -1844,12 +2013,30 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     });
   }
 
+  function sorted(list) {
+    var a = list.slice();
+    if (sortBy === "low") a.sort(function (x, y) { return priceNum(x) - priceNum(y); });
+    else if (sortBy === "high") a.sort(function (x, y) { return priceNum(y) - priceNum(x); });
+    else if (sortBy === "az") a.sort(function (x, y) { return String(x.name).localeCompare(String(y.name), "id"); });
+    else a.sort(function (x, y) { return (y.createdAt || 0) - (x.createdAt || 0); });
+    return a;
+  }
+
   function renderGrid() {
     gridEl.textContent = "";
-    var list = PRODUCTS.filter(function (p) { return active === "all" || p.cat === active; });
-    if (!list.length) { gridEl.appendChild(el("div", "empty", "Belum ada produk di kategori ini.")); return; }
+    var list = sorted(PRODUCTS.filter(function (p) {
+      return matchKind(p) && matchText(p) && (active === "all" || p.cat === active);
+    }));
+    if (!list.length) {
+      var msg = query ? "Tidak ada produk yang cocok dengan pencarianmu."
+        : kind === "free" ? "Belum ada produk gratis di kategori ini."
+        : kind === "paid" ? "Belum ada produk berbayar di kategori ini."
+        : "Belum ada produk di kategori ini.";
+      gridEl.appendChild(el("div", "empty", msg));
+      return;
+    }
     list.forEach(function (p) {
-      var c = catOf(p.cat);
+      var c = catOf(p.cat), free = pricingOf(p) === "free";
       var card = el("article", "prod");
       var img = el("div", "prod-img pm-" + p.cat + (p.img ? " has-img" : ""));
       if (p.img) {
@@ -1858,12 +2045,13 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
         pic.width = 900; pic.height = 562;
         img.appendChild(pic);
       } else img.appendChild(icon(c.icon || "i-box"));
-      if (p.tag) img.appendChild(el("span", "prod-badge", p.tag));
+      if (free) img.appendChild(el("span", "prod-badge free", "GRATIS"));
+      if (p.tag) img.appendChild(el("span", "prod-badge" + (free ? " tagb" : ""), p.tag));
       var body = el("div", "prod-body");
       var foot = el("div", "prod-foot");
-      foot.appendChild(el("span", "prod-price", priceText(p)));
+      foot.appendChild(el("span", "prod-price" + (free ? " free" : ""), priceText(p)));
       if (p.url && /^https?:\/\//i.test(p.url)) {
-        var a = el("a", "prod-btn", "Pesan");
+        var a = el("a", "prod-btn" + (free ? " free" : ""), free ? "Ambil gratis" : "Pesan");
         a.href = p.url; a.target = "_blank"; a.rel = "noopener noreferrer";
         foot.appendChild(a);
       }
@@ -1873,25 +2061,37 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     });
   }
 
-  function select(cat, focus) {
-    active = cat;
+  function renderAll(focusSel) {
+    renderPriceTabs();
     renderTabs();
     renderGrid();
-    if (focus) { var t = tabsEl.querySelector('[aria-selected="true"]'); if (t) t.focus(); }
+    if (focusSel) { var t = document.querySelector(focusSel + ' [aria-selected="true"]'); if (t) t.focus(); }
   }
 
+  priceEl.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-kind]");
+    if (b) { kind = b.dataset.kind; renderAll(); }
+  });
   tabsEl.addEventListener("click", function (e) {
     var b = e.target.closest(".ptab");
-    if (b) select(b.dataset.cat, false);
+    if (b) { active = b.dataset.cat; renderAll(); }
   });
-  tabsEl.addEventListener("keydown", function (e) {
-    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-    var tabs = Array.prototype.slice.call(tabsEl.querySelectorAll(".ptab"));
-    var i = tabs.findIndex(function (t) { return t.getAttribute("aria-selected") === "true"; });
-    i = (i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
-    e.preventDefault();
-    select(tabs[i].dataset.cat, true);
-  });
+  function arrows(box, sel, key, set) {
+    box.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      var tabs = Array.prototype.slice.call(box.querySelectorAll(sel));
+      var i = tabs.findIndex(function (t) { return t.getAttribute("aria-selected") === "true"; });
+      i = (i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+      e.preventDefault();
+      set(tabs[i].dataset[key]);
+      renderAll("#" + box.id);
+    });
+  }
+  arrows(tabsEl, ".ptab", "cat", function (v) { active = v; });
+  arrows(priceEl, "button", "kind", function (v) { kind = v; });
+
+  if (qEl) qEl.addEventListener("input", function () { query = qEl.value.trim().toLowerCase(); renderAll(); });
+  if (sortEl) sortEl.addEventListener("change", function () { sortBy = sortEl.value; renderGrid(); });
 
   /* Tombol navigasi "Produk" / "Lihat produk" */
   document.querySelectorAll("[data-go]").forEach(function (b) {
@@ -1917,7 +2117,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     .then(function (r) { if (!r.ok) throw new Error("http"); return r.json(); })
     .then(function (j) { PRODUCTS = j && j.configured ? (j.products || []) : SAMPLES; })
     .catch(function () { PRODUCTS = SAMPLES; })
-    .then(function () { clearTimeout(timer); select("all", false); });
+    .then(function () { clearTimeout(timer); renderAll(); });
 })();
 
 </script>
