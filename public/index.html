@@ -389,6 +389,47 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
 #f.locked{opacity:.38;pointer-events:none;user-select:none}
 @media (max-width:980px){.prem-grid{grid-template-columns:1fr}}
 @media (max-width:640px){.acct .nm{display:none}.acct.out{padding:8px 12px}.acct{padding-right:8px}.acard{padding:18px;border-radius:20px}}
+
+/* ===== TABS, HARGA KEY, GATE ===== */
+.panel{animation:pae-in .22s ease-out}
+@keyframes pae-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.panel[hidden]{display:none}
+.wrap{min-height:70vh}
+.links button{display:inline-flex;align-items:center;gap:6px}
+.links .lk{width:12px;height:12px;display:none;color:var(--gold)}
+body.guest .links button[data-lock] .lk{display:inline-block}
+.links button.active .lk{color:#7c3aed}
+.panel>.sheet{max-width:920px;margin:34px auto 0}
+.pstrip{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:10px 0 6px;padding:14px 16px;border-radius:20px;border:1px solid #a855f755;background:linear-gradient(100deg,#a855f720,#ffffff06)}
+.pstrip>b{font:800 15px var(--head);margin-right:6px}
+.ps{padding:8px 14px;border-radius:12px;border:1px solid var(--line2);background:#ffffff0a;font-size:13px;color:var(--mut)}
+.ps strong{margin-left:8px;color:var(--txt)}
+.pstrip .btn{margin-left:auto;padding:10px 16px}
+.banner{margin:0 0 18px;border-radius:24px;overflow:hidden;border:1px solid var(--line2);box-shadow:0 0 0 1px #a855f733,0 18px 50px #7c3aed33}
+.banner img{display:block;width:100%;height:auto}
+.pricegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:0 0 10px}
+.pc{position:relative;display:flex;flex-direction:column;gap:4px;padding:20px;border-radius:22px;border:1px solid var(--line);background:var(--gloss);box-shadow:inset 0 1px 0 #ffffff14}
+.pc.best{border-color:#a855f7;background:linear-gradient(180deg,#a855f72b,#111115);box-shadow:0 0 0 1px #a855f766,0 14px 40px #7c3aed40}
+.pc-flag{position:absolute;right:14px;top:-11px;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:800;color:#2b1700;background:linear-gradient(100deg,#ffcf5a,#ffa21f)}
+.pc-top{display:flex;align-items:center;gap:8px;font:800 15px var(--head);color:var(--silver)}
+.pc-top .ico{color:var(--gold)}
+.pc-price{margin-top:8px;font:800 30px/1.1 var(--head);letter-spacing:-.03em}
+.pc-per{font-size:12px;color:var(--dim)}
+.pc ul{flex:1;display:grid;gap:9px;margin:14px 0 18px;padding:0;list-style:none;color:var(--mut);font-size:13px}
+.pc li{display:flex;gap:9px}
+.pc li:before{content:"";flex:none;width:14px;height:14px;margin-top:2px;border-radius:50%;background:var(--btn)}
+.pc-buy{display:flex;justify-content:center;padding:12px;border-radius:13px;font-weight:800;font-size:14px;text-decoration:none;color:#111;background:var(--white)}
+.pc.best .pc-buy{color:#fff;background:var(--btn)}
+.pc-buy:hover{filter:brightness(1.1)}
+.gatecard{max-width:520px;margin:56px auto;padding:36px 26px;text-align:center;border-radius:26px;border:1px solid #5865f288;background:linear-gradient(180deg,#5865f226,#111115);box-shadow:0 16px 50px #000a}
+.gatecard .gi{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 16px;border-radius:20px;background:var(--white);color:#111;font-size:30px}
+.gatecard h2{margin:0 0 6px;font:800 24px var(--head);letter-spacing:-.02em}
+.gatecard p{margin:0 0 20px;color:var(--mut)}
+html[data-dt] body>*:not(#dtGuard){display:none!important}
+#dtGuard{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:24px;text-align:center;background:#060608;color:#f6f6f8;font:700 18px/1.5 system-ui,sans-serif}
+html[data-dt] #dtGuard{display:flex}
+@media (max-width:980px){.pricegrid{grid-template-columns:repeat(2,1fr)}.pstrip .btn{margin-left:0}}
+@media (max-width:520px){.pricegrid{grid-template-columns:1fr}.pc-price{font-size:26px}}
 </style>
 </head>
 <body>
@@ -412,6 +453,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
     <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 9.5 4 4 0 0 1 17.5 18H7Zm5-6v5m0-5-2.2 2.2M12 12l2.2 2.2"/></symbol>
     <symbol id="i-crown" viewBox="0 0 24 24"><path d="m3 8 4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8Z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
     <symbol id="i-hash" viewBox="0 0 24 24"><path d="M5 9h14M5 15h14M10 4 8 20m8-16-2 16"/></symbol>
   </defs>
 </svg>
@@ -423,30 +465,30 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     <span>Pae<b>STUDIO</b></span>
   </a>
   <nav class="links" aria-label="Navigasi">
-    <button class="active" data-nav="home" type="button">Beranda</button>
-    <button data-go="products" type="button">Produk</button>
-    <button data-nav="upload" type="button">Upload</button>
-    <button data-go="premium" type="button">Premium</button>
-    <button data-nav="audio" type="button">Konverter Audio</button>
-    <button data-nav="bulk" type="button">ID Audio</button>
-    <button data-nav="history" type="button">Riwayat</button>
-    <button data-nav="settings" type="button">Info</button>
+    <button class="active" data-tab="home" type="button">Beranda</button>
+    <button data-tab="products" type="button">Produk</button>
+    <button data-tab="premium" type="button">Harga Key</button>
+    <button data-tab="upload" data-lock type="button">Upload<svg class="ico lk"><use href="#i-lock"/></svg></button>
+    <button data-tab="audio" data-lock type="button">Konverter Audio<svg class="ico lk"><use href="#i-lock"/></svg></button>
+    <button data-tab="bulk" data-lock type="button">ID Audio<svg class="ico lk"><use href="#i-lock"/></svg></button>
+    <button data-tab="history" data-lock type="button">Riwayat<svg class="ico lk"><use href="#i-lock"/></svg></button>
+    <button data-tab="info" type="button">Info</button>
   </nav>
   <span class="live"><i></i>Online</span>
   <a class="acct out" id="navAcct" href="/api/discord-login"><span class="nm">Login Discord</span></a>
 </header>
 
 <main class="wrap">
-
-  <!-- HERO -->
+<div class="panel" data-panel="home">
+<!-- HERO -->
   <section class="hero">
     <div>
       <p class="kicker">Roblox asset toolkit</p>
       <h1>Pae<em>STUDIO</em></h1>
       <p class="lead">Upload decal, audio, dan model langsung ke Roblox. Konversi dan rapikan audio di browser sebelum dikirim.</p>
       <div class="cta">
-        <button class="btn solid" data-go="products" type="button"><svg class="ico"><use href="#i-box"/></svg>Lihat produk</button>
-        <button class="btn" data-nav="upload" type="button"><svg class="ico"><use href="#i-up"/></svg>Mulai upload</button>
+        <button class="btn solid" data-tab="products" type="button"><svg class="ico"><use href="#i-box"/></svg>Lihat produk</button>
+        <button class="btn" data-tab="upload" type="button"><svg class="ico"><use href="#i-up"/></svg>Mulai upload</button>
               </div>
       <ul class="stats">
         <li><svg class="ico"><use href="#i-shield"/></svg><span><strong>Open Cloud</strong> resmi Roblox</span></li>
@@ -460,7 +502,74 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     </div>
   </section>
 
-  <!-- PRODUK -->
+  
+  <div class="pstrip">
+    <b>Harga key Premium</b>
+    <span class="ps">1 hari<strong>Rp 5.000</strong></span>
+    <span class="ps">7 hari<strong>Rp 25.000</strong></span>
+    <span class="ps">1 bulan<strong>Rp 60.000</strong></span>
+    <span class="ps">1 tahun<strong>Rp 499.000</strong></span>
+    <button class="btn violet" data-tab="premium" type="button"><svg class="ico"><use href="#i-crown"/></svg>Lihat paket</button>
+  </div>
+<!-- TOOLS -->
+  <div class="sh">
+    <div><h2>Pilih alat</h2><p>Tiap alat punya tab sendiri. Login Discord dulu untuk memakainya.</p></div>
+    <span class="tag">Upload · Convert · Manage</span>
+  </div>
+
+  <div class="bento" id="tabs">
+    <button class="tool big c-pink" data-action="upload" data-tab="upload" data-t="decal" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico"><svg class="ico"><use href="#i-up"/></svg></div>
+      <strong>Upload Asset</strong>
+      <span class="d">Kirim gambar, audio, model, atau decal ke Roblox dan dapatkan Asset ID-nya.</span>
+      <div class="chips"><em>Image</em><em>Audio</em><em>Model</em><em>Decal</em></div>
+    </button>
+
+    <button class="tool wide c-blue" data-action="model" data-tab="upload" data-t="file" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico"><svg class="ico"><use href="#i-cube"/></svg></div>
+      <strong>Import Model</strong>
+      <span class="d">Upload file RBXM, RBXMX, atau FBX.</span>
+      <div class="chips"><em>RBXM</em><em>RBXMX</em><em>FBX</em></div>
+    </button>
+
+    <button class="tool wide c-mint" data-action="decal" data-tab="upload" data-t="decal" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico"><svg class="ico"><use href="#i-img"/></svg></div>
+      <strong>Upload Decal</strong>
+      <span class="d">Unggah gambar dan dapatkan ID decal.</span>
+      <div class="chips"><em>PNG</em><em>JPG</em><em>BMP</em><em>TGA</em></div>
+    </button>
+
+    <button class="tool c-gold" data-t="audio" data-tab="audio" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico"><svg class="ico"><use href="#i-music"/></svg></div>
+      <strong>Konverter Audio</strong>
+      <span class="d">Ubah ke MP3, potong, dan atur fade.</span>
+      <div class="chips"><em>WAV</em><em>FLAC</em><em>M4A</em><em>AAC</em></div>
+    </button>
+
+    <button class="tool c-rose" data-action="bulk" data-tab="bulk" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico"><svg class="ico"><use href="#i-list"/></svg></div>
+      <strong>Banyak ID Audio</strong>
+      <span class="d">Rapikan daftar ID audio sekaligus.</span>
+      <div class="chips"><em>Impor</em><em>Ekspor</em></div>
+    </button>
+
+    <button class="tool c-blue" data-action="history" data-tab="history" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico"><svg class="ico"><use href="#i-clock"/></svg></div>
+      <strong>Riwayat</strong>
+      <span class="d">Lihat upload sebelumnya di browser ini.</span>
+      <div class="chips"><em>Asset</em><em>Audio</em></div>
+    </button>
+  </div>
+
+  </div>
+<div class="panel" data-panel="products" hidden>
+<!-- PRODUK -->
   <section id="products">
     <div class="sh">
       <div><h2>Produk</h2><p>Pilih kategori untuk melihat produk.</p></div>
@@ -480,71 +589,125 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     <div class="pgrid" id="prodGrid" role="tabpanel" aria-live="polite"></div>
   </section>
 
-  <!-- TOOLS -->
-  <div class="sh">
-    <div><h2>Pilih alat</h2><p>Klik salah satu untuk langsung menuju formnya.</p></div>
-    <span class="tag">Upload · Convert · Manage</span>
-  </div>
+  
+</div>
+<div class="panel" data-panel="premium" hidden>
+<section id="premium">
+    <div class="sh"><div><h2>Harga key Premium</h2><p>Pilih durasi, lalu pesan lewat WhatsApp owner. Premium diaktifkan manual ke Discord ID-mu.</p></div><span class="tag">Premium</span></div>
+    <figure class="banner"><picture><source srcset="premium-banner.webp" type="image/webp"/><img src="premium-banner.jpg" alt="Paket PaeSTUDIO Premium: 1 hari Rp 5.000, 7 hari Rp 25.000, 1 bulan Rp 60.000, 1 tahun Rp 499.000" width="1200" height="675" loading="lazy" decoding="async"/></picture></figure>
+    <div class="pricegrid"><article class="pc">
+      <div class="pc-top"><svg class="ico"><use href="#i-crown"/></svg>1 Day</div>
+      <div class="pc-price">Rp 5.000</div><div class="pc-per">Rp 5.000 / hari</div>
+      <ul><li>Premium aktif 1 hari</li><li>Upload tanpa batas 24 jam</li><li>Semua fitur PaeSTUDIO</li></ul>
+      <a class="pc-buy" data-plan="1 Day" data-price="Rp 5.000" href="https://wa.me/6287729035761" target="_blank" rel="noopener">Langsung beli</a>
+    </article><article class="pc">
+      <div class="pc-top"><svg class="ico"><use href="#i-crown"/></svg>7 Days</div>
+      <div class="pc-price">Rp 25.000</div><div class="pc-per">≈ Rp 3.570 / hari</div>
+      <ul><li>Premium aktif 7 hari</li><li>Upload tanpa batas 24 jam</li><li>Semua fitur PaeSTUDIO</li></ul>
+      <a class="pc-buy" data-plan="7 Days" data-price="Rp 25.000" href="https://wa.me/6287729035761" target="_blank" rel="noopener">Langsung beli</a>
+    </article><article class="pc">
+      <div class="pc-top"><svg class="ico"><use href="#i-crown"/></svg>1 Month</div>
+      <div class="pc-price">Rp 60.000</div><div class="pc-per">≈ Rp 2.000 / hari</div>
+      <ul><li>Premium aktif 1 bulan</li><li>Fitur lengkap dan stabil</li><li>Cocok untuk jangka panjang</li></ul>
+      <a class="pc-buy" data-plan="1 Month" data-price="Rp 60.000" href="https://wa.me/6287729035761" target="_blank" rel="noopener">Langsung beli</a>
+    </article><article class="pc best"><span class="pc-flag">Best seller</span>
+      <div class="pc-top"><svg class="ico"><use href="#i-crown"/></svg>1 Year</div>
+      <div class="pc-price">Rp 499.000</div><div class="pc-per">≈ Rp 1.370 / hari</div>
+      <ul><li>Premium aktif 1 tahun</li><li>Harga paling hemat</li><li>Upload tanpa batas</li></ul>
+      <a class="pc-buy" data-plan="1 Year" data-price="Rp 499.000" href="https://wa.me/6287729035761" target="_blank" rel="noopener">Langsung beli</a>
+    </article></div>
+    <div class="formnote" style="margin-bottom:6px">Tombol beli membuka WhatsApp dengan pesan siap kirim berisi paket, nama, dan Discord ID-mu. Wajib login Discord dulu.</div>
+    <div class="sh"><div><h2>Akun &amp; kuota</h2><p>Status premium dan sisa upload hari ini.</p></div></div>
+    <div class="prem-grid">
+      <div class="acard" id="acctCard"><p>Memuat akun…</p></div>
+      <div>
+        <div class="plan">
+          <h3>Gratis</h3>
+          <ul>
+            <li>7 upload per 24 jam (decal, audio, dan model dihitung bersama)</li>
+            <li>Wajib login dengan Discord</li>
+            <li>Upload, konverter audio, dan ID Audio terbuka setelah login</li>
+          </ul>
+        </div>
+        <div class="plan pro">
+          <h3><svg class="ico"><use href="#i-crown"/></svg>Premium</h3>
+          <ul>
+            <li>Upload tanpa batas 24 jam</li>
+            <li>Aktif sesuai jumlah hari yang diberikan owner</li>
+            <li>Bisa diperpanjang kapan saja, sisa hari tidak hangus</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  
+  </section>
+</div>
+<div class="panel" data-panel="upload" data-lock hidden>
+<!-- Upload form -->
+    <section class="sheet" id="upload">
+      <div class="sheet-h">
+        <div class="step">01</div>
+        <div>
+          <h2>Upload ke Roblox</h2>
+          <p id="hint">Upload gambar PNG/JPG/BMP/TGA.</p>
+        </div>
+      </div>
 
-  <div class="bento" id="tabs">
-    <button class="tool big c-pink" data-action="upload" data-t="decal" type="button">
-      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
-      <div class="t-ico"><svg class="ico"><use href="#i-up"/></svg></div>
-      <strong>Upload Asset</strong>
-      <span class="d">Kirim gambar, audio, model, atau decal ke Roblox dan dapatkan Asset ID-nya.</span>
-      <div class="chips"><em>Image</em><em>Audio</em><em>Model</em><em>Decal</em></div>
-    </button>
+      <div class="gate" id="upGate" hidden>
+        <strong id="gateTitle">Login Discord dulu</strong>
+        <p id="gateText">Semua fitur PaeSTUDIO wajib login dengan Discord.</p>
+        <a class="btn discord" id="gateBtn" href="/api/discord-login">Login dengan Discord</a>
+      </div>
+      <div class="quota" id="upQuota" hidden></div>
 
-    <button class="tool wide c-blue" data-action="model" data-t="file" type="button">
-      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
-      <div class="t-ico"><svg class="ico"><use href="#i-cube"/></svg></div>
-      <strong>Import Model</strong>
-      <span class="d">Upload file RBXM, RBXMX, atau FBX.</span>
-      <div class="chips"><em>RBXM</em><em>RBXMX</em><em>FBX</em></div>
-    </button>
+      <form id="f">
+        <div class="formgrid">
+          <div class="field full">
+            <label for="file"><svg class="ico"><use href="#i-file"/></svg>Pilih file</label>
+            <input id="file" required type="file"/>
+          </div>
+          <div class="field">
+            <label for="key"><svg class="ico"><use href="#i-key"/></svg>Roblox API key</label>
+            <input autocomplete="off" id="key" placeholder="Tempel API key Roblox" required type="password"/>
+            <label class="chk"><input id="keySave" type="checkbox"/>Ingat API key, tipe, dan ID di browser ini</label>
+            <div class="formnote">Tidak dikirim ke mana pun selain saat upload. Kalau dicentang, tersimpan di browser ini saja (tidak terenkripsi), jadi pakai hanya di perangkat pribadi. Hapus centang untuk melupakannya.</div>
+          </div>
+          <div class="field">
+            <label for="name"><svg class="ico"><use href="#i-pen"/></svg>Nama aset</label>
+            <input id="name" maxlength="50" placeholder="Contoh: Crown Mesh" required/>
+          </div>
+          <div class="field">
+            <label for="target"><svg class="ico"><use href="#i-user"/></svg>Upload ke</label>
+            <div class="targetrow">
+              <select id="target"><option value="user">Akun</option><option value="group">Grup</option></select>
+              <input aria-label="User ID" id="owner" inputmode="numeric" placeholder="User ID" required/>
+            </div>
+          </div>
+          <div class="field">
+            <label for="desc"><svg class="ico"><use href="#i-text"/></svg>Deskripsi</label>
+            <textarea id="desc" maxlength="1000" placeholder="Jelaskan tentang aset ini..." rows="3"></textarea>
+            <div class="formnote" id="count">0 / 1000 karakter</div>
+          </div>
+        </div>
 
-    <button class="tool wide c-mint" data-action="decal" data-t="decal" type="button">
-      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
-      <div class="t-ico"><svg class="ico"><use href="#i-img"/></svg></div>
-      <strong>Upload Decal</strong>
-      <span class="d">Unggah gambar dan dapatkan ID decal.</span>
-      <div class="chips"><em>PNG</em><em>JPG</em><em>BMP</em><em>TGA</em></div>
-    </button>
+        <div class="dropzone">
+          <div class="cloud"><svg class="ico"><use href="#i-cloud"/></svg></div>
+          <strong id="dropTitle">Pilih file untuk memulai</strong>
+          <p id="dropSub">File diproses oleh server lalu dikirim ke Roblox.</p>
+          <p id="formats">Format yang didukung mengikuti tipe aset.</p>
+          <p>Bisa juga seret file ke kotak ini.</p>
+        </div>
+        <div class="uprog" id="uProg" hidden><i id="uBar"></i></div>
 
-    <button class="tool c-gold" data-t="audio" type="button">
-      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
-      <div class="t-ico"><svg class="ico"><use href="#i-music"/></svg></div>
-      <strong>Konverter Audio</strong>
-      <span class="d">Ubah ke MP3, potong, dan atur fade.</span>
-      <div class="chips"><em>WAV</em><em>FLAC</em><em>M4A</em><em>AAC</em></div>
-    </button>
-
-    <button class="tool c-rose" data-action="bulk" type="button">
-      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
-      <div class="t-ico"><svg class="ico"><use href="#i-list"/></svg></div>
-      <strong>Banyak ID Audio</strong>
-      <span class="d">Rapikan daftar ID audio sekaligus.</span>
-      <div class="chips"><em>Impor</em><em>Ekspor</em></div>
-    </button>
-
-    <button class="tool c-blue" data-action="history" type="button">
-      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
-      <div class="t-ico"><svg class="ico"><use href="#i-clock"/></svg></div>
-      <strong>Riwayat</strong>
-      <span class="d">Lihat upload sebelumnya di browser ini.</span>
-      <div class="chips"><em>Asset</em><em>Audio</em></div>
-    </button>
-  </div>
-
-  <!-- WORKSPACE -->
-  <div class="sh">
-    <div><h2>Workspace</h2><p>Semua form ada di sini. Panel audio muncul saat kamu memilih Konverter Audio.</p></div>
-  </div>
-
-  <div class="stack">
-
-    <!-- Audio converter -->
-    <section class="sheet" hidden id="audioTool">
+        <button class="submit" id="go" type="submit">⇧ Upload sekarang</button>
+        <div class="formnote">Pastikan API key punya izin Assets (Read &amp; Write). Jangan bagikan API key ke orang lain.</div>
+      </form>
+    </section>
+  
+</div>
+<div class="panel" data-panel="audio" data-lock hidden>
+<!-- Audio converter -->
+    <section class="sheet" id="audioTool">
       <div class="sheet-h">
         <div class="step">A</div>
         <div>
@@ -599,8 +762,11 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
       <div class="formnote">Upload semua memakai API key, ID pemilik, dan deskripsi dari form upload di bawah. Gunakan hanya audio milikmu atau yang berlisensi bebas; Roblox tetap memeriksa hak cipta pada setiap upload.</div>
     </section>
 
-    <!-- ID library -->
-    <section class="sheet" hidden id="idLib">
+    
+</div>
+<div class="panel" data-panel="bulk" data-lock hidden>
+<!-- ID library -->
+    <section class="sheet" id="idLib">
       <div class="sheet-h">
         <div class="step">#</div>
         <div>
@@ -628,98 +794,10 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
       <input accept=".json,.txt" hidden id="lbFile" type="file"/>
     </section>
 
-    <!-- Upload form -->
-    <section class="sheet" id="upload">
-      <div class="sheet-h">
-        <div class="step">01</div>
-        <div>
-          <h2>Upload ke Roblox</h2>
-          <p id="hint">Upload gambar PNG/JPG/BMP/TGA.</p>
-        </div>
-      </div>
-
-      <div class="gate" id="upGate" hidden>
-        <strong id="gateTitle">Login Discord dulu</strong>
-        <p id="gateText">Upload ke Roblox wajib login dengan Discord. Konverter audio tetap bisa dipakai tanpa login.</p>
-        <a class="btn discord" id="gateBtn" href="/api/discord-login">Login dengan Discord</a>
-      </div>
-      <div class="quota" id="upQuota" hidden></div>
-
-      <form id="f">
-        <div class="formgrid">
-          <div class="field full">
-            <label for="file"><svg class="ico"><use href="#i-file"/></svg>Pilih file</label>
-            <input id="file" required type="file"/>
-          </div>
-          <div class="field">
-            <label for="key"><svg class="ico"><use href="#i-key"/></svg>Roblox API key</label>
-            <input autocomplete="off" id="key" placeholder="Tempel API key Roblox" required type="password"/>
-            <label class="chk"><input id="keySave" type="checkbox"/>Ingat API key, tipe, dan ID di browser ini</label>
-            <div class="formnote">Tidak dikirim ke mana pun selain saat upload. Kalau dicentang, tersimpan di browser ini saja (tidak terenkripsi), jadi pakai hanya di perangkat pribadi. Hapus centang untuk melupakannya.</div>
-          </div>
-          <div class="field">
-            <label for="name"><svg class="ico"><use href="#i-pen"/></svg>Nama aset</label>
-            <input id="name" maxlength="50" placeholder="Contoh: Crown Mesh" required/>
-          </div>
-          <div class="field">
-            <label for="target"><svg class="ico"><use href="#i-user"/></svg>Upload ke</label>
-            <div class="targetrow">
-              <select id="target"><option value="user">Akun</option><option value="group">Grup</option></select>
-              <input aria-label="User ID" id="owner" inputmode="numeric" placeholder="User ID" required/>
-            </div>
-          </div>
-          <div class="field">
-            <label for="desc"><svg class="ico"><use href="#i-text"/></svg>Deskripsi</label>
-            <textarea id="desc" maxlength="1000" placeholder="Jelaskan tentang aset ini..." rows="3"></textarea>
-            <div class="formnote" id="count">0 / 1000 karakter</div>
-          </div>
-        </div>
-
-        <div class="dropzone">
-          <div class="cloud"><svg class="ico"><use href="#i-cloud"/></svg></div>
-          <strong id="dropTitle">Pilih file untuk memulai</strong>
-          <p id="dropSub">File diproses oleh server lalu dikirim ke Roblox.</p>
-          <p id="formats">Format yang didukung mengikuti tipe aset.</p>
-          <p>Bisa juga seret file ke kotak ini.</p>
-        </div>
-        <div class="uprog" id="uProg" hidden><i id="uBar"></i></div>
-
-        <button class="submit" id="go" type="submit">⇧ Upload sekarang</button>
-        <div class="formnote">Pastikan API key punya izin Assets (Read &amp; Write). Jangan bagikan API key ke orang lain.</div>
-      </form>
-    </section>
-  </div>
-
-  <!-- PREMIUM -->
-  <section id="premium">
-    <div class="sh">
-      <div><h2>Premium</h2><p>Login Discord dulu, lalu upgrade kalau butuh upload tanpa batas harian.</p></div>
-      <span class="tag">Akun</span>
-    </div>
-    <div class="prem-grid">
-      <div class="acard" id="acctCard"><p>Memuat akun…</p></div>
-      <div>
-        <div class="plan">
-          <h3>Gratis</h3>
-          <ul>
-            <li>7 upload per 24 jam (decal, audio, dan model dihitung bersama)</li>
-            <li>Wajib login dengan Discord</li>
-            <li>Konverter audio dan ID Audio tetap bebas dipakai</li>
-          </ul>
-        </div>
-        <div class="plan pro">
-          <h3><svg class="ico"><use href="#i-crown"/></svg>Premium</h3>
-          <ul>
-            <li>Upload tanpa batas 24 jam</li>
-            <li>Aktif sesuai jumlah hari yang diberikan owner</li>
-            <li>Bisa diperpanjang kapan saja, sisa hari tidak hangus</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- HISTORY -->
+    
+</div>
+<div class="panel" data-panel="history" data-lock hidden>
+<!-- HISTORY -->
   <section id="history">
     <div class="sh">
       <div><h2>Riwayat upload</h2><p>Tersimpan di browser ini saja, maksimal 20 terakhir.</p></div>
@@ -730,7 +808,10 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     </div>
   </section>
 
-  <!-- NOTES -->
+  
+</div>
+<div class="panel" data-panel="info" hidden>
+<!-- NOTES -->
   <div class="sh" id="settings"><div><h2>Info</h2><p>Hal singkat biar upload lancar, plus kontak owner.</p></div></div>
   <section class="notes">
     <div class="note">
@@ -753,6 +834,16 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
       <h3>Contact owner</h3>
       <p>Mau pesan produk atau ada kendala? Hubungi owner lewat WhatsApp.</p>
       <a class="contact-num" href="https://wa.me/6287729035761" target="_blank" rel="noopener">087729035761</a>
+    </div>
+  </section>
+
+</div>
+<section class="panel" id="gatePanel" hidden>
+    <div class="gatecard">
+      <div class="gi"><svg class="ico"><use href="#i-lock"/></svg></div>
+      <h2 id="gpTitle">Login Discord dulu</h2>
+      <p id="gpText">Semua fitur PaeSTUDIO wajib login dengan Discord. Kami hanya membaca ID dan nama Discord-mu.</p>
+      <a class="btn discord" id="gpBtn" href="/api/discord-login">Login dengan Discord</a>
     </div>
   </section>
 </main>
@@ -802,9 +893,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 $("hint").textContent = H[t].hint;
                 $("file").accept = H[t].accept;
                 $("formats").textContent = H[t].formats;
-                $("audioTool").hidden = t !== "audio";
                 $("file").multiple = t === "audio";
-                $("idLib").hidden = t !== "audio";
                 document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("active", b.dataset.t === t));
             }
             $("tabs").addEventListener("click", e => {
@@ -1367,7 +1456,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 $("f").classList.toggle("locked", loggedOut);
                 const canLogin = me.loginReady !== false;
                 $("gateBtn").hidden = !canLogin;
-                $("gateText").textContent = canLogin ? "Upload ke Roblox wajib login dengan Discord. Konverter audio tetap bisa dipakai tanpa login." : "Login Discord belum diaktifkan oleh owner, jadi upload belum bisa dipakai.";
+                $("gateText").textContent = canLogin ? "Semua fitur PaeSTUDIO wajib login dengan Discord." : "Login Discord belum diaktifkan oleh owner, jadi upload belum bisa dipakai.";
                 const uq = $("upQuota");
                 uq.textContent = "";
                 uq.hidden = !me.loggedIn;
@@ -2924,6 +3013,67 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     .then(function () { clearTimeout(timer); renderAll(); });
 })();
 
+</script>
+<script>(function(){
+  var LOCK={upload:1,audio:1,bulk:1,history:1};
+  var panels=[].slice.call(document.querySelectorAll("[data-panel]"));
+  var gate=document.getElementById("gatePanel");
+  var cur="home";
+  var isIn=function(){return typeof ME!=="undefined"&&ME&&ME.loggedIn};
+  function gateText(){
+    var t=document.getElementById("gpTitle"),p=document.getElementById("gpText"),b=document.getElementById("gpBtn");
+    if(typeof ME==="undefined"||ME===null){t.textContent="Memeriksa login…";p.textContent="Sebentar ya.";b.hidden=true;return}
+    if(ME.loginReady===false){t.textContent="Login Discord belum aktif";p.textContent="Owner belum menyiapkan login Discord, jadi fitur ini belum bisa dipakai.";b.hidden=true;return}
+    t.textContent="Login Discord dulu";p.textContent="Fitur ini hanya untuk akun yang sudah login. Kami hanya membaca ID dan nama Discord-mu.";b.hidden=false;
+  }
+  function showTab(name,quiet){
+    if(!panels.some(function(p){return p.dataset.panel===name}))name="home";
+    cur=name;
+    var locked=!!LOCK[name]&&!isIn();
+    panels.forEach(function(p){p.hidden=!(p.dataset.panel===name&&!locked)});
+    gate.hidden=!locked;
+    if(locked)gateText();
+    document.body.classList.toggle("guest",!isIn());
+    document.querySelectorAll(".links button").forEach(function(b){b.classList.toggle("active",b.dataset.tab===name)});
+    try{history.replaceState(null,"",location.pathname+location.search+(name==="home"?"":"#"+name))}catch(e){}
+    if(!quiet)window.scrollTo({top:0,behavior:"auto"});
+  }
+  var sv=Element.prototype.scrollIntoView;
+  Element.prototype.scrollIntoView=function(o){
+    var p=this.closest&&this.closest("[data-panel]");
+    if(p&&p.hidden)showTab(p.dataset.panel,true);
+    return sv.call(this,o);
+  };
+  document.querySelectorAll("[data-tab]").forEach(function(b){b.addEventListener("click",function(){showTab(b.dataset.tab)})});
+  var ra=renderAccount;
+  renderAccount=function(){ra();showTab(cur,true)};
+  document.querySelectorAll(".pc-buy").forEach(function(a){a.addEventListener("click",function(e){
+    e.preventDefault();
+    if(!isIn()){toast(false,"Login Discord dulu","Login dulu supaya Discord ID-mu ikut terkirim ke owner untuk aktivasi.");return}
+    var u=ME.user;
+    var t="Halo owner, saya mau beli Premium PaeSTUDIO paket "+a.dataset.plan+" ("+a.dataset.price+").\nDiscord: "+u.name+"\nDiscord ID: "+u.id;
+    window.open("https://wa.me/"+WA_NUM+"?text="+encodeURIComponent(t),"_blank","noopener");
+  })});
+  showTab(location.hash.slice(1),true);
+})();
+</script>
+<script>(function(){
+  var open=false;
+  function stop(e){e.preventDefault();e.stopPropagation();return false}
+  document.addEventListener("contextmenu",function(e){var t=e.target;if(t&&t.closest&&t.closest("input,textarea"))return;stop(e)},true);
+  document.addEventListener("keydown",function(e){
+    var c=e.ctrlKey||e.metaKey,k=e.code;
+    if(e.keyCode===123||k==="F12"||(c&&e.shiftKey&&(k==="KeyI"||k==="KeyJ"||k==="KeyC"||k==="KeyK"))||(c&&(k==="KeyU"||k==="KeyS"))||(e.metaKey&&e.altKey&&(k==="KeyI"||k==="KeyJ"||k==="KeyC"||k==="KeyU")))stop(e);
+  },true);
+  document.addEventListener("dragstart",function(e){if(e.target&&e.target.tagName==="IMG")e.preventDefault()});
+  var g=document.createElement("div");g.id="dtGuard";g.textContent="Developer tools terdeteksi. Tutup developer tools untuk melanjutkan.";document.body.appendChild(g);
+  function tick(){
+    var t=performance.now();debugger;
+    var hit=performance.now()-t>120;
+    if(hit!==open){open=hit;document.documentElement.toggleAttribute("data-dt",hit)}
+  }
+  setInterval(tick,1000);
+})();
 </script>
 </body>
 </html>
