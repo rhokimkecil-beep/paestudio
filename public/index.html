@@ -334,6 +334,61 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
 }
 @media (max-width:420px){.pgrid{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}body:before,body:after{animation:none}}
+
+/* AKUN DISCORD & PREMIUM */
+.acct{flex:none;display:inline-flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;border-radius:999px;border:1px solid var(--line2);background:#ffffff0a;color:var(--txt);text-decoration:none;font-weight:700;font-size:12.5px;white-space:nowrap;cursor:pointer}
+.acct:hover{border-color:#fff}
+.acct.out{padding:8px 14px;background:#5865f2;border-color:#5865f2;color:#fff}
+.acct.out:hover{filter:brightness(1.08)}
+.acct img{width:24px;height:24px;border-radius:50%;object-fit:cover;display:block}
+.acct em{font-style:normal;font-size:10.5px;padding:2px 8px;border-radius:999px;background:#ffffff14;color:var(--mut)}
+.acct em.pro{background:var(--btn);color:#fff}
+.btn.violet,.btn.discord{border:0;color:#fff;text-decoration:none}
+.btn.violet{background:var(--btn)}
+.btn.discord{background:#5865f2}
+@media (max-width:1320px){.live{display:none}}
+.prem-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;align-items:start}
+.acard{padding:24px;border-radius:24px;border:1px solid var(--line);background:var(--gloss);box-shadow:inset 0 1px 0 #ffffff16,0 8px 24px #0006}
+.acard h3{margin:0 0 4px;font:800 19px var(--head);letter-spacing:-.02em}
+.acard p{margin:0;color:var(--mut);font-size:13.5px}
+.who{display:flex;align-items:center;gap:14px}
+.who img{width:58px;height:58px;border-radius:50%;object-fit:cover;border:2px solid var(--line2);flex:none}
+.who b{display:block;font:800 18px/1.2 var(--head)}
+.who small{color:var(--dim);font-size:12.5px}
+.pid{display:flex;align-items:center;gap:10px;margin-top:16px;padding:9px 10px 9px 14px;border-radius:12px;background:var(--field);border:1px solid var(--line);font-size:12.5px;color:var(--mut)}
+.pid code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--txt);font:600 13px ui-monospace,Menlo,Consolas,monospace}
+.pmini{flex:none;border:1px solid var(--line2);background:#ffffff0d;color:var(--txt);border-radius:9px;padding:5px 11px;font-weight:700;font-size:11.5px}
+.pmini:hover{border-color:#fff}
+.stline{margin-top:18px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:13.5px;color:var(--silver)}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.05em}
+.badge.pro{background:var(--btn);color:#fff}
+.badge.free{background:#ffffff14;color:var(--mut)}
+.qrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:16px;font-size:13px;color:var(--mut)}
+.qrow b{color:var(--txt);font:800 14px var(--head)}
+.meter{height:8px;border-radius:8px;background:#2c2c34;overflow:hidden;margin-top:8px}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,#7c3aed,var(--pink));transition:width .3s}
+.meter.full i{background:linear-gradient(90deg,#ff7a9c,#ff4d79)}
+.pbtns{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.plan{padding:20px;border-radius:var(--r);border:1px solid var(--line);background:#ffffff08}
+.plan+.plan{margin-top:12px}
+.plan h3{display:flex;align-items:center;gap:8px;margin:0 0 10px;font:800 17px var(--head)}
+.plan ul{margin:0;padding:0;list-style:none;display:grid;gap:8px;color:var(--mut);font-size:13.5px}
+.plan li{display:flex;gap:10px}
+.plan li:before{content:"";flex:none;width:6px;height:6px;margin-top:8px;border-radius:50%;background:var(--dim)}
+.plan.pro{border-color:#a855f788;background:linear-gradient(180deg,#a855f71f,#ffffff06)}
+.plan.pro h3{color:#e9d5ff}
+.plan.pro li{color:var(--silver)}
+.plan.pro li:before{background:var(--violet)}
+.gate{margin:0 0 16px;padding:16px 18px;border-radius:16px;border:1px solid #5865f288;background:linear-gradient(180deg,#5865f21f,#ffffff06)}
+.gate strong{display:block;font:800 15px var(--head)}
+.gate p{margin:4px 0 12px;color:var(--mut);font-size:13px}
+.gate p:last-child{margin-bottom:0}
+.quota{margin:0 0 16px;padding:12px 16px;border-radius:14px;border:1px solid var(--line);background:#ffffff08}
+.quota .qrow{margin-top:0}
+.quota.pro{border-color:#a855f788}
+#f.locked{opacity:.38;pointer-events:none;user-select:none}
+@media (max-width:980px){.prem-grid{grid-template-columns:1fr}}
+@media (max-width:640px){.acct .nm{display:none}.acct.out{padding:8px 12px}.acct{padding-right:8px}.acard{padding:18px;border-radius:20px}}
 </style>
 </head>
 <body>
@@ -356,6 +411,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     <symbol id="i-copy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M14.8 9.2a3.4 3.4 0 1 0 0 5.6"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
     <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 9.5 4 4 0 0 1 17.5 18H7Zm5-6v5m0-5-2.2 2.2M12 12l2.2 2.2"/></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><path d="m3 8 4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8Z"/></symbol>
     <symbol id="i-hash" viewBox="0 0 24 24"><path d="M5 9h14M5 15h14M10 4 8 20m8-16-2 16"/></symbol>
   </defs>
 </svg>
@@ -370,12 +426,14 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
     <button class="active" data-nav="home" type="button">Beranda</button>
     <button data-go="products" type="button">Produk</button>
     <button data-nav="upload" type="button">Upload</button>
+    <button data-go="premium" type="button">Premium</button>
     <button data-nav="audio" type="button">Konverter Audio</button>
     <button data-nav="bulk" type="button">ID Audio</button>
     <button data-nav="history" type="button">Riwayat</button>
     <button data-nav="settings" type="button">Info</button>
   </nav>
   <span class="live"><i></i>Online</span>
+  <a class="acct out" id="navAcct" href="/api/discord-login"><span class="nm">Login Discord</span></a>
 </header>
 
 <main class="wrap">
@@ -393,6 +451,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
       <ul class="stats">
         <li><svg class="ico"><use href="#i-shield"/></svg><span><strong>Open Cloud</strong> resmi Roblox</span></li>
         <li><svg class="ico"><use href="#i-box"/></svg><span>Maks <strong>4 MB</strong> / file</span></li>
+        <li><svg class="ico"><use href="#i-clock"/></svg><span>Gratis <strong>7 upload</strong> / 24 jam</span></li>
         <li><svg class="ico"><use href="#i-key"/></svg><span>API key <strong>hanya di browser-mu</strong></span></li>
       </ul>
     </div>
@@ -579,6 +638,13 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
         </div>
       </div>
 
+      <div class="gate" id="upGate" hidden>
+        <strong id="gateTitle">Login Discord dulu</strong>
+        <p id="gateText">Upload ke Roblox wajib login dengan Discord. Konverter audio tetap bisa dipakai tanpa login.</p>
+        <a class="btn discord" id="gateBtn" href="/api/discord-login">Login dengan Discord</a>
+      </div>
+      <div class="quota" id="upQuota" hidden></div>
+
       <form id="f">
         <div class="formgrid">
           <div class="field full">
@@ -623,6 +689,35 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
       </form>
     </section>
   </div>
+
+  <!-- PREMIUM -->
+  <section id="premium">
+    <div class="sh">
+      <div><h2>Premium</h2><p>Login Discord dulu, lalu upgrade kalau butuh upload tanpa batas harian.</p></div>
+      <span class="tag">Akun</span>
+    </div>
+    <div class="prem-grid">
+      <div class="acard" id="acctCard"><p>Memuat akun…</p></div>
+      <div>
+        <div class="plan">
+          <h3>Gratis</h3>
+          <ul>
+            <li>7 upload per 24 jam (decal, audio, dan model dihitung bersama)</li>
+            <li>Wajib login dengan Discord</li>
+            <li>Konverter audio dan ID Audio tetap bebas dipakai</li>
+          </ul>
+        </div>
+        <div class="plan pro">
+          <h3><svg class="ico"><use href="#i-crown"/></svg>Premium</h3>
+          <ul>
+            <li>Upload tanpa batas 24 jam</li>
+            <li>Aktif sesuai jumlah hari yang diberikan owner</li>
+            <li>Bisa diperpanjang kapan saja, sisa hari tidak hangus</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- HISTORY -->
   <section id="history">
@@ -1012,6 +1107,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                                 error: "Respons server tidak dapat dibaca"
                             }
                         }
+                        afterUpload(j);
                         resolve({
                             ok: x.status >= 200 && x.status < 300,
                             status: x.status,
@@ -1050,6 +1146,10 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 const file = $("file").files[0];
                 if (!file)
                     return;
+                if (ME && !ME.loggedIn) {
+                    needLogin();
+                    return
+                }
                 if (file.size > MAX_UP) {
                     toast(false, "File terlalu besar", "File " + fmtMB(file.size) + " melebihi batas sekitar 4 MB. Kecilkan file (untuk audio: turunkan kualitas atau pakai mono di Konverter Audio).");
                     return
@@ -1102,7 +1202,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                         }
                         );
                     } else
-                        toast(false, "Upload gagal", j.error || `Server merespons dengan status ${r.status}`);
+                        toast(false, j.code === "limit" ? "Batas upload tercapai" : j.code === "login" ? "Login Discord dulu" : "Upload gagal", j.error || `Server merespons dengan status ${r.status}`);
                 } catch (err) {
                     toast(false, "Tidak dapat terhubung", "Periksa koneksi internet lalu coba lagi.")
                 } finally {
@@ -1112,6 +1212,258 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 }
             }
             ;
+            /* ===== Akun Discord, premium & kuota upload ===== */
+            let ME = null;
+            const WA_NUM = "6287729035761";
+            const mk = (tag, cls, text) => {
+                const e = document.createElement(tag);
+                if (cls)
+                    e.className = cls;
+                if (text != null)
+                    e.textContent = text;
+                return e
+            }
+            ;
+            const fmtLeft = ms => {
+                const m = Math.max(1, Math.ceil(ms / 60000));
+                return m >= 60 ? Math.floor(m / 60) + " jam " + (m % 60) + " menit" : m + " menit"
+            }
+            ;
+            const fmtDate = t => new Date(t).toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            });
+            const daysLeft = t => Math.max(1, Math.ceil((t - Date.now()) / 86400000));
+            function waLink() {
+                const u = ME && ME.user;
+                const t = "Halo owner, saya mau " + (u && u.premium ? "perpanjang" : "upgrade") + " Premium PaeSTUDIO." + (u ? "\nDiscord: " + u.name + "\nDiscord ID: " + u.id : "");
+                return "https://wa.me/" + WA_NUM + "?text=" + encodeURIComponent(t)
+            }
+            function meter(used, limit) {
+                const m = mk("div", "meter" + (used >= limit ? " full" : ""));
+                const i = mk("i");
+                i.style.width = Math.min(100, Math.round(used / limit * 100)) + "%";
+                m.append(i);
+                return m
+            }
+            function renderAccount() {
+                const me = ME || {}
+                  , u = me.user
+                  , nav = $("navAcct")
+                  , card = $("acctCard");
+                const known = ME !== null;
+                const loggedOut = known && !me.loggedIn;
+                /* chip di nav */
+                nav.textContent = "";
+                if (me.loggedIn) {
+                    nav.className = "acct";
+                    nav.href = "#premium";
+                    const im = mk("img");
+                    im.src = u.avatar;
+                    im.alt = "";
+                    im.width = im.height = 24;
+                    nav.append(im, mk("span", "nm", u.name), u.premium ? mk("em", "pro", "PRO") : mk("em", "", me.quota ? me.quota.remaining + "/" + me.limit : "Free"))
+                } else {
+                    nav.className = "acct out";
+                    nav.href = me.loginReady === false ? "#premium" : "/api/discord-login";
+                    nav.append(mk("span", "nm", known ? "Login Discord" : "…"))
+                }
+                /* kartu di tab Premium */
+                card.textContent = "";
+                if (!known) {
+                    card.append(mk("p", "", "Memuat akun…"))
+                } else if (!me.loggedIn) {
+                    card.append(mk("h3", "", "Belum login"), mk("p", "", "Login dengan Discord untuk upload dan melihat sisa kuota. Kami hanya membaca ID dan nama Discord-mu."));
+                    const row = mk("div", "pbtns");
+                    if (me.loginReady === false) {
+                        const w = mk("div", "msg", "Login Discord belum aktif. Owner perlu mengisi DISCORD_CLIENT_ID dan DISCORD_CLIENT_SECRET di Vercel serta menghubungkan database.");
+                        w.style.cssText = "margin:0;padding:11px 14px;border-radius:12px;border:1px solid #ffcf5a77;color:#ffcf5a;font-size:13px";
+                        row.append(w)
+                    } else {
+                        const a = mk("a", "btn discord", "Login dengan Discord");
+                        a.href = "/api/discord-login";
+                        row.append(a)
+                    }
+                    card.append(row)
+                } else {
+                    const who = mk("div", "who");
+                    const im = mk("img");
+                    im.src = u.avatar;
+                    im.alt = "";
+                    const nm = mk("div");
+                    nm.append(mk("b", "", u.name), mk("small", "", u.username ? "@" + u.username : ""));
+                    who.append(im, nm);
+                    const idrow = mk("div", "pid");
+                    const cp = mk("button", "pmini", "Salin");
+                    cp.type = "button";
+                    cp.onclick = async () => {
+                        try {
+                            await navigator.clipboard.writeText(u.id);
+                            cp.textContent = "Tersalin"
+                        } catch {
+                            cp.textContent = "Salin manual"
+                        }
+                        setTimeout( () => cp.textContent = "Salin", 1500)
+                    }
+                    ;
+                    idrow.append(mk("span", "", "Discord ID"), mk("code", "", u.id), cp);
+                    const st = mk("div", "stline");
+                    if (u.premium) {
+                        st.append(mk("span", "badge pro", "PREMIUM"), mk("span", "", "Aktif sampai " + fmtDate(u.premiumUntil) + " (sisa " + daysLeft(u.premiumUntil) + " hari)"))
+                    } else {
+                        st.append(mk("span", "badge free", "GRATIS"), mk("span", "", "Upload dibatasi " + (me.limit || 7) + " kali per 24 jam"))
+                    }
+                    card.append(who, idrow, st);
+                    if (u.premium) {
+                        const q = mk("div", "qrow");
+                        q.append(mk("b", "", "Upload tanpa batas"), mk("span", "", "Selama premium aktif"));
+                        card.append(q)
+                    } else {
+                        const qu = me.quota || {
+                            limit: me.limit || 7,
+                            used: 0,
+                            remaining: me.limit || 7,
+                            resetAt: 0
+                        };
+                        const q = mk("div", "qrow");
+                        q.append(mk("b", "", "Sisa upload: " + qu.remaining + " / " + qu.limit), mk("span", "", qu.resetAt ? "Reset dalam " + fmtLeft(qu.resetAt - Date.now()) : "Hitungan mulai di upload pertama"));
+                        card.append(q, meter(qu.used, qu.limit))
+                    }
+                    const row = mk("div", "pbtns");
+                    const wa = mk("a", "btn violet", u.premium ? "Perpanjang via WhatsApp" : "Upgrade via WhatsApp");
+                    wa.href = waLink();
+                    wa.target = "_blank";
+                    wa.rel = "noopener";
+                    const out = mk("button", "btn", "Keluar");
+                    out.type = "button";
+                    out.onclick = async () => {
+                        try {
+                            await fetch("/api/me", {
+                                method: "DELETE",
+                                credentials: "same-origin",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-Requested-With": "paestudio"
+                                }
+                            })
+                        } catch {}
+                        ME = {
+                            loggedIn: false,
+                            loginReady: true,
+                            limit: me.limit
+                        };
+                        renderAccount()
+                    }
+                    ;
+                    row.append(wa, out);
+                    card.append(row);
+                    card.append(Object.assign(mk("p", "", "Setelah bayar, kirim Discord ID di atas ke owner. Premium diaktifkan manual oleh owner."), {
+                        style: "margin-top:12px;font-size:12px;color:var(--dim)"
+                    }))
+                }
+                /* gate + kuota di form upload */
+                $("upGate").hidden = !loggedOut;
+                $("f").classList.toggle("locked", loggedOut);
+                const canLogin = me.loginReady !== false;
+                $("gateBtn").hidden = !canLogin;
+                $("gateText").textContent = canLogin ? "Upload ke Roblox wajib login dengan Discord. Konverter audio tetap bisa dipakai tanpa login." : "Login Discord belum diaktifkan oleh owner, jadi upload belum bisa dipakai.";
+                const uq = $("upQuota");
+                uq.textContent = "";
+                uq.hidden = !me.loggedIn;
+                if (me.loggedIn) {
+                    if (u.premium) {
+                        uq.className = "quota pro";
+                        const r = mk("div", "qrow");
+                        r.append(mk("b", "", "Premium aktif · upload tanpa batas"), mk("span", "", "sampai " + fmtDate(u.premiumUntil)));
+                        uq.append(r)
+                    } else {
+                        const qu = me.quota || {
+                            limit: me.limit || 7,
+                            used: 0,
+                            remaining: me.limit || 7,
+                            resetAt: 0
+                        };
+                        uq.className = "quota";
+                        const r = mk("div", "qrow");
+                        r.append(mk("b", "", "Sisa upload: " + qu.remaining + " / " + qu.limit), mk("span", "", qu.resetAt ? "Reset dalam " + fmtLeft(qu.resetAt - Date.now()) : "Kuota 24 jam dihitung sejak upload pertama"));
+                        uq.append(r, meter(qu.used, qu.limit))
+                    }
+                }
+            }
+            async function loadMe() {
+                try {
+                    const r = await fetch("/api/me", {
+                        credentials: "same-origin",
+                        cache: "no-store"
+                    });
+                    ME = await r.json()
+                } catch {
+                    ME = {
+                        loggedIn: false,
+                        loginReady: false
+                    }
+                }
+                renderAccount()
+            }
+            /* dipanggil setiap respons /api/upload: perbarui kuota / status login */
+            function afterUpload(j) {
+                if (!j || !ME)
+                    return;
+                if (j.code === "login") {
+                    ME = {
+                        loggedIn: false,
+                        loginReady: ME.loginReady !== false,
+                        limit: ME.limit
+                    };
+                    renderAccount();
+                    return
+                }
+                if (j.quota && ME.loggedIn) {
+                    if (j.quota.premium) {
+                        ME.user.premium = true;
+                        delete ME.quota
+                    } else
+                        ME.quota = j.quota;
+                    renderAccount()
+                }
+            }
+            function needLogin() {
+                toast(false, "Login Discord dulu", "Upload ke Roblox wajib login dengan Discord. Buka tab Premium lalu tekan Login dengan Discord.");
+                $("premium").scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                })
+            }
+            $("navAcct").addEventListener("click", e => {
+                if (ME && ME.loggedIn || ME && ME.loginReady === false) {
+                    e.preventDefault();
+                    $("premium").scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    })
+                }
+            }
+            );
+            (function loginResult() {
+                const m = /[?&]login=(\w+)/.exec(location.search);
+                if (!m)
+                    return;
+                const T = {
+                    ok: [true, "Login berhasil", "Kamu sudah masuk dengan Discord. Sekarang bisa upload."],
+                    cancel: [false, "Login dibatalkan", "Kamu menutup izin Discord. Coba lagi kalau mau upload."],
+                    error: [false, "Login gagal", "Discord tidak bisa memverifikasi login. Coba lagi sebentar lagi."],
+                    config: [false, "Login belum aktif", "Owner belum mengatur login Discord di server."]
+                }[m[1]];
+                if (T)
+                    toast(T[0], T[1], T[2]);
+                try {
+                    history.replaceState(null, "", location.pathname + location.hash)
+                } catch {}
+            }
+            )();
+            renderAccount();
+            loadMe();
             $("tm").style.whiteSpace = "pre-line";
             /* Simpan API key (opsional, hanya di browser ini) */
             const KS = "paeSaved";
@@ -1919,6 +2271,10 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     $("key").focus();
                     return
                 }
+                if (ME && !ME.loggedIn) {
+                    needLogin();
+                    return
+                }
                 const bad = A.items.filter(i => i.blob && i.fmt !== "wav" && i.state !== "up" && (!i.lic || ((i.lic === "ccby" || i.lic === "perm") && !i.credit.trim())));
                 if (bad.length) {
                     toast(false, "Lisensi belum lengkap", "Pilih lisensi untuk tiap file. CC BY dan izin tertulis wajib mengisi sumber/kredit.\nPerlu dicek: " + bad.slice(0, 5).map(i => i.out).join(", "));
@@ -1931,8 +2287,11 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 A.busy = true;
                 renderA();
                 let ok = 0
-                  , fail = 0;
+                  , fail = 0
+                  , stopAll = false;
                 for (const it of A.items) {
+                    if (stopAll)
+                        break;
                     if (!it.blob || it.state === "up")
                         continue;
                     if (it.fmt === "wav") {
@@ -2005,6 +2364,8 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                         } else {
                             it.state = "done";
                             it.msg = "Upload gagal: " + (j.error || ("status " + r.status));
+                            if (j.code === "limit" || j.code === "login")
+                                stopAll = true;
                             fail++
                         }
                     } catch {
@@ -2017,7 +2378,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                 }
                 A.busy = false;
                 renderA();
-                toast(fail === 0 && ok > 0, fail ? "Upload selesai dengan catatan" : "Upload selesai", `${ok} berhasil, ${fail} gagal.`);
+                toast(fail === 0 && ok > 0, fail ? "Upload selesai dengan catatan" : "Upload selesai", `${ok} berhasil, ${fail} gagal.` + (stopAll ? "\nSisa antrean dihentikan karena batas upload tercapai atau sesi login habis." : ""));
             }
             const LIC = {
                 own: "Karya sendiri",
