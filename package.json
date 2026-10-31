@@ -1,0 +1,10 @@
+{
+  "name": "paestudio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Roblox asset uploader (decal, audio, model) untuk Vercel",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "formidable": "^3.5.1"
+  }
+}
