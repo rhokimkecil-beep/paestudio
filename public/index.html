@@ -803,6 +803,7 @@ html[data-dt] #dtGuard{display:flex}
       <div><h2>Riwayat upload</h2><p>Tersimpan di browser ini saja, maksimal 20 terakhir.</p></div>
       <div class="hist-head"><button class="textbtn" id="clearHistory" type="button">Hapus riwayat</button></div>
     </div>
+    <p class="formnote" id="modNote" hidden style="margin:0 0 12px"></p>
     <div id="historyList">
       <div class="empty">Belum ada riwayat upload di browser ini.</div>
     </div>
@@ -858,6 +859,7 @@ html[data-dt] #dtGuard{display:flex}
   <div id="tm"></div>
   <div class="toastactions">
     <a id="open" rel="noopener" target="_blank">Buka aset</a>
+    <button id="modBtn" type="button" hidden>Cek moderasi</button>
     <button id="close" type="button">Tutup</button>
   </div>
 </div>
@@ -952,6 +954,7 @@ html[data-dt] #dtGuard{display:flex}
                 $("tt").textContent = title;
                 $("tm").textContent = msg;
                 $("open").style.display = url ? "" : "none";
+                $("modBtn").hidden = true;
                 if (url)
                     $("open").href = url;
             }
@@ -1160,7 +1163,7 @@ html[data-dt] #dtGuard{display:flex}
                 renderHistory()
             }
             async function watchMod(id, onState) {
-                for (let i = 0; i < 14; i++) {
+                for (let i = 0; i < 36; i++) {
                     await new Promise(r => setTimeout(r, i ? 5000 : 3000));
                     const r = await fetchMod(id);
                     if (r.error) {
@@ -1173,6 +1176,30 @@ html[data-dt] #dtGuard{display:flex}
                         onState(r.state);
                     if (r.state === "approved" || r.state === "rejected")
                         return
+                }
+            }
+            function modUI(id, nm, url) {
+                const b = $("modBtn");
+                b.hidden = false;
+                b.disabled = false;
+                b.textContent = "Cek moderasi";
+                b.onclick = async () => {
+                    b.disabled = true;
+                    b.textContent = "Mengecek…";
+                    const r = await fetchMod(id);
+                    b.disabled = false;
+                    b.textContent = "Cek moderasi";
+                    if (r.error) {
+                        $("tm").textContent = nm + "\nAsset ID: " + id + "\nCek moderasi gagal: " + r.error;
+                        return
+                    }
+                    saveMod(id, r.state);
+                    if (r.state === "approved")
+                        toast(true, "Lolos moderasi", nm + " sudah disetujui Roblox.\nAsset ID: " + id, url);
+                    else if (r.state === "rejected")
+                        toast(false, "Ditolak moderasi", nm + " ditolak Roblox.");
+                    else
+                        $("tm").textContent = nm + "\nAsset ID: " + id + "\nModerasi: " + (MODL[r.state] || "belum jelas").toLowerCase() + ". Coba lagi sebentar."
                 }
             }
             function setProg(frac, reset) {
@@ -1292,11 +1319,16 @@ html[data-dt] #dtGuard{display:flex}
                         renderHistory();
                         toast(true, "Upload berhasil", `${j.name || $("name").value}\nAsset ID: ${j.assetId}\nMemantau moderasi Roblox…`, j.url);
                         const nm0 = j.name || $("name").value;
+                        modUI(j.assetId, nm0, j.url);
                         watchMod(j.assetId, (st, err) => {
                             if (st === "approved")
                                 toast(true, "Lolos moderasi", nm0 + " sudah disetujui Roblox.\nAsset ID: " + j.assetId, j.url);
                             else if (st === "rejected")
-                                toast(false, "Ditolak moderasi", nm0 + " ditolak Roblox. Roblox yang memutuskan, jadi pastikan audio/gambar milikmu atau berlisensi bebas lalu unggah ulang versi yang berbeda.")
+                                toast(false, "Ditolak moderasi", nm0 + " ditolak Roblox. Roblox yang memutuskan, jadi pastikan audio/gambar milikmu atau berlisensi bebas lalu unggah ulang versi yang berbeda.");
+                            else if (st === "error")
+                                $("tm").textContent = nm0 + "\nAsset ID: " + j.assetId + "\nCek moderasi gagal: " + err + "\nTekan Cek moderasi untuk coba lagi.";
+                            else if ($("toast").style.display === "block" && $("tt").textContent === "Upload berhasil")
+                                $("tm").textContent = nm0 + "\nAsset ID: " + j.assetId + "\nModerasi: " + (MODL[st] || "menunggu").toLowerCase() + "…"
                         }
                         );
                     } else
@@ -3065,6 +3097,7 @@ html[data-dt] #dtGuard{display:flex}
     panels.forEach(function(p){p.hidden=!(p.dataset.panel===name&&!locked)});
     gate.hidden=!locked;
     if(locked)gateText();
+    if(name==="history"&&!locked&&typeof autoMod==="function")autoMod();
     document.body.classList.toggle("guest",!isIn());
     document.querySelectorAll(".links button").forEach(function(b){b.classList.toggle("active",b.dataset.tab===name)});
     try{history.replaceState(null,"",location.pathname+location.search+(name==="home"?"":"#"+name))}catch(e){}
@@ -3086,6 +3119,26 @@ html[data-dt] #dtGuard{display:flex}
     var t="Halo owner, saya mau beli Premium PaeSTUDIO paket "+a.dataset.plan+" ("+a.dataset.price+").\nDiscord: "+u.name+"\nDiscord ID: "+u.id;
     window.open("https://wa.me/"+WA_NUM+"?text="+encodeURIComponent(t),"_blank","noopener");
   })});
+  var amBusy=false;
+  function amNote(show,txt){var n=document.getElementById("modNote");if(n){n.hidden=!show;if(txt)n.textContent=txt}}
+  async function autoMod(){
+    if(amBusy)return;
+    var pend=getHistory().filter(function(x){return x.assetId&&x.mod!=="approved"&&x.mod!=="rejected"});
+    if(!pend.length){amNote(false);return}
+    if(!$("key").value.trim()){amNote(true,"Ada "+pend.length+" upload yang statusnya belum final. Isi Roblox API key di tab Upload supaya status diperbarui otomatis.");return}
+    amBusy=true;amNote(true,"Memperbarui status moderasi ("+pend.length+")…");
+    try{
+      for(var i=0;i<pend.length&&i<10;i++){
+        var r=await fetchMod(pend[i].assetId);
+        if(r.error){amNote(true,"Gagal memperbarui status: "+r.error);return}
+        saveMod(pend[i].assetId,r.state);
+      }
+      var left=getHistory().filter(function(x){return x.assetId&&x.mod!=="approved"&&x.mod!=="rejected"}).length;
+      amNote(left>0,left>0?left+" upload masih menunggu Roblox. Dicek ulang otomatis tiap 20 detik.":"");
+    }finally{amBusy=false}
+  }
+  window.autoMod=autoMod;
+  setInterval(function(){if(cur==="history"&&!document.hidden)autoMod()},20000);
   showTab(location.hash.slice(1),true);
 })();
 </script>
