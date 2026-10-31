@@ -239,6 +239,10 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
 .historyname{font:700 14px var(--head);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .historymeta{font-size:11px;color:var(--mut);margin-top:2px}
 .historyitem .historybtn{margin-left:auto}
+.modb{flex:none;font-size:10.5px;font-weight:800;padding:4px 9px;border-radius:999px;background:#ffffff14;color:var(--mut)}
+.modb.approved{background:#5eead433;color:var(--ok)}
+.modb.rejected{background:#ff7a9c33;color:var(--bad)}
+.modb.reviewing{background:#ffcf5a2b;color:var(--gold)}
 .historybadge{flex:none;font-size:11px;font-weight:700;padding:6px 12px;border-radius:999px;color:#04201c;background:var(--ok);text-decoration:none}
 .empty{grid-column:1/-1;padding:30px;border:1.5px dashed var(--line2);border-radius:16px;text-align:center;color:var(--dim);font-size:13px}
 #history,.notes,.foot{content-visibility:auto;contain-intrinsic-size:auto 420px}
@@ -803,7 +807,30 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                     }
                     ;
                     link.style.marginLeft = "0";
-                    row.append(icon, body, cp, link);
+                    const mb = document.createElement("span");
+                    mb.className = "modb " + (item.mod || "");
+                    mb.textContent = MODL[item.mod] || "Moderasi: belum dicek";
+                    const ck = document.createElement("button");
+                    ck.type = "button";
+                    ck.className = "historybtn";
+                    ck.style.marginLeft = "0";
+                    ck.textContent = "Cek moderasi";
+                    ck.onclick = async () => {
+                        ck.disabled = true;
+                        ck.textContent = "Mengecek…";
+                        const r = await fetchMod(item.assetId);
+                        if (r.error)
+                            toast(false, "Gagal cek moderasi", r.error);
+                        else
+                            saveMod(item.assetId, r.state);
+                        ck.disabled = false;
+                        ck.textContent = "Cek moderasi"
+                    }
+                    ;
+                    if (item.assetId)
+                        row.append(icon, body, mb, ck, cp, link);
+                    else
+                        row.append(icon, body, cp, link);
                     list.append(row)
                 }
                 );
@@ -883,6 +910,72 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
             }
             ));
             const MAX_UP = 4 * 1024 * 1024;
+            const MODL = {
+                reviewing: "Moderasi: menunggu",
+                approved: "Lolos moderasi",
+                rejected: "Ditolak moderasi",
+                unknown: "Status belum jelas"
+            };
+            async function fetchMod(id) {
+                const key = $("key").value.trim();
+                if (!key)
+                    return {
+                        error: "Isi Roblox API key di form upload dulu."
+                    };
+                try {
+                    const r = await fetch("/api/status", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-Requested-With": "paestudio"
+                        },
+                        body: JSON.stringify({
+                            assetId: String(id),
+                            apiKey: key
+                        })
+                    });
+                    const j = await r.json().catch( () => ({}));
+                    if (!r.ok)
+                        return {
+                            error: j.error || "Gagal (" + r.status + ")"
+                        };
+                    return {
+                        state: j.state
+                    }
+                } catch {
+                    return {
+                        error: "Tidak dapat terhubung ke server."
+                    }
+                }
+            }
+            function saveMod(id, state) {
+                const items = getHistory();
+                items.forEach(x => {
+                    if (String(x.assetId) === String(id))
+                        x.mod = state
+                }
+                );
+                try {
+                    localStorage.setItem("paeUploadHistory", JSON.stringify(items))
+                } catch {}
+                renderHistory()
+            }
+            async function watchMod(id, onState) {
+                for (let i = 0; i < 14; i++) {
+                    await new Promise(r => setTimeout(r, i ? 5000 : 3000));
+                    const r = await fetchMod(id);
+                    if (r.error) {
+                        if (onState)
+                            onState("error", r.error);
+                        return
+                    }
+                    saveMod(id, r.state);
+                    if (onState)
+                        onState(r.state);
+                    if (r.state === "approved" || r.state === "rejected")
+                        return
+                }
+            }
             function setProg(frac, reset) {
                 const w = $("uProg");
                 w.hidden = false;
@@ -986,13 +1079,22 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                             name: j.name || $("name").value,
                             assetId: j.assetId,
                             url: j.url || "",
-                            time: Date.now()
+                            time: Date.now(),
+                            mod: "reviewing"
                         });
                         try {
                             localStorage.setItem("paeUploadHistory", JSON.stringify(items.slice(0, 20)))
                         } catch {}
                         renderHistory();
-                        toast(true, "Upload berhasil", `${j.name || $("name").value}\nAsset ID: ${j.assetId}`, j.url);
+                        toast(true, "Upload berhasil", `${j.name || $("name").value}\nAsset ID: ${j.assetId}\nMemantau moderasi Roblox…`, j.url);
+                        const nm0 = j.name || $("name").value;
+                        watchMod(j.assetId, (st, err) => {
+                            if (st === "approved")
+                                toast(true, "Lolos moderasi", nm0 + " sudah disetujui Roblox.\nAsset ID: " + j.assetId, j.url);
+                            else if (st === "rejected")
+                                toast(false, "Ditolak moderasi", nm0 + " ditolak Roblox. Roblox yang memutuskan, jadi pastikan audio/gambar milikmu atau berlisensi bebas lalu unggah ulang versi yang berbeda.")
+                        }
+                        );
                     } else
                         toast(false, "Upload gagal", j.error || `Server merespons dengan status ${r.status}`);
                 } catch (err) {
@@ -1404,15 +1506,25 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
                           , j = got.j;
                         if (r.ok && j.ok && j.assetId) {
                             it.state = "up";
-                            it.msg = "Terunggah · Asset ID " + j.assetId;
+                            it.msg = "Terunggah · Asset ID " + j.assetId + " · moderasi: menunggu";
                             ok++;
                             pushHistory({
                                 type: "audio",
                                 name: j.name,
                                 assetId: j.assetId,
                                 url: j.url || "",
-                                time: Date.now()
-                            })
+                                time: Date.now(),
+                                mod: "reviewing"
+                            });
+                            watchMod(j.assetId, (st, err) => {
+                                if (st === "error")
+                                    it.msg = "Terunggah · Asset ID " + j.assetId + " · cek moderasi gagal: " + err;
+                                else
+                                    it.msg = "Terunggah · Asset ID " + j.assetId + " · " + (MODL[st] || "").toLowerCase();
+                                it.state = st === "rejected" ? "err" : "up";
+                                renderA()
+                            }
+                            )
                         } else if (r.ok && j.ok && j.pending) {
                             it.state = "done";
                             it.msg = "Diterima Roblox, masih diproses. Cek Creator Dashboard.";
