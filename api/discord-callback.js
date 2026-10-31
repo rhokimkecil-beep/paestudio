@@ -12,8 +12,15 @@ module.exports = async function handler(req, res) {
   const q = req.query || {};
   const saved = auth.takeOauthState(req, res);
 
-  if (q.error) return res.redirect(302, "/?login=cancel");
+  if (q.error) {
+    console.error("discord callback: user/discord error =", String(q.error));
+    return res.redirect(302, "/?login=cancel");
+  }
   if (!q.code || !q.state || !saved || !auth.safeEqual(q.state, saved)) {
+    console.error("discord callback: state check failed", {
+      hasCode: Boolean(q.code), hasState: Boolean(q.state), hasCookie: Boolean(saved),
+      host: req.headers["x-forwarded-host"] || req.headers.host,
+    });
     return res.redirect(302, "/?login=error");
   }
 
@@ -31,7 +38,7 @@ module.exports = async function handler(req, res) {
     });
     const tj = await tok.json().catch(() => ({}));
     if (!tok.ok || !tj.access_token) {
-      console.error("discord token error:", tok.status, tj && tj.error);
+      console.error("discord token error:", tok.status, tj && tj.error, tj && tj.error_description);
       return res.redirect(302, "/?login=error");
     }
 
@@ -40,6 +47,7 @@ module.exports = async function handler(req, res) {
     });
     const profile = await me.json().catch(() => ({}));
     if (!me.ok || !users.ID_RE.test(String(profile.id || ""))) {
+      console.error("discord callback: profile failed", me.status, profile && profile.message);
       return res.redirect(302, "/?login=error");
     }
 
