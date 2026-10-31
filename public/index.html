@@ -369,7 +369,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
       <ul class="stats">
         <li><svg class="ico"><use href="#i-shield"/></svg><span><strong>Open Cloud</strong> resmi Roblox</span></li>
         <li><svg class="ico"><use href="#i-box"/></svg><span>Maks <strong>4 MB</strong> / file</span></li>
-        <li><svg class="ico"><use href="#i-key"/></svg><span>API key <strong>tidak disimpan</strong></span></li>
+        <li><svg class="ico"><use href="#i-key"/></svg><span>API key <strong>hanya di browser-mu</strong></span></li>
       </ul>
     </div>
     <div class="hero-art">
@@ -589,7 +589,8 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
           <div class="field">
             <label for="key"><svg class="ico"><use href="#i-key"/></svg>Roblox API key</label>
             <input autocomplete="off" id="key" placeholder="Tempel API key Roblox" required type="password"/>
-            <div class="formnote">Kunci tidak disimpan oleh halaman ini.</div>
+            <label class="chk"><input id="keySave" type="checkbox"/>Ingat API key, tipe, dan ID di browser ini</label>
+            <div class="formnote">Tidak dikirim ke mana pun selain saat upload. Kalau dicentang, tersimpan di browser ini saja (tidak terenkripsi), jadi pakai hanya di perangkat pribadi. Hapus centang untuk melupakannya.</div>
           </div>
           <div class="field">
             <label for="name"><svg class="ico"><use href="#i-pen"/></svg>Nama aset</label>
@@ -1113,6 +1114,36 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
             }
             ;
             $("tm").style.whiteSpace = "pre-line";
+            /* Simpan API key (opsional, hanya di browser ini) */
+            const KS = "paeSaved";
+            function persistKey() {
+                try {
+                    if ($("keySave").checked && $("key").value.trim())
+                        localStorage.setItem(KS, JSON.stringify({
+                            key: $("key").value.trim(),
+                            target: $("target").value,
+                            owner: $("owner").value.trim()
+                        }));
+                    else
+                        localStorage.removeItem(KS)
+                } catch {}
+            }
+            ["key", "owner"].forEach(id => $(id).addEventListener("input", persistKey));
+            $("target").addEventListener("change", persistKey);
+            $("keySave").addEventListener("change", persistKey);
+            try {
+                const sv = JSON.parse(localStorage.getItem(KS) || "null");
+                if (sv && sv.key) {
+                    $("key").value = sv.key;
+                    $("keySave").checked = true;
+                    if (sv.target) {
+                        $("target").value = sv.target;
+                        $("target").dispatchEvent(new Event("change"))
+                    }
+                    if (sv.owner)
+                        $("owner").value = sv.owner
+                }
+            } catch {}
             setType("decal");
             renderHistory();
             /* ===== Konverter audio (di browser) ===== */
