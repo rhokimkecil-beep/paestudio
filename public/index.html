@@ -430,13 +430,33 @@ html[data-dt] body>*:not(#dtGuard){display:none!important}
 html[data-dt] #dtGuard{display:flex}
 @media (max-width:980px){.pricegrid{grid-template-columns:repeat(2,1fr)}.pstrip .btn{margin-left:0}}
 @media (max-width:520px){.pricegrid{grid-template-columns:1fr}.pc-price{font-size:26px}}
-/* ── Spoof panel ── */
-.spoof-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:640px){.spoof-grid{grid-template-columns:1fr}}
-.spoof-card{border:1px solid var(--line);border-radius:20px;padding:22px;background:var(--gloss);box-shadow:inset 0 1px 0 #ffffff14;display:flex;flex-direction:column;gap:14px}
-.spoof-card h3{margin:0;font:700 17px/1.2 var(--head);display:flex;align-items:center;gap:9px}
-.spoof-card h3 span{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:18px;color:#111;background:var(--white)}
-.spoof-out{position:relative;border:1px solid var(--line2);border-radius:12px;background:var(--field);min-height:44px;padding:12px 14px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--txt);word-break:break-all;white-space:pre-wrap}
+/* ── Audio Bypass ── */
+.bypass-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:680px){.bypass-grid{grid-template-columns:1fr}}
+.bp-drop{margin-top:16px;border:1.5px dashed var(--line2);border-radius:18px;padding:28px;text-align:center;background:#0b0b0e;color:var(--mut);transition:border-color .15s,background .15s}
+.bp-drop.over{border-color:#fff;background:#1c1c22}
+.bp-drop strong{display:block;color:var(--txt);font:700 16px var(--head)}
+.bp-drop p{margin:4px 0 14px;font-size:12px}
+.bp-list{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.bp-row{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:#0a0a0c;display:flex;flex-direction:column;gap:10px}
+.bp-row .bphead{display:flex;align-items:center;gap:10px}
+.bp-row .bpinfo{flex:1;min-width:0}
+.bp-row .bpname{font:700 13px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bp-row .bpmeta{font-size:11px;color:var(--mut);margin-top:2px}
+.bp-row .bpmeta.ok{color:var(--ok)}.bp-row .bpmeta.bad{color:var(--bad)}
+.bp-row .bpbar{height:4px;background:#2c2c34;border-radius:4px;margin-top:6px;overflow:hidden}
+.bp-row .bpbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7c3aed,var(--pink));transition:width .2s}
+.bp-opts{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+@media(max-width:500px){.bp-opts{grid-template-columns:1fr}}
+.bp-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.bp-actions button{flex:1 1 140px;border:1px solid var(--line2);border-radius:12px;background:#ffffff0a;color:var(--txt);padding:12px;font-weight:700;font-size:13px}
+.bp-actions button:hover:not(:disabled){border-color:#fff;background:#ffffff14}
+.bp-actions button.primary{border:0;background:var(--white);color:#111}
+.bp-actions button:disabled{opacity:.45;cursor:not-allowed}
+.bp-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:#7c3aed33;color:var(--violet);border:1px solid #7c3aed55;margin-left:6px}
+.c-bypass{--glow:#a78bfa;--ic:linear-gradient(135deg,#7c3aed,#2563eb)}
+/* ── Spoof ID formatter ── */
+.spoof-out{border:1px solid var(--line2);border-radius:12px;background:var(--field);min-height:44px;padding:12px 14px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--txt);word-break:break-all;white-space:pre-wrap}
 .spoof-out.empty{color:var(--dim);font-style:italic}
 .spoof-copy{border:1px solid var(--line2);background:#ffffff0d;border-radius:8px;padding:6px 9px;font-size:11.5px;font-weight:700;color:var(--mut);transition:border-color .12s,color .12s;display:inline-flex;align-items:center;gap:6px;margin-top:8px}
 .spoof-copy:hover{border-color:#fff;color:#fff}
@@ -445,7 +465,6 @@ html[data-dt] #dtGuard{display:flex}
 .spoof-tab{border:1px solid var(--line2);border-radius:999px;background:#ffffff0a;color:var(--mut);padding:7px 14px;font-size:12.5px;font-weight:700}
 .spoof-tab:hover{color:#fff;border-color:#fff}
 .spoof-tab[aria-selected="true"]{background:var(--white);color:#111;border-color:#fff}
-.spoof-batch{margin-top:4px}
 .sbatch-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .sbatch-row{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#0b0b0e}
 .sbatch-row .lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mut);font-size:11.5px}
@@ -497,6 +516,7 @@ html[data-dt] #dtGuard{display:flex}
     <button data-tab="audio" data-lock type="button">Konverter Audio<svg class="ico lk"><use href="#i-lock"/></svg></button>
     <button data-tab="bulk" data-lock type="button">ID Audio<svg class="ico lk"><use href="#i-lock"/></svg></button>
     <button data-tab="history" data-lock type="button">Riwayat<svg class="ico lk"><use href="#i-lock"/></svg></button>
+    <button data-tab="bypass" type="button">🔓 Bypass Audio</button>
     <button data-tab="spoof-music" type="button">Spoof Music</button>
     <button data-tab="spoof-anim" type="button">Spoof Anim</button>
     <button data-tab="info" type="button">Info</button>
@@ -591,6 +611,14 @@ html[data-dt] #dtGuard{display:flex}
       <strong>Riwayat</strong>
       <span class="d">Lihat upload sebelumnya di browser ini.</span>
       <div class="chips"><em>Asset</em><em>Audio</em></div>
+    </button>
+
+    <button class="tool big c-bypass" data-tab="bypass" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico">🔓</div>
+      <strong>Audio Bypass</strong>
+      <span class="d">Modifikasi audio di browser supaya lolos filter Roblox — pitch shift, speed tweak, noise inject, metadata strip. Diproses lokal, file tidak dikirim ke server.</span>
+      <div class="chips"><em>Pitch</em><em>Speed</em><em>Noise</em><em>Strip Meta</em></div>
     </button>
 
     <button class="tool c-spoof-music" data-tab="spoof-music" type="button">
@@ -854,23 +882,85 @@ html[data-dt] #dtGuard{display:flex}
 
   
 </div>
+<!-- PANEL: Audio Bypass -->
+<div class="panel" data-panel="bypass" hidden>
+  <section class="sheet" id="bypassTool">
+    <div class="sheet-h">
+      <div class="step">🔓</div>
+      <div>
+        <h2>Audio Bypass</h2>
+        <p>Modifikasi audio di browser supaya lolos filter Roblox. Semua diproses lokal — file tidak dikirim ke mana pun.</p>
+      </div>
+    </div>
+
+    <div class="bp-drop" id="bpDrop">
+      <strong>Seret audio ke sini</strong>
+      <p>MP3 · WAV · OGG · FLAC · AAC · M4A</p>
+      <label class="abtn">Pilih file<input accept=".mp3,.wav,.ogg,.flac,.aac,.m4a,audio/*" hidden id="bpFiles" multiple type="file"/></label>
+    </div>
+
+    <div class="bp-opts" style="margin-top:18px">
+      <div class="field">
+        <label for="bpPitch"><svg class="ico"><use href="#i-music"/></svg>Pitch shift (semitone)</label>
+        <input id="bpPitch" type="range" min="-5" max="5" step="0.5" value="1"/>
+        <div class="formnote" id="bpPitchVal">+1 semitone — hampir tidak terdengar beda</div>
+      </div>
+      <div class="field">
+        <label for="bpSpeed"><svg class="ico"><use href="#i-clock"/></svg>Speed tweak</label>
+        <input id="bpSpeed" type="range" min="0.95" max="1.05" step="0.01" value="1.01"/>
+        <div class="formnote" id="bpSpeedVal">1.01× — hampir tidak terdengar beda</div>
+      </div>
+      <div class="field">
+        <label for="bpNoise"><svg class="ico"><use href="#i-shield"/></svg>Noise level (dB)</label>
+        <input id="bpNoise" type="range" min="-60" max="-20" step="1" value="-45"/>
+        <div class="formnote" id="bpNoiseVal">-45 dB — tidak terdengar sama sekali</div>
+      </div>
+      <div class="field">
+        <label for="bpSilence"><svg class="ico"><use href="#i-clock"/></svg>Silent padding (ms)</label>
+        <input id="bpSilence" type="range" min="0" max="500" step="10" value="100"/>
+        <div class="formnote" id="bpSilenceVal">100 ms di awal &amp; akhir</div>
+      </div>
+      <div class="field full" style="grid-column:1/-1">
+        <label class="chk"><input checked id="bpStrip" type="checkbox"/>Strip metadata (ID3, artwork, tags)</label>
+        <label class="chk"><input checked id="bpDither" type="checkbox"/>Dither (tambah noise halus di bit terakhir)</label>
+      </div>
+      <div class="field">
+        <label for="bpKbps"><svg class="ico"><use href="#i-music"/></svg>Output kualitas MP3</label>
+        <select id="bpKbps">
+          <option value="96">96 kbps</option>
+          <option value="128" selected>128 kbps</option>
+          <option value="192">192 kbps</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="bp-list" id="bpList"></div>
+
+    <div class="bp-actions">
+      <button class="primary" disabled id="bpProcess" type="button">⚡ Proses semua</button>
+      <button disabled id="bpDownAll" type="button">↓ Download semua</button>
+      <button disabled id="bpClear" type="button">Hapus semua</button>
+    </div>
+    <div class="formnote" style="margin-top:12px">
+      Teknik yang dipakai: pitch shift ±N semitone, speed tweak, silent padding di awal/akhir, white noise -45dB, dan strip metadata.
+      Hash file hasil akan berbeda dari aslinya sehingga filter berbasis hash Roblox tidak bisa mencocokkannya.
+      Kualitas audio tetap hampir sama di telinga manusia.
+    </div>
+  </section>
+</div>
+
 <!-- PANEL: Spoof ID Music -->
 <div class="panel" data-panel="spoof-music" hidden>
   <section class="sheet" id="spoofMusic">
     <div class="sheet-h">
       <div class="step">🎵</div>
-      <div>
-        <h2>Spoof ID Music</h2>
-        <p>Format ulang ID audio Roblox ke berbagai format yang siap dipakai di script.</p>
-      </div>
+      <div><h2>Spoof ID Music</h2><p>Format ulang ID audio Roblox ke berbagai format siap pakai di script.</p></div>
     </div>
-
     <div class="field">
       <label for="smInput"><svg class="ico"><use href="#i-music"/></svg>Masukkan Audio ID Roblox</label>
       <input id="smInput" inputmode="numeric" placeholder="Contoh: 1234567890 atau URL roblox.com/library/..." autocomplete="off" oninput="spoofMusicGen()"/>
-      <div class="formnote">Bisa berupa angka ID, URL roblox.com/library/..., atau format rbxassetid://...</div>
+      <div class="formnote">Bisa angka ID, URL roblox.com/library/..., atau rbxassetid://...</div>
     </div>
-
     <div class="spoof-tabs" role="tablist" id="smFormatTabs">
       <button class="spoof-tab" aria-selected="true" data-fmt="rbx" role="tab" onclick="spoofMusicFmt(this)">rbxassetid://</button>
       <button class="spoof-tab" aria-selected="false" data-fmt="num" role="tab" onclick="spoofMusicFmt(this)">Angka saja</button>
@@ -879,36 +969,29 @@ html[data-dt] #dtGuard{display:flex}
       <button class="spoof-tab" aria-selected="false" data-fmt="url" role="tab" onclick="spoofMusicFmt(this)">URL Roblox</button>
     </div>
     <div class="spoof-out empty" id="smOut">Hasil akan muncul di sini…</div>
-    <button class="spoof-copy" id="smCopyBtn" onclick="spoofCopy('smOut','smCopyBtn')" type="button">
-      <svg class="ico" style="width:.9em;height:.9em"><use href="#i-copy"/></svg>Salin
-    </button>
-
+    <button class="spoof-copy" id="smCopyBtn" onclick="spoofCopy('smOut','smCopyBtn')" type="button"><svg class="ico" style="width:.9em;height:.9em"><use href="#i-copy"/></svg>Salin</button>
     <hr style="border:0;border-top:1px solid var(--line);margin:22px 0"/>
-
-    <div class="spoof-batch">
-      <div class="sheet-h" style="margin-bottom:10px">
-        <div class="step" style="width:32px;height:32px;font-size:12px">#</div>
-        <div><h2 style="font-size:17px">Batch Spoof Music</h2><p>Tempel banyak ID sekaligus, satu per baris.</p></div>
-      </div>
-      <div class="field">
-        <label for="smBatchIn"><svg class="ico"><use href="#i-list"/></svg>Daftar ID / URL (satu per baris)</label>
-        <textarea id="smBatchIn" rows="5" placeholder="1234567890&#10;9876543210&#10;https://www.roblox.com/library/111222333/Lagu"></textarea>
-      </div>
-      <div class="spoof-tabs" role="tablist" id="smBatchFmtTabs">
-        <button class="spoof-tab" aria-selected="true" data-fmt="rbx" role="tab" onclick="spoofMusicBatchFmt(this)">rbxassetid://</button>
-        <button class="spoof-tab" aria-selected="false" data-fmt="num" role="tab" onclick="spoofMusicBatchFmt(this)">Angka saja</button>
-        <button class="spoof-tab" aria-selected="false" data-fmt="sound" role="tab" onclick="spoofMusicBatchFmt(this)">Sound.SoundId</button>
-        <button class="spoof-tab" aria-selected="false" data-fmt="str" role="tab" onclick="spoofMusicBatchFmt(this)">"string"</button>
-        <button class="spoof-tab" aria-selected="false" data-fmt="url" role="tab" onclick="spoofMusicBatchFmt(this)">URL Roblox</button>
-      </div>
-      <div class="aactions" style="margin-top:10px">
-        <button class="primary" onclick="spoofMusicBatch()" type="button">⚡ Generate semua</button>
-        <button id="smBatchCopy" onclick="spoofBatchCopy('smBatchList','smBatchCopy')" type="button">Salin semua hasil</button>
-        <button onclick="document.getElementById('smBatchIn').value='';document.getElementById('smBatchList').innerHTML=''" type="button">Hapus</button>
-      </div>
-      <div class="sbatch-list" id="smBatchList"></div>
+    <div class="sheet-h" style="margin-bottom:10px">
+      <div class="step" style="width:32px;height:32px;font-size:12px">#</div>
+      <div><h2 style="font-size:17px">Batch</h2><p>Tempel banyak ID sekaligus.</p></div>
     </div>
-    <div class="formnote" style="margin-top:20px">Spoof ID tidak mengubah aset di Roblox — hanya memformat ulang ID ke format yang dibutuhkan script. Format <code>Sound.SoundId</code> langsung bisa ditempel ke properti Sound di Studio.</div>
+    <div class="field">
+      <label for="smBatchIn"><svg class="ico"><use href="#i-list"/></svg>Daftar ID / URL (satu per baris)</label>
+      <textarea id="smBatchIn" rows="5" placeholder="1234567890&#10;9876543210&#10;https://www.roblox.com/library/111222333/Lagu"></textarea>
+    </div>
+    <div class="spoof-tabs" role="tablist" id="smBatchFmtTabs">
+      <button class="spoof-tab" aria-selected="true" data-fmt="rbx" role="tab" onclick="spoofMusicBatchFmt(this)">rbxassetid://</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="num" role="tab" onclick="spoofMusicBatchFmt(this)">Angka saja</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="sound" role="tab" onclick="spoofMusicBatchFmt(this)">Sound.SoundId</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="str" role="tab" onclick="spoofMusicBatchFmt(this)">"string"</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="url" role="tab" onclick="spoofMusicBatchFmt(this)">URL Roblox</button>
+    </div>
+    <div class="bp-actions" style="margin-top:10px">
+      <button class="primary" onclick="spoofMusicBatch()" type="button">⚡ Generate semua</button>
+      <button id="smBatchCopy" onclick="spoofBatchCopy('smBatchList','smBatchCopy')" type="button">Salin semua</button>
+      <button onclick="document.getElementById('smBatchIn').value='';document.getElementById('smBatchList').innerHTML=''" type="button">Hapus</button>
+    </div>
+    <div class="sbatch-list" id="smBatchList"></div>
   </section>
 </div>
 
@@ -917,18 +1000,13 @@ html[data-dt] #dtGuard{display:flex}
   <section class="sheet" id="spoofAnim">
     <div class="sheet-h">
       <div class="step">🕺</div>
-      <div>
-        <h2>Spoof ID Animation</h2>
-        <p>Format ulang ID animasi Roblox ke berbagai format script.</p>
-      </div>
+      <div><h2>Spoof ID Animation</h2><p>Format ulang ID animasi Roblox ke berbagai format script.</p></div>
     </div>
-
     <div class="field">
       <label for="saInput"><svg class="ico"><use href="#i-box"/></svg>Masukkan Animation ID Roblox</label>
       <input id="saInput" inputmode="numeric" placeholder="Contoh: 507770239 atau URL roblox.com/library/..." autocomplete="off" oninput="spoofAnimGen()"/>
-      <div class="formnote">Bisa berupa angka ID, URL roblox.com/library/..., atau format rbxassetid://...</div>
+      <div class="formnote">Bisa angka ID, URL roblox.com/library/..., atau rbxassetid://...</div>
     </div>
-
     <div class="spoof-tabs" role="tablist" id="saFormatTabs">
       <button class="spoof-tab" aria-selected="true" data-fmt="rbx" role="tab" onclick="spoofAnimFmt(this)">rbxassetid://</button>
       <button class="spoof-tab" aria-selected="false" data-fmt="num" role="tab" onclick="spoofAnimFmt(this)">Angka saja</button>
@@ -938,37 +1016,30 @@ html[data-dt] #dtGuard{display:flex}
       <button class="spoof-tab" aria-selected="false" data-fmt="loadanim" role="tab" onclick="spoofAnimFmt(this)">LoadAnimation()</button>
     </div>
     <div class="spoof-out empty" id="saOut">Hasil akan muncul di sini…</div>
-    <button class="spoof-copy" id="saCopyBtn" onclick="spoofCopy('saOut','saCopyBtn')" type="button">
-      <svg class="ico" style="width:.9em;height:.9em"><use href="#i-copy"/></svg>Salin
-    </button>
-
+    <button class="spoof-copy" id="saCopyBtn" onclick="spoofCopy('saOut','saCopyBtn')" type="button"><svg class="ico" style="width:.9em;height:.9em"><use href="#i-copy"/></svg>Salin</button>
     <hr style="border:0;border-top:1px solid var(--line);margin:22px 0"/>
-
-    <div class="spoof-batch">
-      <div class="sheet-h" style="margin-bottom:10px">
-        <div class="step" style="width:32px;height:32px;font-size:12px">#</div>
-        <div><h2 style="font-size:17px">Batch Spoof Animation</h2><p>Tempel banyak ID sekaligus, satu per baris.</p></div>
-      </div>
-      <div class="field">
-        <label for="saBatchIn"><svg class="ico"><use href="#i-list"/></svg>Daftar ID / URL (satu per baris)</label>
-        <textarea id="saBatchIn" rows="5" placeholder="507770239&#10;507771019&#10;https://www.roblox.com/library/507770239/Idle"></textarea>
-      </div>
-      <div class="spoof-tabs" role="tablist" id="saBatchFmtTabs">
-        <button class="spoof-tab" aria-selected="true" data-fmt="rbx" role="tab" onclick="spoofAnimBatchFmt(this)">rbxassetid://</button>
-        <button class="spoof-tab" aria-selected="false" data-fmt="num" role="tab" onclick="spoofAnimBatchFmt(this)">Angka saja</button>
-        <button class="spoof-tab" aria-selected="false" data-fmt="animid" role="tab" onclick="spoofAnimBatchFmt(this)">Animation.AnimationId</button>
-        <button class="spoof-tab" aria-selected="false" data-fmt="str" role="tab" onclick="spoofAnimBatchFmt(this)">"string"</button>
-        <button class="spoof-tab" aria-selected="false" data-fmt="url" role="tab" onclick="spoofAnimBatchFmt(this)">URL Roblox</button>
-        <button class="spoof-tab" aria-selected="false" data-fmt="loadanim" role="tab" onclick="spoofAnimBatchFmt(this)">LoadAnimation()</button>
-      </div>
-      <div class="aactions" style="margin-top:10px">
-        <button class="primary" onclick="spoofAnimBatch()" type="button">⚡ Generate semua</button>
-        <button id="saBatchCopy" onclick="spoofBatchCopy('saBatchList','saBatchCopy')" type="button">Salin semua hasil</button>
-        <button onclick="document.getElementById('saBatchIn').value='';document.getElementById('saBatchList').innerHTML=''" type="button">Hapus</button>
-      </div>
-      <div class="sbatch-list" id="saBatchList"></div>
+    <div class="sheet-h" style="margin-bottom:10px">
+      <div class="step" style="width:32px;height:32px;font-size:12px">#</div>
+      <div><h2 style="font-size:17px">Batch</h2><p>Tempel banyak ID sekaligus.</p></div>
     </div>
-    <div class="formnote" style="margin-top:20px">Format <code>Animation.AnimationId</code> langsung bisa ditempel ke properti di Studio atau script. Format <code>LoadAnimation()</code> menghasilkan snippet Lua siap pakai lengkap.</div>
+    <div class="field">
+      <label for="saBatchIn"><svg class="ico"><use href="#i-list"/></svg>Daftar ID / URL (satu per baris)</label>
+      <textarea id="saBatchIn" rows="5" placeholder="507770239&#10;507771019&#10;https://www.roblox.com/library/507770239/Idle"></textarea>
+    </div>
+    <div class="spoof-tabs" role="tablist" id="saBatchFmtTabs">
+      <button class="spoof-tab" aria-selected="true" data-fmt="rbx" role="tab" onclick="spoofAnimBatchFmt(this)">rbxassetid://</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="num" role="tab" onclick="spoofAnimBatchFmt(this)">Angka saja</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="animid" role="tab" onclick="spoofAnimBatchFmt(this)">Animation.AnimationId</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="str" role="tab" onclick="spoofAnimBatchFmt(this)">"string"</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="url" role="tab" onclick="spoofAnimBatchFmt(this)">URL Roblox</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="loadanim" role="tab" onclick="spoofAnimBatchFmt(this)">LoadAnimation()</button>
+    </div>
+    <div class="bp-actions" style="margin-top:10px">
+      <button class="primary" onclick="spoofAnimBatch()" type="button">⚡ Generate semua</button>
+      <button id="saBatchCopy" onclick="spoofBatchCopy('saBatchList','saBatchCopy')" type="button">Salin semua</button>
+      <button onclick="document.getElementById('saBatchIn').value='';document.getElementById('saBatchList').innerHTML=''" type="button">Hapus</button>
+    </div>
+    <div class="sbatch-list" id="saBatchList"></div>
   </section>
 </div>
 
@@ -3322,184 +3393,409 @@ html[data-dt] #dtGuard{display:flex}
 })();
 </script>
 <script>
-(function () {
-  function extractId(raw) {
-    raw = String(raw || "").trim();
-    var m = /rbxassetid:\/\/(\d+)/i.exec(raw);
-    if (m) return m[1];
-    m = /roblox\.com\/(?:library|catalog)\/(\d+)/i.exec(raw);
-    if (m) return m[1];
-    m = /^\d+$/.exec(raw);
-    if (m) return m[0];
-    m = /\b(\d{6,})\b/.exec(raw);
-    if (m) return m[1];
+/* ============================================================
+   AUDIO BYPASS ENGINE
+   Semua diproses di browser pakai Web Audio API + MP3 encoder
+   (lamejs di-load dari CDN saat dibutuhkan)
+   ============================================================ */
+(function(){
+  var BP = {
+    files: [],       // { file, name, buf, outBlob, state, rowEl }
+    lamejs: null,
+    lameLoading: false
+  };
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ── Slider labels ── */
+  function updateSliderLabels(){
+    var p = parseFloat($('bpPitch').value);
+    $('bpPitchVal').textContent = (p>=0?'+':'')+p+' semitone — '+(Math.abs(p)<=1?'hampir tidak terdengar beda':Math.abs(p)<=3?'sedikit terdengar':'terdengar berbeda');
+    var s = parseFloat($('bpSpeed').value);
+    $('bpSpeedVal').textContent = s.toFixed(2)+'× — '+(Math.abs(s-1)<=0.02?'hampir tidak terdengar beda':'sedikit terdengar');
+    var n = parseInt($('bpNoise').value);
+    $('bpNoiseVal').textContent = n+' dB — '+(n<=-40?'tidak terdengar sama sekali':n<=-30?'hampir tidak terdengar':'terdengar samar');
+    var sl = parseInt($('bpSilence').value);
+    $('bpSilenceVal').textContent = sl+' ms di awal & akhir';
+  }
+  ['bpPitch','bpSpeed','bpNoise','bpSilence'].forEach(function(id){
+    var el = $(id); if(el) el.addEventListener('input', updateSliderLabels);
+  });
+  updateSliderLabels();
+
+  /* ── Load lamejs (MP3 encoder) dari CDN ── */
+  function loadLame(cb){
+    if(BP.lamejs){ cb(); return; }
+    if(BP.lameLoading){ var t=setInterval(function(){ if(BP.lamejs){clearInterval(t);cb();} },100); return; }
+    BP.lameLoading = true;
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js';
+    s.onload = function(){ BP.lamejs = window.lamejs || true; BP.lameLoading=false; cb(); };
+    s.onerror = function(){ BP.lameLoading=false; cb('gagal load encoder'); };
+    document.head.appendChild(s);
+  }
+
+  /* ── Render daftar file ── */
+  function renderList(){
+    var list = $('bpList'); if(!list) return;
+    list.innerHTML = '';
+    BP.files.forEach(function(item, idx){
+      var row = document.createElement('div');
+      row.className = 'bp-row';
+      row.innerHTML =
+        '<div class="bphead">'+
+          '<div class="bpinfo">'+
+            '<div class="bpname">'+item.name+'</div>'+
+            '<div class="bpmeta" id="bpmeta'+idx+'">Siap diproses</div>'+
+            '<div class="bpbar"><i id="bpbar'+idx+'"></i></div>'+
+          '</div>'+
+          '<div style="display:flex;gap:8px;flex:none">'+
+            '<button class="mini" id="bpdl'+idx+'" disabled onclick="bpDownload('+idx+')">↓ Download</button>'+
+            '<button class="mini" onclick="bpRemove('+idx+')">✕</button>'+
+          '</div>'+
+        '</div>';
+      item.rowEl = row;
+      list.appendChild(row);
+    });
+    updateBpButtons();
+  }
+
+  function updateBpButtons(){
+    var hasFiles = BP.files.length > 0;
+    var hasDone = BP.files.some(function(f){ return f.outBlob; });
+    var proc = $('bpProcess'), dl = $('bpDownAll'), clr = $('bpClear');
+    if(proc) proc.disabled = !hasFiles;
+    if(dl)   dl.disabled   = !hasDone;
+    if(clr)  clr.disabled  = !hasFiles;
+  }
+
+  function setMeta(idx, txt, cls){
+    var el = $('bpmeta'+idx); if(!el) return;
+    el.textContent = txt;
+    el.className = 'bpmeta'+(cls?' '+cls:'');
+  }
+  function setBar(idx, pct){
+    var el = $('bpbar'+idx); if(!el) return;
+    el.style.width = pct+'%';
+  }
+
+  /* ── Tambah file ── */
+  function addFiles(fileList){
+    Array.from(fileList).forEach(function(f){
+      if(!f.type.startsWith('audio/') && !/\.(mp3|wav|ogg|flac|aac|m4a)$/i.test(f.name)) return;
+      BP.files.push({ file:f, name:f.name, buf:null, outBlob:null, state:'ready' });
+    });
+    renderList();
+  }
+
+  /* ── Drop zone ── */
+  var drop = $('bpDrop');
+  if(drop){
+    drop.addEventListener('dragover', function(e){ e.preventDefault(); drop.classList.add('over'); });
+    drop.addEventListener('dragleave', function(){ drop.classList.remove('over'); });
+    drop.addEventListener('drop', function(e){ e.preventDefault(); drop.classList.remove('over'); addFiles(e.dataTransfer.files); });
+  }
+  var bpFiles = $('bpFiles');
+  if(bpFiles) bpFiles.addEventListener('change', function(){ addFiles(this.files); this.value=''; });
+
+  /* ── Remove & Download single ── */
+  window.bpRemove = function(idx){
+    BP.files.splice(idx,1);
+    renderList();
+  };
+  window.bpDownload = function(idx){
+    var item = BP.files[idx]; if(!item||!item.outBlob) return;
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(item.outBlob);
+    a.download = item.name.replace(/\.[^.]+$/, '')+'_bypass.mp3';
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+  };
+
+  /* ── Core: proses satu file ── */
+  async function processOne(item, idx){
+    item.state = 'processing';
+    setMeta(idx, 'Membaca file…');
+    setBar(idx, 10);
+
+    var arrayBuf = await item.file.arrayBuffer();
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var decoded;
+    try {
+      decoded = await ctx.decodeAudioData(arrayBuf);
+    } catch(e) {
+      setMeta(idx, 'Gagal decode: '+e.message, 'bad');
+      ctx.close(); return;
+    }
+    setBar(idx, 25);
+    setMeta(idx, 'Menerapkan efek…');
+
+    var sampleRate = decoded.sampleRate;
+    var ch = decoded.numberOfChannels;
+    var pitchSemitones = parseFloat($('bpPitch').value) || 1;
+    var speedFactor   = parseFloat($('bpSpeed').value) || 1.01;
+    var noiseDb       = parseInt($('bpNoise').value) || -45;
+    var silenceMs     = parseInt($('bpSilence').value) || 100;
+    var doDither      = $('bpDither') ? $('bpDither').checked : true;
+    var kbps          = parseInt($('bpKbps').value) || 128;
+
+    var silenceSamples = Math.floor(sampleRate * silenceMs / 1000);
+    var pitchRatio = Math.pow(2, pitchSemitones / 12);
+    var totalRatio = pitchRatio * speedFactor;
+    var origLen = decoded.length;
+    var newLen = Math.floor(origLen / totalRatio);
+    var outLen = newLen + 2 * silenceSamples;
+
+    var noiseAmp = Math.pow(10, noiseDb / 20);
+    var ditherAmp = doDither ? (1.0 / 32768 * 0.5) : 0;
+
+    /* Resample sederhana (linear interpolation) + pitch via playback rate trick */
+    var channels = [];
+    for(var c=0; c<ch; c++){
+      var src = decoded.getChannelData(c);
+      var out = new Float32Array(outLen);
+      /* silence di awal */
+      for(var s=0; s<silenceSamples; s++){
+        out[s] = (Math.random()*2-1)*noiseAmp;
+      }
+      /* resample */
+      for(var i=0; i<newLen; i++){
+        var srcIdx = i * totalRatio;
+        var lo = Math.floor(srcIdx);
+        var hi = Math.min(lo+1, origLen-1);
+        var frac = srcIdx - lo;
+        var val = src[lo]*(1-frac) + src[hi]*frac;
+        val += (Math.random()*2-1)*noiseAmp;
+        if(doDither) val += (Math.random()*2-1)*ditherAmp;
+        /* clamp */
+        out[silenceSamples+i] = Math.max(-1, Math.min(1, val));
+      }
+      /* silence di akhir */
+      for(var e=0; e<silenceSamples; e++){
+        out[silenceSamples+newLen+e] = (Math.random()*2-1)*noiseAmp;
+      }
+      channels.push(out);
+    }
+    ctx.close();
+    setBar(idx, 60);
+    setMeta(idx, 'Encoding MP3…');
+
+    /* Encode ke MP3 pakai lamejs */
+    var useCh = Math.min(ch, 2);
+    var enc = new lamejs.Mp3Encoder(useCh, sampleRate, kbps);
+    var mp3Data = [];
+    var blockSize = 1152;
+    var leftF = channels[0];
+    var rightF = useCh > 1 ? channels[1] : channels[0];
+
+    /* Convert float32 → int16 */
+    function f32ToI16(f32){
+      var i16 = new Int16Array(f32.length);
+      for(var x=0; x<f32.length; x++){
+        var v = Math.max(-1, Math.min(1, f32[x]));
+        i16[x] = v < 0 ? v*32768 : v*32767;
+      }
+      return i16;
+    }
+    var leftI16  = f32ToI16(leftF);
+    var rightI16 = f32ToI16(rightF);
+
+    for(var pos=0; pos<leftI16.length; pos+=blockSize){
+      var lChunk = leftI16.subarray(pos, pos+blockSize);
+      var rChunk = rightI16.subarray(pos, pos+blockSize);
+      var buf = useCh > 1 ? enc.encodeBuffer(lChunk, rChunk) : enc.encodeBuffer(lChunk);
+      if(buf.length > 0) mp3Data.push(new Uint8Array(buf));
+    }
+    var end = enc.flush();
+    if(end.length > 0) mp3Data.push(new Uint8Array(end));
+
+    setBar(idx, 90);
+
+    /* Gabung chunk */
+    var totalBytes = mp3Data.reduce(function(a,b){ return a+b.length; },0);
+    var merged = new Uint8Array(totalBytes);
+    var offset = 0;
+    mp3Data.forEach(function(chunk){ merged.set(chunk, offset); offset+=chunk.length; });
+
+    item.outBlob = new Blob([merged], { type:'audio/mpeg' });
+    item.state = 'done';
+    setBar(idx, 100);
+
+    var sizeMB = (item.outBlob.size/1024/1024).toFixed(2);
+    setMeta(idx, '✓ Selesai · '+sizeMB+' MB · siap download', 'ok');
+
+    var dlBtn = $('bpdl'+idx);
+    if(dlBtn) dlBtn.disabled = false;
+    updateBpButtons();
+  }
+
+  /* ── Proses semua ── */
+  var bpProcess = $('bpProcess');
+  if(bpProcess) bpProcess.addEventListener('click', function(){
+    if(!BP.files.length) return;
+    bpProcess.disabled = true;
+    bpProcess.textContent = 'Memuat encoder…';
+    loadLame(function(err){
+      if(err){ bpProcess.disabled=false; bpProcess.textContent='⚡ Proses semua'; alert('Gagal load MP3 encoder: '+err); return; }
+      bpProcess.textContent = 'Memproses…';
+      var chain = Promise.resolve();
+      BP.files.forEach(function(item, idx){
+        chain = chain.then(function(){ return processOne(item, idx); });
+      });
+      chain.then(function(){
+        bpProcess.disabled = false;
+        bpProcess.textContent = '⚡ Proses semua';
+        updateBpButtons();
+      });
+    });
+  });
+
+  /* ── Download semua ── */
+  var bpDownAll = $('bpDownAll');
+  if(bpDownAll) bpDownAll.addEventListener('click', function(){
+    BP.files.forEach(function(item, idx){
+      if(item.outBlob) setTimeout(function(){ window.bpDownload(idx); }, idx*300);
+    });
+  });
+
+  /* ── Hapus semua ── */
+  var bpClear = $('bpClear');
+  if(bpClear) bpClear.addEventListener('click', function(){
+    BP.files = [];
+    renderList();
+    var list = $('bpList'); if(list) list.innerHTML='';
+  });
+
+})();
+
+/* ============================================================
+   SPOOF ID FORMATTER
+   ============================================================ */
+(function(){
+  function extractId(raw){
+    raw = String(raw||'').trim();
+    var m = /rbxassetid:\/\/(\d+)/i.exec(raw); if(m) return m[1];
+    m = /roblox\.com\/(?:library|catalog)\/(\d+)/i.exec(raw); if(m) return m[1];
+    m = /^\d+$/.exec(raw); if(m) return m[0];
+    m = /\b(\d{6,})\b/.exec(raw); if(m) return m[1];
     return null;
   }
-
-  function formatMusic(id, fmt) {
-    if (!id) return "";
-    switch (fmt) {
-      case "rbx":   return "rbxassetid://" + id;
-      case "num":   return id;
-      case "sound": return 'Sound.SoundId = "rbxassetid://' + id + '"';
-      case "str":   return '"rbxassetid://' + id + '"';
-      case "url":   return "https://www.roblox.com/library/" + id;
-      default:      return "rbxassetid://" + id;
-    }
+  function fmtMusic(id,fmt){
+    if(!id) return '';
+    if(fmt==='rbx')   return 'rbxassetid://'+id;
+    if(fmt==='num')   return id;
+    if(fmt==='sound') return 'Sound.SoundId = "rbxassetid://'+id+'"';
+    if(fmt==='str')   return '"rbxassetid://'+id+'"';
+    if(fmt==='url')   return 'https://www.roblox.com/library/'+id;
+    return 'rbxassetid://'+id;
   }
-
-  function formatAnim(id, fmt) {
-    if (!id) return "";
-    switch (fmt) {
-      case "rbx":      return "rbxassetid://" + id;
-      case "num":      return id;
-      case "animid":   return 'Animation.AnimationId = "rbxassetid://' + id + '"';
-      case "str":      return '"rbxassetid://' + id + '"';
-      case "url":      return "https://www.roblox.com/library/" + id;
-      case "loadanim":
-        return 'local anim = Instance.new("Animation")\nanim.AnimationId = "rbxassetid://' + id + '"\nlocal track = Humanoid:LoadAnimation(anim)\ntrack:Play()';
-      default:         return "rbxassetid://" + id;
-    }
+  function fmtAnim(id,fmt){
+    if(!id) return '';
+    if(fmt==='rbx')      return 'rbxassetid://'+id;
+    if(fmt==='num')      return id;
+    if(fmt==='animid')   return 'Animation.AnimationId = "rbxassetid://'+id+'"';
+    if(fmt==='str')      return '"rbxassetid://'+id+'"';
+    if(fmt==='url')      return 'https://www.roblox.com/library/'+id;
+    if(fmt==='loadanim') return 'local anim = Instance.new("Animation")\nanim.AnimationId = "rbxassetid://'+id+'"\nlocal track = Humanoid:LoadAnimation(anim)\ntrack:Play()';
+    return 'rbxassetid://'+id;
   }
-
-  function activeTab(tabsId) {
-    var el = document.getElementById(tabsId);
-    if (!el) return "rbx";
-    var t = el.querySelector('[aria-selected="true"]');
-    return t ? t.dataset.fmt : "rbx";
+  function activeTab(tabsId){
+    var el=document.getElementById(tabsId); if(!el) return 'rbx';
+    var t=el.querySelector('[aria-selected="true"]');
+    return t?t.dataset.fmt:'rbx';
   }
-
-  function setTab(btn, tabsId) {
-    var el = document.getElementById(tabsId);
-    if (!el) return;
-    el.querySelectorAll(".spoof-tab").forEach(function (b) {
-      b.setAttribute("aria-selected", b === btn ? "true" : "false");
-    });
+  function setTab(btn,tabsId){
+    var el=document.getElementById(tabsId); if(!el) return;
+    el.querySelectorAll('.spoof-tab').forEach(function(b){ b.setAttribute('aria-selected',b===btn?'true':'false'); });
   }
-
-  function setOut(elId, text) {
-    var el = document.getElementById(elId);
-    if (!el) return;
-    if (!text) { el.textContent = "Hasil akan muncul di sini…"; el.classList.add("empty"); return; }
-    el.textContent = text;
-    el.classList.remove("empty");
+  function setOut(elId,text){
+    var el=document.getElementById(elId); if(!el) return;
+    if(!text){el.textContent='Hasil akan muncul di sini…';el.classList.add('empty');return;}
+    el.textContent=text; el.classList.remove('empty');
   }
-
-  window.spoofCopy = function (outId, btnId) {
-    var el = document.getElementById(outId);
-    if (!el || el.classList.contains("empty")) return;
-    navigator.clipboard.writeText(el.textContent).then(function () {
-      var btn = document.getElementById(btnId);
-      if (!btn) return;
-      btn.classList.add("ok");
-      btn.innerHTML = '<svg class="ico" style="width:.9em;height:.9em"><use href="#i-copy"/></svg>✓ Disalin!';
-      setTimeout(function () { btn.classList.remove("ok"); btn.innerHTML = '<svg class="ico" style="width:.9em;height:.9em"><use href="#i-copy"/></svg>Salin'; }, 1800);
+  window.spoofCopy=function(outId,btnId){
+    var el=document.getElementById(outId); if(!el||el.classList.contains('empty')) return;
+    navigator.clipboard.writeText(el.textContent).then(function(){
+      var btn=document.getElementById(btnId); if(!btn) return;
+      btn.classList.add('ok');
+      btn.innerHTML='<svg class="ico" style="width:.9em;height:.9em"><use href="#i-copy"/></svg>✓ Disalin!';
+      setTimeout(function(){btn.classList.remove('ok');btn.innerHTML='<svg class="ico" style="width:.9em;height:.9em"><use href="#i-copy"/></svg>Salin';},1800);
     });
   };
-
-  window.spoofBatchCopy = function (listId, btnId) {
-    var rows = document.querySelectorAll("#" + listId + " .sbatch-row .val");
-    var lines = [];
-    rows.forEach(function (r) { lines.push(r.textContent); });
-    if (!lines.length) return;
-    navigator.clipboard.writeText(lines.join("\n")).then(function () {
-      var btn = document.getElementById(btnId);
-      if (!btn) return;
-      var orig = btn.textContent;
-      btn.classList.add("ok");
-      btn.textContent = "✓ Semua disalin!";
-      setTimeout(function () { btn.classList.remove("ok"); btn.textContent = orig; }, 1800);
+  window.spoofBatchCopy=function(listId,btnId){
+    var rows=document.querySelectorAll('#'+listId+' .sbatch-row .val');
+    var lines=[];
+    rows.forEach(function(r){lines.push(r.textContent);});
+    if(!lines.length) return;
+    navigator.clipboard.writeText(lines.join('\n')).then(function(){
+      var btn=document.getElementById(btnId); if(!btn) return;
+      var orig=btn.textContent;
+      btn.classList.add('ok'); btn.textContent='✓ Semua disalin!';
+      setTimeout(function(){btn.classList.remove('ok');btn.textContent=orig;},1800);
     });
   };
-
-  function renderBatch(ids, fmtFn, listId) {
-    var list = document.getElementById(listId);
-    if (!list) return;
-    if (!ids.length) {
-      list.innerHTML = '<div class="sbatch-row" style="justify-content:center;color:var(--dim)">Tidak ada ID valid yang ditemukan.</div>';
-      return;
-    }
-    list.innerHTML = "";
-    ids.forEach(function (obj, i) {
-      var row = document.createElement("div");
-      row.className = "sbatch-row";
-      var lbl = document.createElement("span");
-      lbl.className = "lbl";
-      lbl.textContent = "#" + (i + 1) + " · " + obj.raw.slice(0, 24);
-      var val = document.createElement("span");
-      val.className = "val";
-      val.textContent = obj.result;
-      var btn = document.createElement("button");
-      btn.textContent = "Salin";
-      btn.onclick = function () {
-        navigator.clipboard.writeText(obj.result).then(function () {
-          btn.classList.add("ok"); btn.textContent = "✓";
-          setTimeout(function () { btn.classList.remove("ok"); btn.textContent = "Salin"; }, 1500);
+  function renderBatch(ids,listId){
+    var list=document.getElementById(listId); if(!list) return;
+    if(!ids.length){list.innerHTML='<div class="sbatch-row" style="justify-content:center;color:var(--dim)">Tidak ada ID valid.</div>';return;}
+    list.innerHTML='';
+    ids.forEach(function(obj,i){
+      var row=document.createElement('div'); row.className='sbatch-row';
+      var lbl=document.createElement('span'); lbl.className='lbl'; lbl.textContent='#'+(i+1)+' · '+obj.raw.slice(0,22);
+      var val=document.createElement('span'); val.className='val'; val.textContent=obj.result;
+      var btn=document.createElement('button'); btn.textContent='Salin';
+      btn.onclick=function(){
+        navigator.clipboard.writeText(obj.result).then(function(){
+          btn.classList.add('ok');btn.textContent='✓';
+          setTimeout(function(){btn.classList.remove('ok');btn.textContent='Salin';},1500);
         });
       };
-      row.appendChild(lbl); row.appendChild(val); row.appendChild(btn);
+      row.appendChild(lbl);row.appendChild(val);row.appendChild(btn);
       list.appendChild(row);
     });
   }
-
-  /* ── MUSIC ── */
-  var smFmt = "rbx";
-  window.spoofMusicGen = function () {
-    var raw = (document.getElementById("smInput") || {}).value || "";
-    setOut("smOut", formatMusic(extractId(raw), smFmt));
+  var smFmt='rbx';
+  window.spoofMusicGen=function(){
+    var raw=(document.getElementById('smInput')||{}).value||'';
+    setOut('smOut',fmtMusic(extractId(raw),smFmt));
   };
-  window.spoofMusicFmt = function (btn) {
-    setTab(btn, "smFormatTabs");
-    smFmt = btn.dataset.fmt;
-    spoofMusicGen();
+  window.spoofMusicFmt=function(btn){setTab(btn,'smFormatTabs');smFmt=btn.dataset.fmt;spoofMusicGen();};
+  window.spoofMusicBatchFmt=function(btn){
+    setTab(btn,'smBatchFmtTabs');
+    var ta=document.getElementById('smBatchIn');
+    if(ta&&ta.value.trim()) spoofMusicBatch();
   };
-  window.spoofMusicBatchFmt = function (btn) {
-    setTab(btn, "smBatchFmtTabs");
-    var ta = document.getElementById("smBatchIn");
-    if (ta && ta.value.trim()) spoofMusicBatch();
-  };
-  window.spoofMusicBatch = function () {
-    var ta = document.getElementById("smBatchIn");
-    var fmt = activeTab("smBatchFmtTabs");
-    var results = [];
-    ((ta ? ta.value : "").split(/\r?\n/)).forEach(function (line) {
-      line = line.trim();
-      if (!line) return;
-      var id = extractId(line);
-      if (!id) return;
-      results.push({ raw: line, result: formatMusic(id, fmt) });
+  window.spoofMusicBatch=function(){
+    var ta=document.getElementById('smBatchIn');
+    var fmt=activeTab('smBatchFmtTabs');
+    var results=[];
+    ((ta?ta.value:'').split(/\r?\n/)).forEach(function(line){
+      line=line.trim(); if(!line) return;
+      var id=extractId(line); if(!id) return;
+      results.push({raw:line,result:fmtMusic(id,fmt)});
     });
-    renderBatch(results, null, "smBatchList");
+    renderBatch(results,'smBatchList');
   };
-
-  /* ── ANIMATION ── */
-  var saFmt = "rbx";
-  window.spoofAnimGen = function () {
-    var raw = (document.getElementById("saInput") || {}).value || "";
-    setOut("saOut", formatAnim(extractId(raw), saFmt));
+  var saFmt='rbx';
+  window.spoofAnimGen=function(){
+    var raw=(document.getElementById('saInput')||{}).value||'';
+    setOut('saOut',fmtAnim(extractId(raw),saFmt));
   };
-  window.spoofAnimFmt = function (btn) {
-    setTab(btn, "saFormatTabs");
-    saFmt = btn.dataset.fmt;
-    spoofAnimGen();
+  window.spoofAnimFmt=function(btn){setTab(btn,'saFormatTabs');saFmt=btn.dataset.fmt;spoofAnimGen();};
+  window.spoofAnimBatchFmt=function(btn){
+    setTab(btn,'saBatchFmtTabs');
+    var ta=document.getElementById('saBatchIn');
+    if(ta&&ta.value.trim()) spoofAnimBatch();
   };
-  window.spoofAnimBatchFmt = function (btn) {
-    setTab(btn, "saBatchFmtTabs");
-    var ta = document.getElementById("saBatchIn");
-    if (ta && ta.value.trim()) spoofAnimBatch();
-  };
-  window.spoofAnimBatch = function () {
-    var ta = document.getElementById("saBatchIn");
-    var fmt = activeTab("saBatchFmtTabs");
-    var results = [];
-    ((ta ? ta.value : "").split(/\r?\n/)).forEach(function (line) {
-      line = line.trim();
-      if (!line) return;
-      var id = extractId(line);
-      if (!id) return;
-      results.push({ raw: line, result: formatAnim(id, fmt) });
+  window.spoofAnimBatch=function(){
+    var ta=document.getElementById('saBatchIn');
+    var fmt=activeTab('saBatchFmtTabs');
+    var results=[];
+    ((ta?ta.value:'').split(/\r?\n/)).forEach(function(line){
+      line=line.trim(); if(!line) return;
+      var id=extractId(line); if(!id) return;
+      results.push({raw:line,result:fmtAnim(id,fmt)});
     });
-    renderBatch(results, null, "saBatchList");
+    renderBatch(results,'saBatchList');
   };
 })();
 </script>
