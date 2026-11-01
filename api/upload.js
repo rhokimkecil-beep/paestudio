@@ -208,6 +208,10 @@ module.exports = async function handler(req, res) {
     try {
       fs.unlinkSync(upload.filepath);
     } catch {}
+    // Catat statistik upload sukses (gagal mencatat tidak memengaruhi user).
+    if (accepted) {
+      try { await users.recordUpload(); } catch (e) { console.error("stats error:", e && e.message); }
+    }
     // Upload gagal (ditolak Roblox / error): jangan potong kuota.
     if (reserved && !accepted) {
       try { await users.refund(me.user.id); } catch (e) { console.error("refund error:", e && e.message); }
