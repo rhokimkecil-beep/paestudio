@@ -1367,7 +1367,7 @@ html[data-dt] #dtGuard{display:flex}
             const daysLeft = t => Math.max(1, Math.ceil((t - Date.now()) / 86400000));
             function waLink() {
                 const u = ME && ME.user;
-                const t = "Halo owner, saya mau " + (u && u.premium ? "perpanjang" : "upgrade") + " Premium PaeSTUDIO." + (u ? "\nDiscord: " + u.name + "\nDiscord ID: " + u.id : "");
+                const t = "Halo owner, saya mau " + (u && u.premium && !u.trial ? "perpanjang" : "upgrade") + " Premium PaeSTUDIO." + (u ? "\nDiscord: " + u.name + "\nDiscord ID: " + u.id : "");
                 return "https://wa.me/" + WA_NUM + "?text=" + encodeURIComponent(t)
             }
             function meter(used, limit) {
@@ -1393,7 +1393,7 @@ html[data-dt] #dtGuard{display:flex}
                     im.src = u.avatar;
                     im.alt = "";
                     im.width = im.height = 24;
-                    nav.append(im, mk("span", "nm", u.name), u.premium ? mk("em", "pro", "PRO") : mk("em", "", me.quota ? me.quota.remaining + "/" + me.limit : "Free"))
+                    nav.append(im, mk("span", "nm", u.name), u.premium ? mk("em", "pro", u.trial ? "TRIAL" : "PRO") : mk("em", "", me.quota ? me.quota.remaining + "/" + me.limit : "Free"))
                 } else {
                     nav.className = "acct out";
                     nav.href = me.loginReady === false ? "#premium" : "/api/discord-login";
@@ -1440,7 +1440,7 @@ html[data-dt] #dtGuard{display:flex}
                     idrow.append(mk("span", "", "Discord ID"), mk("code", "", u.id), cp);
                     const st = mk("div", "stline");
                     if (u.premium) {
-                        st.append(mk("span", "badge pro", "PREMIUM"), mk("span", "", "Aktif sampai " + fmtDate(u.premiumUntil) + " (sisa " + daysLeft(u.premiumUntil) + " hari)"))
+                        st.append(mk("span", "badge pro", u.trial ? "TRIAL" : "PREMIUM"), mk("span", "", (u.trial ? "Trial gratis sampai " : "Aktif sampai ") + fmtDate(u.premiumUntil) + " (sisa " + daysLeft(u.premiumUntil) + " hari)"))
                     } else {
                         st.append(mk("span", "badge free", "GRATIS"), mk("span", "", "Upload dibatasi " + (me.limit || 7) + " kali per 24 jam"))
                     }
@@ -1461,7 +1461,7 @@ html[data-dt] #dtGuard{display:flex}
                         card.append(q, meter(qu.used, qu.limit))
                     }
                     const row = mk("div", "pbtns");
-                    const wa = mk("a", "btn violet", u.premium ? "Perpanjang via WhatsApp" : "Upgrade via WhatsApp");
+                    const wa = mk("a", "btn violet", u.premium && !u.trial ? "Perpanjang via WhatsApp" : "Upgrade via WhatsApp");
                     wa.href = waLink();
                     wa.target = "_blank";
                     wa.rel = "noopener";
@@ -1505,7 +1505,7 @@ html[data-dt] #dtGuard{display:flex}
                     if (u.premium) {
                         uq.className = "quota pro";
                         const r = mk("div", "qrow");
-                        r.append(mk("b", "", "Premium aktif · upload tanpa batas"), mk("span", "", "sampai " + fmtDate(u.premiumUntil)));
+                        r.append(mk("b", "", (u.trial ? "Trial Premium · upload tanpa batas" : "Premium aktif · upload tanpa batas")), mk("span", "", "sampai " + fmtDate(u.premiumUntil)));
                         uq.append(r)
                     } else {
                         const qu = me.quota || {
@@ -1581,6 +1581,7 @@ html[data-dt] #dtGuard{display:flex}
                     return;
                 const T = {
                     ok: [true, "Login berhasil", "Kamu sudah masuk dengan Discord. Sekarang bisa upload."],
+                    trial: [true, "Selamat datang! Trial Premium aktif", "Kamu dapat 1 hari Premium gratis: upload tanpa batas. Selamat mencoba!"],
                     cancel: [false, "Login dibatalkan", "Kamu menutup izin Discord. Coba lagi kalau mau upload."],
                     error: [false, "Login gagal", "Discord tidak bisa memverifikasi login. Coba lagi sebentar lagi."],
                     config: [false, "Login belum aktif", "Owner belum mengatur login Discord di server."]
