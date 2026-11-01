@@ -430,6 +430,31 @@ html[data-dt] body>*:not(#dtGuard){display:none!important}
 html[data-dt] #dtGuard{display:flex}
 @media (max-width:980px){.pricegrid{grid-template-columns:repeat(2,1fr)}.pstrip .btn{margin-left:0}}
 @media (max-width:520px){.pricegrid{grid-template-columns:1fr}.pc-price{font-size:26px}}
+/* ── Spoof panel ── */
+.spoof-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.spoof-grid{grid-template-columns:1fr}}
+.spoof-card{border:1px solid var(--line);border-radius:20px;padding:22px;background:var(--gloss);box-shadow:inset 0 1px 0 #ffffff14;display:flex;flex-direction:column;gap:14px}
+.spoof-card h3{margin:0;font:700 17px/1.2 var(--head);display:flex;align-items:center;gap:9px}
+.spoof-card h3 span{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:18px;color:#111;background:var(--white)}
+.spoof-out{position:relative;border:1px solid var(--line2);border-radius:12px;background:var(--field);min-height:44px;padding:12px 14px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--txt);word-break:break-all;white-space:pre-wrap}
+.spoof-out.empty{color:var(--dim);font-style:italic}
+.spoof-copy{border:1px solid var(--line2);background:#ffffff0d;border-radius:8px;padding:6px 9px;font-size:11.5px;font-weight:700;color:var(--mut);transition:border-color .12s,color .12s;display:inline-flex;align-items:center;gap:6px;margin-top:8px}
+.spoof-copy:hover{border-color:#fff;color:#fff}
+.spoof-copy.ok{border-color:var(--ok);color:var(--ok)}
+.spoof-tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.spoof-tab{border:1px solid var(--line2);border-radius:999px;background:#ffffff0a;color:var(--mut);padding:7px 14px;font-size:12.5px;font-weight:700}
+.spoof-tab:hover{color:#fff;border-color:#fff}
+.spoof-tab[aria-selected="true"]{background:var(--white);color:#111;border-color:#fff}
+.spoof-batch{margin-top:4px}
+.sbatch-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.sbatch-row{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#0b0b0e}
+.sbatch-row .lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mut);font-size:11.5px}
+.sbatch-row .val{flex:2;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txt);font:13px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.sbatch-row button{flex:none;border:1px solid var(--line2);background:#ffffff0d;border-radius:7px;padding:4px 8px;font-size:11px;font-weight:700;color:var(--mut)}
+.sbatch-row button:hover{border-color:#fff;color:#fff}
+.sbatch-row button.ok{border-color:var(--ok);color:var(--ok)}
+.c-spoof-music{--glow:#f472b6;--ic:linear-gradient(135deg,#db2777,#9333ea)}
+.c-spoof-anim{--glow:#34d399;--ic:linear-gradient(135deg,#059669,#3b82f6)}
 </style>
 </head>
 <body>
@@ -472,6 +497,8 @@ html[data-dt] #dtGuard{display:flex}
     <button data-tab="audio" data-lock type="button">Konverter Audio<svg class="ico lk"><use href="#i-lock"/></svg></button>
     <button data-tab="bulk" data-lock type="button">ID Audio<svg class="ico lk"><use href="#i-lock"/></svg></button>
     <button data-tab="history" data-lock type="button">Riwayat<svg class="ico lk"><use href="#i-lock"/></svg></button>
+    <button data-tab="spoof-music" type="button">Spoof Music</button>
+    <button data-tab="spoof-anim" type="button">Spoof Anim</button>
     <button data-tab="info" type="button">Info</button>
   </nav>
   <span class="live"><i></i>Online</span>
@@ -564,6 +591,22 @@ html[data-dt] #dtGuard{display:flex}
       <strong>Riwayat</strong>
       <span class="d">Lihat upload sebelumnya di browser ini.</span>
       <div class="chips"><em>Asset</em><em>Audio</em></div>
+    </button>
+
+    <button class="tool c-spoof-music" data-tab="spoof-music" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico">🎵</div>
+      <strong>Spoof ID Music</strong>
+      <span class="d">Format ulang ID audio Roblox jadi rbxassetid atau string siap pakai di script.</span>
+      <div class="chips"><em>Single</em><em>Batch</em><em>Copy</em></div>
+    </button>
+
+    <button class="tool c-spoof-anim" data-tab="spoof-anim" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico">🕺</div>
+      <strong>Spoof ID Animation</strong>
+      <span class="d">Format ulang ID animasi Roblox ke berbagai format script yang dibutuhkan.</span>
+      <div class="chips"><em>Single</em><em>Batch</em><em>Copy</em></div>
     </button>
   </div>
 
@@ -811,6 +854,124 @@ html[data-dt] #dtGuard{display:flex}
 
   
 </div>
+<!-- PANEL: Spoof ID Music -->
+<div class="panel" data-panel="spoof-music" hidden>
+  <section class="sheet" id="spoofMusic">
+    <div class="sheet-h">
+      <div class="step">🎵</div>
+      <div>
+        <h2>Spoof ID Music</h2>
+        <p>Format ulang ID audio Roblox ke berbagai format yang siap dipakai di script.</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="smInput"><svg class="ico"><use href="#i-music"/></svg>Masukkan Audio ID Roblox</label>
+      <input id="smInput" inputmode="numeric" placeholder="Contoh: 1234567890 atau URL roblox.com/library/..." autocomplete="off" oninput="spoofMusicGen()"/>
+      <div class="formnote">Bisa berupa angka ID, URL roblox.com/library/..., atau format rbxassetid://...</div>
+    </div>
+
+    <div class="spoof-tabs" role="tablist" id="smFormatTabs">
+      <button class="spoof-tab" aria-selected="true" data-fmt="rbx" role="tab" onclick="spoofMusicFmt(this)">rbxassetid://</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="num" role="tab" onclick="spoofMusicFmt(this)">Angka saja</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="sound" role="tab" onclick="spoofMusicFmt(this)">Sound.SoundId</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="str" role="tab" onclick="spoofMusicFmt(this)">"string"</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="url" role="tab" onclick="spoofMusicFmt(this)">URL Roblox</button>
+    </div>
+    <div class="spoof-out empty" id="smOut">Hasil akan muncul di sini…</div>
+    <button class="spoof-copy" id="smCopyBtn" onclick="spoofCopy('smOut','smCopyBtn')" type="button">
+      <svg class="ico" style="width:.9em;height:.9em"><use href="#i-copy"/></svg>Salin
+    </button>
+
+    <hr style="border:0;border-top:1px solid var(--line);margin:22px 0"/>
+
+    <div class="spoof-batch">
+      <div class="sheet-h" style="margin-bottom:10px">
+        <div class="step" style="width:32px;height:32px;font-size:12px">#</div>
+        <div><h2 style="font-size:17px">Batch Spoof Music</h2><p>Tempel banyak ID sekaligus, satu per baris.</p></div>
+      </div>
+      <div class="field">
+        <label for="smBatchIn"><svg class="ico"><use href="#i-list"/></svg>Daftar ID / URL (satu per baris)</label>
+        <textarea id="smBatchIn" rows="5" placeholder="1234567890&#10;9876543210&#10;https://www.roblox.com/library/111222333/Lagu"></textarea>
+      </div>
+      <div class="spoof-tabs" role="tablist" id="smBatchFmtTabs">
+        <button class="spoof-tab" aria-selected="true" data-fmt="rbx" role="tab" onclick="spoofMusicBatchFmt(this)">rbxassetid://</button>
+        <button class="spoof-tab" aria-selected="false" data-fmt="num" role="tab" onclick="spoofMusicBatchFmt(this)">Angka saja</button>
+        <button class="spoof-tab" aria-selected="false" data-fmt="sound" role="tab" onclick="spoofMusicBatchFmt(this)">Sound.SoundId</button>
+        <button class="spoof-tab" aria-selected="false" data-fmt="str" role="tab" onclick="spoofMusicBatchFmt(this)">"string"</button>
+        <button class="spoof-tab" aria-selected="false" data-fmt="url" role="tab" onclick="spoofMusicBatchFmt(this)">URL Roblox</button>
+      </div>
+      <div class="aactions" style="margin-top:10px">
+        <button class="primary" onclick="spoofMusicBatch()" type="button">⚡ Generate semua</button>
+        <button id="smBatchCopy" onclick="spoofBatchCopy('smBatchList','smBatchCopy')" type="button">Salin semua hasil</button>
+        <button onclick="document.getElementById('smBatchIn').value='';document.getElementById('smBatchList').innerHTML=''" type="button">Hapus</button>
+      </div>
+      <div class="sbatch-list" id="smBatchList"></div>
+    </div>
+    <div class="formnote" style="margin-top:20px">Spoof ID tidak mengubah aset di Roblox — hanya memformat ulang ID ke format yang dibutuhkan script. Format <code>Sound.SoundId</code> langsung bisa ditempel ke properti Sound di Studio.</div>
+  </section>
+</div>
+
+<!-- PANEL: Spoof ID Animation -->
+<div class="panel" data-panel="spoof-anim" hidden>
+  <section class="sheet" id="spoofAnim">
+    <div class="sheet-h">
+      <div class="step">🕺</div>
+      <div>
+        <h2>Spoof ID Animation</h2>
+        <p>Format ulang ID animasi Roblox ke berbagai format script.</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="saInput"><svg class="ico"><use href="#i-box"/></svg>Masukkan Animation ID Roblox</label>
+      <input id="saInput" inputmode="numeric" placeholder="Contoh: 507770239 atau URL roblox.com/library/..." autocomplete="off" oninput="spoofAnimGen()"/>
+      <div class="formnote">Bisa berupa angka ID, URL roblox.com/library/..., atau format rbxassetid://...</div>
+    </div>
+
+    <div class="spoof-tabs" role="tablist" id="saFormatTabs">
+      <button class="spoof-tab" aria-selected="true" data-fmt="rbx" role="tab" onclick="spoofAnimFmt(this)">rbxassetid://</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="num" role="tab" onclick="spoofAnimFmt(this)">Angka saja</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="animid" role="tab" onclick="spoofAnimFmt(this)">Animation.AnimationId</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="str" role="tab" onclick="spoofAnimFmt(this)">"string"</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="url" role="tab" onclick="spoofAnimFmt(this)">URL Roblox</button>
+      <button class="spoof-tab" aria-selected="false" data-fmt="loadanim" role="tab" onclick="spoofAnimFmt(this)">LoadAnimation()</button>
+    </div>
+    <div class="spoof-out empty" id="saOut">Hasil akan muncul di sini…</div>
+    <button class="spoof-copy" id="saCopyBtn" onclick="spoofCopy('saOut','saCopyBtn')" type="button">
+      <svg class="ico" style="width:.9em;height:.9em"><use href="#i-copy"/></svg>Salin
+    </button>
+
+    <hr style="border:0;border-top:1px solid var(--line);margin:22px 0"/>
+
+    <div class="spoof-batch">
+      <div class="sheet-h" style="margin-bottom:10px">
+        <div class="step" style="width:32px;height:32px;font-size:12px">#</div>
+        <div><h2 style="font-size:17px">Batch Spoof Animation</h2><p>Tempel banyak ID sekaligus, satu per baris.</p></div>
+      </div>
+      <div class="field">
+        <label for="saBatchIn"><svg class="ico"><use href="#i-list"/></svg>Daftar ID / URL (satu per baris)</label>
+        <textarea id="saBatchIn" rows="5" placeholder="507770239&#10;507771019&#10;https://www.roblox.com/library/507770239/Idle"></textarea>
+      </div>
+      <div class="spoof-tabs" role="tablist" id="saBatchFmtTabs">
+        <button class="spoof-tab" aria-selected="true" data-fmt="rbx" role="tab" onclick="spoofAnimBatchFmt(this)">rbxassetid://</button>
+        <button class="spoof-tab" aria-selected="false" data-fmt="num" role="tab" onclick="spoofAnimBatchFmt(this)">Angka saja</button>
+        <button class="spoof-tab" aria-selected="false" data-fmt="animid" role="tab" onclick="spoofAnimBatchFmt(this)">Animation.AnimationId</button>
+        <button class="spoof-tab" aria-selected="false" data-fmt="str" role="tab" onclick="spoofAnimBatchFmt(this)">"string"</button>
+        <button class="spoof-tab" aria-selected="false" data-fmt="url" role="tab" onclick="spoofAnimBatchFmt(this)">URL Roblox</button>
+        <button class="spoof-tab" aria-selected="false" data-fmt="loadanim" role="tab" onclick="spoofAnimBatchFmt(this)">LoadAnimation()</button>
+      </div>
+      <div class="aactions" style="margin-top:10px">
+        <button class="primary" onclick="spoofAnimBatch()" type="button">⚡ Generate semua</button>
+        <button id="saBatchCopy" onclick="spoofBatchCopy('saBatchList','saBatchCopy')" type="button">Salin semua hasil</button>
+        <button onclick="document.getElementById('saBatchIn').value='';document.getElementById('saBatchList').innerHTML=''" type="button">Hapus</button>
+      </div>
+      <div class="sbatch-list" id="saBatchList"></div>
+    </div>
+    <div class="formnote" style="margin-top:20px">Format <code>Animation.AnimationId</code> langsung bisa ditempel ke properti di Studio atau script. Format <code>LoadAnimation()</code> menghasilkan snippet Lua siap pakai lengkap.</div>
+  </section>
+</div>
+
 <div class="panel" data-panel="info" hidden>
 <!-- NOTES -->
   <div class="sh" id="settings"><div><h2>Info</h2><p>Hal singkat biar upload lancar, plus kontak owner.</p></div></div>
@@ -3158,6 +3319,188 @@ html[data-dt] #dtGuard{display:flex}
     if(hit!==open){open=hit;document.documentElement.toggleAttribute("data-dt",hit)}
   }
   setInterval(tick,1000);
+})();
+</script>
+<script>
+(function () {
+  function extractId(raw) {
+    raw = String(raw || "").trim();
+    var m = /rbxassetid:\/\/(\d+)/i.exec(raw);
+    if (m) return m[1];
+    m = /roblox\.com\/(?:library|catalog)\/(\d+)/i.exec(raw);
+    if (m) return m[1];
+    m = /^\d+$/.exec(raw);
+    if (m) return m[0];
+    m = /\b(\d{6,})\b/.exec(raw);
+    if (m) return m[1];
+    return null;
+  }
+
+  function formatMusic(id, fmt) {
+    if (!id) return "";
+    switch (fmt) {
+      case "rbx":   return "rbxassetid://" + id;
+      case "num":   return id;
+      case "sound": return 'Sound.SoundId = "rbxassetid://' + id + '"';
+      case "str":   return '"rbxassetid://' + id + '"';
+      case "url":   return "https://www.roblox.com/library/" + id;
+      default:      return "rbxassetid://" + id;
+    }
+  }
+
+  function formatAnim(id, fmt) {
+    if (!id) return "";
+    switch (fmt) {
+      case "rbx":      return "rbxassetid://" + id;
+      case "num":      return id;
+      case "animid":   return 'Animation.AnimationId = "rbxassetid://' + id + '"';
+      case "str":      return '"rbxassetid://' + id + '"';
+      case "url":      return "https://www.roblox.com/library/" + id;
+      case "loadanim":
+        return 'local anim = Instance.new("Animation")\nanim.AnimationId = "rbxassetid://' + id + '"\nlocal track = Humanoid:LoadAnimation(anim)\ntrack:Play()';
+      default:         return "rbxassetid://" + id;
+    }
+  }
+
+  function activeTab(tabsId) {
+    var el = document.getElementById(tabsId);
+    if (!el) return "rbx";
+    var t = el.querySelector('[aria-selected="true"]');
+    return t ? t.dataset.fmt : "rbx";
+  }
+
+  function setTab(btn, tabsId) {
+    var el = document.getElementById(tabsId);
+    if (!el) return;
+    el.querySelectorAll(".spoof-tab").forEach(function (b) {
+      b.setAttribute("aria-selected", b === btn ? "true" : "false");
+    });
+  }
+
+  function setOut(elId, text) {
+    var el = document.getElementById(elId);
+    if (!el) return;
+    if (!text) { el.textContent = "Hasil akan muncul di sini…"; el.classList.add("empty"); return; }
+    el.textContent = text;
+    el.classList.remove("empty");
+  }
+
+  window.spoofCopy = function (outId, btnId) {
+    var el = document.getElementById(outId);
+    if (!el || el.classList.contains("empty")) return;
+    navigator.clipboard.writeText(el.textContent).then(function () {
+      var btn = document.getElementById(btnId);
+      if (!btn) return;
+      btn.classList.add("ok");
+      btn.innerHTML = '<svg class="ico" style="width:.9em;height:.9em"><use href="#i-copy"/></svg>✓ Disalin!';
+      setTimeout(function () { btn.classList.remove("ok"); btn.innerHTML = '<svg class="ico" style="width:.9em;height:.9em"><use href="#i-copy"/></svg>Salin'; }, 1800);
+    });
+  };
+
+  window.spoofBatchCopy = function (listId, btnId) {
+    var rows = document.querySelectorAll("#" + listId + " .sbatch-row .val");
+    var lines = [];
+    rows.forEach(function (r) { lines.push(r.textContent); });
+    if (!lines.length) return;
+    navigator.clipboard.writeText(lines.join("\n")).then(function () {
+      var btn = document.getElementById(btnId);
+      if (!btn) return;
+      var orig = btn.textContent;
+      btn.classList.add("ok");
+      btn.textContent = "✓ Semua disalin!";
+      setTimeout(function () { btn.classList.remove("ok"); btn.textContent = orig; }, 1800);
+    });
+  };
+
+  function renderBatch(ids, fmtFn, listId) {
+    var list = document.getElementById(listId);
+    if (!list) return;
+    if (!ids.length) {
+      list.innerHTML = '<div class="sbatch-row" style="justify-content:center;color:var(--dim)">Tidak ada ID valid yang ditemukan.</div>';
+      return;
+    }
+    list.innerHTML = "";
+    ids.forEach(function (obj, i) {
+      var row = document.createElement("div");
+      row.className = "sbatch-row";
+      var lbl = document.createElement("span");
+      lbl.className = "lbl";
+      lbl.textContent = "#" + (i + 1) + " · " + obj.raw.slice(0, 24);
+      var val = document.createElement("span");
+      val.className = "val";
+      val.textContent = obj.result;
+      var btn = document.createElement("button");
+      btn.textContent = "Salin";
+      btn.onclick = function () {
+        navigator.clipboard.writeText(obj.result).then(function () {
+          btn.classList.add("ok"); btn.textContent = "✓";
+          setTimeout(function () { btn.classList.remove("ok"); btn.textContent = "Salin"; }, 1500);
+        });
+      };
+      row.appendChild(lbl); row.appendChild(val); row.appendChild(btn);
+      list.appendChild(row);
+    });
+  }
+
+  /* ── MUSIC ── */
+  var smFmt = "rbx";
+  window.spoofMusicGen = function () {
+    var raw = (document.getElementById("smInput") || {}).value || "";
+    setOut("smOut", formatMusic(extractId(raw), smFmt));
+  };
+  window.spoofMusicFmt = function (btn) {
+    setTab(btn, "smFormatTabs");
+    smFmt = btn.dataset.fmt;
+    spoofMusicGen();
+  };
+  window.spoofMusicBatchFmt = function (btn) {
+    setTab(btn, "smBatchFmtTabs");
+    var ta = document.getElementById("smBatchIn");
+    if (ta && ta.value.trim()) spoofMusicBatch();
+  };
+  window.spoofMusicBatch = function () {
+    var ta = document.getElementById("smBatchIn");
+    var fmt = activeTab("smBatchFmtTabs");
+    var results = [];
+    ((ta ? ta.value : "").split(/\r?\n/)).forEach(function (line) {
+      line = line.trim();
+      if (!line) return;
+      var id = extractId(line);
+      if (!id) return;
+      results.push({ raw: line, result: formatMusic(id, fmt) });
+    });
+    renderBatch(results, null, "smBatchList");
+  };
+
+  /* ── ANIMATION ── */
+  var saFmt = "rbx";
+  window.spoofAnimGen = function () {
+    var raw = (document.getElementById("saInput") || {}).value || "";
+    setOut("saOut", formatAnim(extractId(raw), saFmt));
+  };
+  window.spoofAnimFmt = function (btn) {
+    setTab(btn, "saFormatTabs");
+    saFmt = btn.dataset.fmt;
+    spoofAnimGen();
+  };
+  window.spoofAnimBatchFmt = function (btn) {
+    setTab(btn, "saBatchFmtTabs");
+    var ta = document.getElementById("saBatchIn");
+    if (ta && ta.value.trim()) spoofAnimBatch();
+  };
+  window.spoofAnimBatch = function () {
+    var ta = document.getElementById("saBatchIn");
+    var fmt = activeTab("saBatchFmtTabs");
+    var results = [];
+    ((ta ? ta.value : "").split(/\r?\n/)).forEach(function (line) {
+      line = line.trim();
+      if (!line) return;
+      var id = extractId(line);
+      if (!id) return;
+      results.push({ raw: line, result: formatAnim(id, fmt) });
+    });
+    renderBatch(results, null, "saBatchList");
+  };
 })();
 </script>
 </body>
