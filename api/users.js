@@ -43,7 +43,13 @@ module.exports = async function handler(req, res) {
     const mode = body.mode === "set" ? "set" : "extend";
     if (!users.ID_RE.test(id)) return res.status(400).json({ error: "Discord ID harus berupa angka 15–25 digit" });
     if (!Number.isFinite(days) || days < 1 || days > 3650) return res.status(400).json({ error: "Jumlah hari harus 1–3650" });
+    // Nominal yang dibayar (Rp). 0 / kosong = gratis, tidak masuk pendapatan.
+    const amount = Math.round(Number(body.amount) || 0);
+    if (!Number.isFinite(amount) || amount < 0 || amount > 1000000000) return res.status(400).json({ error: "Nominal tidak valid" });
     const u = await users.grantPremium(id, days, mode);
+    if (amount > 0) {
+      try { await users.recordSale(id, days, amount); } catch (e) { console.error("sale log error:", e && e.message); }
+    }
     return res.status(200).json({ ok: true, user: view(u) });
   } catch (e) {
     console.error("users error:", e && e.message);
