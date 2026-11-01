@@ -54,7 +54,7 @@ module.exports = async function handler(req, res) {
     // Token Discord tidak disimpan; kita hanya perlu ID dan nama.
     const u = await users.upsertLogin(profile);
     auth.setUserSession(req, res, u.id);
-    return res.redirect(302, "/?login=ok");
+    return res.redirect(302, u.trialGranted ? "/?login=trial" : "/?login=ok");
   } catch (e) {
     console.error("discord callback error:", e && e.message);
     return res.redirect(302, "/?login=error");
