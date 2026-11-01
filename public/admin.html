@@ -112,6 +112,20 @@ input:disabled{opacity:.5;cursor:not-allowed}
 .srow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
 .srow input{flex:1;min-width:160px}
 .tabs{margin-top:18px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:18px}
+.stat{background:var(--gloss);border:1px solid var(--line2);border-radius:16px;padding:14px 16px}
+.stat b{display:block;font:800 26px/1.15 var(--head);color:var(--txt);overflow-wrap:anywhere}
+.stat span{display:block;font-size:12.5px;color:var(--mut);margin-top:2px}
+.stat small{display:block;font-size:11.5px;color:var(--dim);margin-top:4px}
+.bars{display:flex;gap:8px;height:150px;margin-top:16px}
+.bar{flex:1;display:flex;flex-direction:column;text-align:center;font-size:11px;color:var(--mut);min-width:0}
+.bar .col{flex:1;display:flex;align-items:flex-end;margin:4px 0}
+.bar i{display:block;width:100%;border-radius:8px 8px 3px 3px;background:var(--btn);min-height:3px}
+.bar.today i{box-shadow:0 0 0 1.5px #fff6}
+.bar.today span{color:var(--txt);font-weight:700}
+.srow2{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:13px}
+.srow2:first-of-type{border-top:0}
+.srow2 span{color:var(--mut)}
 @media (max-width:860px){.grid{grid-template-columns:1fr}.top span{display:none}}
 @media (max-width:520px){.row2{grid-template-columns:1fr}.item{flex-wrap:wrap}.acts{width:100%}.acts .btn{flex:1;justify-content:center}}
 </style>
@@ -149,6 +163,7 @@ input:disabled{opacity:.5;cursor:not-allowed}
     <div class="seg tabs" id="paneSeg" role="group" aria-label="Bagian admin">
       <button type="button" data-p="products" aria-pressed="true">Produk</button>
       <button type="button" data-p="premium" aria-pressed="false">Premium</button>
+      <button type="button" data-p="stats" aria-pressed="false">Statistik</button>
     </div>
 
     <div class="grid" id="paneProducts">
@@ -220,7 +235,12 @@ input:disabled{opacity:.5;cursor:not-allowed}
               </select>
             </div>
           </div>
+          <div class="field"><label for="gAmt">Nominal dibayar (Rp)</label>
+            <input id="gAmt" type="number" min="0" step="500" inputmode="numeric" placeholder="0" value="60000"/>
+            <div class="note">Dicatat sebagai pendapatan di tab Statistik. Isi 0 kalau diberikan gratis (giveaway, kompensasi).</div>
+          </div>
           <div class="seg" id="quick" role="group" aria-label="Pilihan cepat hari">
+            <button type="button" data-d="1">1 hari</button>
             <button type="button" data-d="7">7 hari</button>
             <button type="button" data-d="30">30 hari</button>
             <button type="button" data-d="90">90 hari</button>
@@ -245,6 +265,27 @@ input:disabled{opacity:.5;cursor:not-allowed}
         <div class="list" id="uList"></div>
         <div class="note">Daftar berisi orang yang pernah login Discord, atau yang ID-nya kamu beri premium lebih dulu.</div>
       </section>
+    </div>
+
+    <!-- STATISTIK -->
+    <div id="paneStats" hidden>
+      <div id="stMsg" class="msg" hidden style="margin-top:18px"></div>
+      <div class="stats" id="stGrid"></div>
+      <div class="grid">
+        <section class="card" style="margin-top:18px">
+          <h2>Upload 7 hari terakhir</h2>
+          <p class="sub" id="stUpSub"></p>
+          <div class="bars" id="stBars"></div>
+        </section>
+        <section class="card" style="margin-top:18px">
+          <h2>Premium akan habis <small style="color:var(--dim);font-weight:500">(≤ 3 hari)</small></h2>
+          <div id="stExp"></div>
+          <h2 style="margin-top:22px">Penjualan terakhir</h2>
+          <div id="stSales"></div>
+          <div class="note">Pendapatan hanya tercatat dari pemberian premium lewat tab Premium dengan nominal lebih dari 0, mulai saat fitur ini dipasang. Trial gratis tidak dihitung.</div>
+        </section>
+      </div>
+      <button class="btn full" id="stReload" type="button" style="margin-top:18px">Muat ulang</button>
     </div>
   </div>
 </div>
@@ -526,8 +567,71 @@ input:disabled{opacity:.5;cursor:not-allowed}
     Array.prototype.forEach.call($("paneSeg").children, function (x) { x.setAttribute("aria-pressed", String(x === b)); });
     show($("paneProducts"), b.dataset.p === "products");
     show($("panePremium"), b.dataset.p === "premium");
+    show($("paneStats"), b.dataset.p === "stats");
     if (b.dataset.p === "premium") loadUsers();
+    if (b.dataset.p === "stats") loadStats();
   });
+
+  /* ---------- statistik ---------- */
+  function stCard(big, label, note) {
+    var d = document.createElement("div"); d.className = "stat";
+    var b = document.createElement("b"); b.textContent = big;
+    var s = document.createElement("span"); s.textContent = label;
+    d.append(b, s);
+    if (note) { var n = document.createElement("small"); n.textContent = note; d.append(n); }
+    return d;
+  }
+  function stRow(left, right) {
+    var d = document.createElement("div"); d.className = "srow2";
+    var a = document.createElement("div"); a.textContent = left;
+    var b = document.createElement("span"); b.textContent = right;
+    d.append(a, b);
+    return d;
+  }
+  function stEmpty(text) { var d = document.createElement("div"); d.className = "empty"; d.textContent = text; return d; }
+  function rp(n) { return "Rp " + Number(n || 0).toLocaleString("id-ID"); }
+  function who(x) { return x.name || x.id; }
+  async function loadStats() {
+    say($("stMsg"), "");
+    try {
+      var j = await api("GET", "/api/stats");
+      var u = j.users, up = j.uploads, rv = j.revenue;
+      var g = $("stGrid"); g.textContent = "";
+      g.append(
+        stCard(u.total, "Total pengguna", u.newToday + " baru hari ini"),
+        stCard(u.premiumActive, "Premium aktif", u.paid + " berbayar · " + u.trial + " trial"),
+        stCard(u.expiringSoon, "Akan habis ≤ 3 hari", u.expiringSoon ? "Lihat daftar di bawah" : "Aman"),
+        stCard(up.today, "Upload hari ini", up.week + " dalam 7 hari"),
+        stCard(rp(rv.month), "Pendapatan bulan ini", rv.salesMonth + " transaksi"),
+        stCard(rp(rv.total), "Pendapatan total", rv.salesTotal + " transaksi")
+      );
+      var max = Math.max.apply(null, up.days.map(function (d) { return d.count; }).concat([1]));
+      var bars = $("stBars"); bars.textContent = "";
+      up.days.forEach(function (d, i) {
+        var bar = document.createElement("div"); bar.className = "bar" + (i === up.days.length - 1 ? " today" : "");
+        var c = document.createElement("span"); c.textContent = d.count;
+        var col = document.createElement("div"); col.className = "col";
+        var fill = document.createElement("i"); fill.style.height = Math.max(2, Math.round(d.count / max * 100)) + "%";
+        col.append(fill);
+        var lab = document.createElement("span"); lab.textContent = d.day.slice(8) + "/" + d.day.slice(5, 7);
+        bar.append(c, col, lab); bars.append(bar);
+      });
+      $("stUpSub").textContent = "Semua upload yang diterima Roblox, akun gratis dan premium. Hari menurut WIB.";
+      var ex = $("stExp"); ex.textContent = "";
+      if (!j.expiring.length) ex.append(stEmpty("Tidak ada premium yang akan habis dalam 3 hari."));
+      j.expiring.forEach(function (x) {
+        var left = x.premiumUntil - Date.now();
+        var t = left <= 0 ? "sudah habis" : left < 86400000 ? "kurang dari 1 hari" : dLeft(x.premiumUntil) + " hari lagi";
+        ex.append(stRow(who(x) + (x.trial ? " (trial)" : ""), t));
+      });
+      var sl = $("stSales"); sl.textContent = "";
+      if (!j.recentSales.length) sl.append(stEmpty("Belum ada penjualan tercatat."));
+      j.recentSales.forEach(function (x) {
+        sl.append(stRow(who(x) + " · " + x.days + " hari", rp(x.amount) + " · " + fmtD(x.at)));
+      });
+    } catch (e) { say($("stMsg"), e.message, "err"); }
+  }
+  $("stReload").addEventListener("click", loadStats);
 
   async function loadUsers() {
     try {
@@ -596,6 +700,11 @@ input:disabled{opacity:.5;cursor:not-allowed}
     $("gHint").textContent = (u ? uName(u) + " · " : "") + "Premium sampai " + fmtD(base + days * 86400000);
   }
   ["gId", "gDays"].forEach(function (id) { $(id).addEventListener("input", updateGHint); });
+  /* Nominal ikut harga paket di banner (1 hari 5rb, 7 hari 25rb, 30 hari 60rb, 365 hari 499rb); hari lain diisi manual. */
+  var PLAN = { 1: 5000, 7: 25000, 30: 60000, 365: 499000 };
+  function syncAmt() { var p = PLAN[Number($("gDays").value)]; if (p !== undefined) $("gAmt").value = p; }
+  $("gDays").addEventListener("input", syncAmt);
+  $("quick").addEventListener("click", function () { setTimeout(syncAmt, 0); });
   $("gMode").addEventListener("change", updateGHint);
   $("quick").addEventListener("click", function (e) {
     var b = e.target.closest("button[data-d]");
@@ -616,7 +725,7 @@ input:disabled{opacity:.5;cursor:not-allowed}
     say($("gMsg"), "");
     $("gBtn").disabled = true;
     try {
-      var j = await api("POST", "/api/users", { id: $("gId").value.trim(), days: Number($("gDays").value), mode: $("gMode").value });
+      var j = await api("POST", "/api/users", { id: $("gId").value.trim(), days: Number($("gDays").value), mode: $("gMode").value, amount: Number($("gAmt").value) || 0 });
       var msg = "Premium aktif untuk " + uName(j.user) + " sampai " + fmtD(j.user.premiumUntil) + " (sisa " + dLeft(j.user.premiumUntil) + " hari).";
       await loadUsers();
       say($("gMsg"), msg, "ok");
