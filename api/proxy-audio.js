@@ -1,18 +1,24 @@
-// GET /api/proxy-audio?id=<assetId>
-// Proxy ringan: fetch audio dari Roblox Asset Delivery lalu terusin ke browser.
-// Dibutuhkan karena Roblox CDN tidak kirim CORS header, jadi browser tidak bisa hit langsung.
-// API key TIDAK dipakai di sini — ini hanya mengambil file audio publik dari CDN Roblox.
-const auth = require("../lib/auth");
+// GET /api/proxy-audio?id=<assetId>&apiKey=<key>
+// Fetch audio dari Roblox pakai Open Cloud API (butuh API key user).
+// Dicoba dua cara: Open Cloud content endpoint, lalu fallback ke asset delivery dengan cookie.
 const store = require("../lib/store");
 const users = require("../lib/users");
 
-const CDN = "https://assetdelivery.roblox.com/v1/asset/";
-const ALLOWED_MIME = ["audio/mpeg", "audio/ogg", "audio/wav", "audio/x-wav", "audio/mp3", "audio/flac"];
-const MAX_BYTES = 20 * 1024 * 1024; // 20 MB — audio Roblox biasanya < 7 MB
+const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
+
+async function readBody(upstream) {
+  const chunks = [];
+  let total = 0;
+  for await (const chunk of upstream.body) {
+    total += chunk.length;
+    if (total > MAX_BYTES) return null;
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+}
 
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
-
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     return res.status(405).json({ error: "Method tidak diizinkan" });
@@ -20,64 +26,82 @@ module.exports = async function handler(req, res) {
 
   // Wajib login Discord.
   let me = null;
-  try { me = store.configured ? await users.fromRequest(req) : null; }
-  catch (e) { console.error("session error:", e && e.message); return res.status(500).json({ error: "Terjadi kesalahan di server" }); }
+  try { me = store.configured ? await users.fromRequest(req) : null; } catch {}
   if (!me) return res.status(401).json({ error: "Login Discord dulu.", code: "login" });
 
   const assetId = String((req.query && req.query.id) || "").trim();
-  if (!/^\d{1,20}$/.test(assetId)) return res.status(400).json({ error: "Asset ID tidak valid" });
+  const apiKey  = String((req.query && req.query.apiKey) || "").trim();
 
+  if (!/^\d{1,20}$/.test(assetId)) return res.status(400).json({ error: "Asset ID tidak valid" });
+  if (!apiKey) return res.status(400).json({ error: "API key wajib diisi" });
+
+  // ── Cara 1: Open Cloud Assets content endpoint ──
+  // GET https://apis.roblox.com/assets/v1/assets/{id}/content
   try {
-    // Roblox mungkin redirect beberapa kali ke CDN edge.
-    const upstream = await fetch(CDN + "?id=" + assetId, {
+    const r1 = await fetch(`https://apis.roblox.com/assets/v1/assets/${assetId}/content`, {
+      headers: { "x-api-key": apiKey },
       redirect: "follow",
-      headers: {
-        // Berpura-pura sebagai browser biasa supaya tidak diblok.
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
-        "Accept": "audio/*,*/*;q=0.8",
-      },
       signal: AbortSignal.timeout(15000),
     });
 
-    if (!upstream.ok) {
-      return res.status(upstream.status).json({
-        error: "Roblox CDN merespons " + upstream.status + ". Audio mungkin privat atau ID tidak valid.",
+    if (r1.ok) {
+      const ct = r1.headers.get("content-type") || "audio/mpeg";
+      const buf = await readBody(r1);
+      if (!buf) return res.status(413).json({ error: "Audio terlalu besar (maks 20 MB)" });
+      res.setHeader("Content-Type", ct);
+      res.setHeader("Content-Length", buf.length);
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      return res.status(200).send(buf);
+    }
+
+    // Kalau 404 atau 403, coba cara 2
+    if (r1.status !== 404 && r1.status !== 403 && r1.status !== 400) {
+      const j = await r1.json().catch(() => ({}));
+      return res.status(r1.status).json({ error: j.message || j.error || `Open Cloud error ${r1.status}` });
+    }
+  } catch (e) {
+    if (e && e.name === "TimeoutError") return res.status(504).json({ error: "Timeout menghubungi Roblox" });
+    console.error("proxy-audio oc error:", e && e.message);
+  }
+
+  // ── Cara 2: Asset Delivery dengan x-api-key ──
+  // Beberapa audio bisa diambil via assetdelivery dengan API key di header
+  try {
+    const r2 = await fetch(`https://assetdelivery.roblox.com/v1/asset/?id=${assetId}`, {
+      headers: {
+        "x-api-key": apiKey,
+        "User-Agent": "Roblox/WinInet",
+        "Accept": "audio/*,*/*",
+      },
+      redirect: "follow",
+      signal: AbortSignal.timeout(15000),
+    });
+
+    if (r2.ok) {
+      const ct = r2.headers.get("content-type") || "audio/mpeg";
+      const buf = await readBody(r2);
+      if (!buf) return res.status(413).json({ error: "Audio terlalu besar (maks 20 MB)" });
+      res.setHeader("Content-Type", ct);
+      res.setHeader("Content-Length", buf.length);
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      return res.status(200).send(buf);
+    }
+
+    const j = await r2.json().catch(() => ({}));
+    const msg = j.message || j.error || "";
+
+    if (r2.status === 403 || r2.status === 401) {
+      return res.status(403).json({
+        error: "Audio ini privat atau API key tidak punya izin baca aset ini. " +
+               "Pastikan API key dibuat oleh pemilik audio, atau audio tersebut milik akunmu sendiri. " +
+               "Coba buka audio di Creator Dashboard dan pastikan statusnya Approved.",
       });
     }
-
-    const ct = upstream.headers.get("content-type") || "audio/mpeg";
-    const mime = ct.split(";")[0].trim().toLowerCase();
-
-    // Tolak jika bukan audio (misal Roblox kirim HTML error page).
-    if (!ALLOWED_MIME.some(function (m) { return mime === m || ct.startsWith("audio/"); })) {
-      // Kadang Roblox kirim application/octet-stream untuk audio — tetap loloskan.
-      if (mime !== "application/octet-stream") {
-        return res.status(415).json({ error: "Bukan file audio (content-type: " + ct + ")" });
-      }
-    }
-
-    // Baca body dengan batas ukuran.
-    const chunks = [];
-    let total = 0;
-    for await (const chunk of upstream.body) {
-      total += chunk.length;
-      if (total > MAX_BYTES) {
-        return res.status(413).json({ error: "Audio terlalu besar (maks 20 MB)" });
-      }
-      chunks.push(chunk);
-    }
-
-    const buf = Buffer.concat(chunks);
-    res.setHeader("Content-Type", ct);
-    res.setHeader("Content-Length", buf.length);
-    res.setHeader("X-Content-Type-Options", "nosniff");
-    return res.status(200).send(buf);
+    return res.status(r2.status).json({ error: msg || `Roblox error ${r2.status}` });
 
   } catch (e) {
-    if (e && e.name === "TimeoutError") {
-      return res.status(504).json({ error: "Timeout menghubungi Roblox CDN" });
-    }
-    console.error("proxy-audio error:", e && e.message);
+    if (e && e.name === "TimeoutError") return res.status(504).json({ error: "Timeout menghubungi Roblox" });
+    console.error("proxy-audio delivery error:", e && e.message);
     return res.status(500).json({ error: "Terjadi kesalahan di server" });
   }
 };
