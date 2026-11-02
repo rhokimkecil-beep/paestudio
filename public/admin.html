@@ -304,15 +304,15 @@ import { upload } from "https://esm.sh/@vercel/blob@0.27.0/client";
 window.uploadBig = async function (id, file, onPct) {
   var blob = await upload("products/" + id + "/" + file.name, file, {
     access: "public",
-    handleUploadUrl: "/api/file-token",
+    handleUploadUrl: "/api/file",
     multipart: file.size > 8 * 1024 * 1024,
     onUploadProgress: function (e) { if (onPct) onPct(Math.round(e.percentage)); }
   });
-  var r = await fetch("/api/file-attach", {
+  var r = await fetch("/api/file", {
     method: "POST",
     credentials: "same-origin",
     headers: { "Content-Type": "application/json", "X-Requested-With": "paestudio" },
-    body: JSON.stringify({ id: id, name: file.name, size: file.size, url: blob.url })
+    body: JSON.stringify({ action: "attach", id: id, name: file.name, size: file.size, url: blob.url })
   });
   var j = {};
   try { j = await r.json(); } catch (e) {}
