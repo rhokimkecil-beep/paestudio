@@ -22,13 +22,16 @@ module.exports = async function handler(req, res) {
   }
   const state = crypto.randomBytes(16).toString("hex");
   auth.setOauthState(req, res, state);
-  // "prompt: none" dihapus supaya user lama tetap diminta menyetujui scope guilds.join.
+  // prompt=consent: Discord SELALU menampilkan layar izin yang memuat nama akun yang sedang login
+  // di browser itu beserta tautan ganti akun ("Bukan kamu?"). Tanpa ini, user yang pernah menyetujui
+  // akan langsung masuk memakai akun Discord apa pun yang kebetulan aktif di browser.
   const q = new URLSearchParams({
     client_id: clientId,
     response_type: "code",
     redirect_uri: redirectUri(req),
     scope: "identify guilds.join",
     state,
+    prompt: "consent",
   });
   return res.redirect(302, `https://discord.com/oauth2/authorize?${q}`);
 };
