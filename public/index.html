@@ -322,9 +322,14 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
   .notes{grid-template-columns:1fr}
 }
 @media (max-width:640px){
-  .nav{gap:8px;padding:7px 8px 7px 10px}
-  .mark span,.live{display:none}
-  .links{margin:0;flex:1 1 0;min-width:0}
+  .nav{flex-wrap:wrap;gap:8px 10px;padding:8px 10px 8px 12px;border-radius:24px;top:8px;margin-top:8px}
+  .live{display:none}
+  .mark{order:1;margin-right:auto}
+  .mark span{font-size:17px}
+  .acct{order:2}
+  .links{order:3;flex:1 1 100%;width:100%;margin:0;padding:2px 0 0;border-top:1px solid var(--line2);padding-top:8px;
+    -webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  .links button{padding:8px 13px}
   .wrap{padding:0 14px 30px}
   .bento{grid-template-columns:1fr}
   .tool,.tool.wide,.tool.big{grid-column:span 1;min-height:150px}
@@ -3216,6 +3221,11 @@ html[data-dt] #dtGuard{display:flex}
   }
   setInterval(tick,1000);
 })();
+</script>
+<script>
+document.querySelectorAll(".links button").forEach(function(b){
+  b.addEventListener("click",function(){try{b.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"})}catch(e){}});
+});
 </script>
 </body>
 </html>
