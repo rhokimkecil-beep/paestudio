@@ -324,7 +324,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
 @media (max-width:640px){
   .nav{gap:8px;padding:7px 8px 7px 10px}
   .mark span,.live{display:none}
-  .links{margin:0}
+  .links{margin:0;flex:1 1 0;min-width:0}
   .wrap{padding:0 14px 30px}
   .bento{grid-template-columns:1fr}
   .tool,.tool.wide,.tool.big{grid-column:span 1;min-height:150px}
@@ -392,7 +392,7 @@ input[type=checkbox]{width:auto;accent-color:var(--violet)}
 .quota.pro{border-color:#a855f788}
 #f.locked{opacity:.38;pointer-events:none;user-select:none}
 @media (max-width:980px){.prem-grid{grid-template-columns:1fr}}
-@media (max-width:640px){.acct .nm{display:none}.acct.out{padding:8px 12px}.acct{padding-right:8px}.acard{padding:18px;border-radius:20px}}
+@media (max-width:640px){.acct:not(.out) .nm{display:none}.acct.out{padding:9px 14px;font-size:12.5px}.acct.out .nm{display:inline}.acct{padding-right:8px}.acard{padding:18px;border-radius:20px}}
 
 /* ===== TABS, HARGA KEY, GATE ===== */
 .panel{animation:pae-in .22s ease-out}
