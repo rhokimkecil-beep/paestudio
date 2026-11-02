@@ -1,6 +1,7 @@
-// GET /api/discord-callback?code=...&state=...  -> tukar code, simpan user, set cookie sesi
+// GET /api/discord-callback?code=...&state=...  -> tukar code, simpan user, auto-join server, set cookie sesi
 const auth = require("../lib/auth");
 const users = require("../lib/users");
+const guild = require("../lib/guild");
 const { redirectUri } = require("./discord-login");
 
 module.exports = async function handler(req, res) {
@@ -51,8 +52,18 @@ module.exports = async function handler(req, res) {
       return res.redirect(302, "/?login=error");
     }
 
-    // Token Discord tidak disimpan; kita hanya perlu ID dan nama.
+    // Token Discord tidak disimpan; hanya dipakai sesaat di sini.
     const u = await users.upsertLogin(profile);
+
+    // Auto-join server komunitas (sekali saja). Gagal join tidak boleh menggagalkan login.
+    if (guild.enabled && !u.guildJoined) {
+      try {
+        if (await guild.joinGuild(u.id, tj.access_token)) await users.markJoined(u.id);
+      } catch (e) {
+        console.error("guild join error:", e && e.message);
+      }
+    }
+
     auth.setUserSession(req, res, u.id);
     return res.redirect(302, u.trialGranted ? "/?login=trial" : "/?login=ok");
   } catch (e) {
