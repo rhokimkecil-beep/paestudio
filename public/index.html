@@ -24,19 +24,12 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:90px;background:var(--ink)}
 body{margin:0;min-height:100vh;color:var(--txt);font:15px/1.55 var(--body)}
-/* Latar hitam-putih mengkilap yang bergerak pelan: dua layer fixed tanpa blur/mask (ringan untuk GPU) */
+/* Latar hitam-putih mengkilap, STATIS (ringan): animasi background-position membuat browser repaint layar penuh 60x/detik */
 body:before{
   content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
   background:linear-gradient(125deg,#060608 0%,#16161b 14%,#4a4a54 28%,#d9d9e3 38%,#5a5a64 46%,#15151b 60%,#060608 72%,#33333b 86%,#060608 100%);
-  background-size:320% 320%;animation:pae-flow 18s ease-in-out infinite alternate;
+  background-size:320% 320%;background-position:35% 40%;
 }
-body:after{
-  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background:linear-gradient(115deg,transparent 38%,#ffffff22 50%,transparent 62%);
-  background-size:260% 100%;animation:pae-shine 9s linear infinite;
-}
-@keyframes pae-flow{0%{background-position:0% 30%}100%{background-position:100% 70%}}
-@keyframes pae-shine{0%{background-position:140% 0}100%{background-position:-40% 0}}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 a{color:var(--silver)}
@@ -122,6 +115,8 @@ a{color:var(--silver)}
 .pm-decal{--pi:linear-gradient(135deg,#14b8a6,#0e7490)}
 .pm-audio{--pi:linear-gradient(135deg,#f59e0b,#ea580c)}
 .pm-model{--pi:linear-gradient(135deg,#3b82f6,#6d28d9)}
+.pm-clubkit{--pi:linear-gradient(135deg,#2563eb,#1e3a8a)}
+.pm-summitkit{--pi:linear-gradient(135deg,#f43f5e,#9f1239)}
 
 /* TOOL CARDS (bento) */
 .bento{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
@@ -2874,6 +2869,8 @@ html[data-dt] #dtGuard{display:flex}
     { id: "mesh",  label: "Mesh",  icon: "i-cube"  },
     { id: "decal", label: "Decal", icon: "i-img"   },
     { id: "audio", label: "Audio", icon: "i-music" },
+    { id: "clubkit",   label: "Club Kit",   icon: "i-crown" },
+    { id: "summitkit", label: "Summit Kit", icon: "i-crown" },
     { id: "model", label: "Model", icon: "i-box"   },
     { id: "lainnya", label: "Lainnya", icon: "i-box" }
   ];
@@ -2997,9 +2994,15 @@ html[data-dt] #dtGuard{display:flex}
       var card = el("article", "prod");
       var img = el("div", "prod-img pm-" + p.cat + (p.img ? " has-img" : ""));
       if (p.img) {
+        // Tanpa loading="lazy": panel Produk berstatus hidden, dan gambar lazy di dalam
+        // elemen display:none tidak pernah dimuat oleh browser.
         var pic = document.createElement("img");
-        pic.src = p.img; pic.alt = p.name; pic.loading = "lazy"; pic.decoding = "async";
-        pic.width = 900; pic.height = 562;
+        pic.alt = p.name; pic.decoding = "async";
+        pic.onerror = function () {
+          pic.remove(); img.classList.remove("has-img");
+          img.appendChild(icon(c.icon || "i-box"));
+        };
+        pic.src = p.img;
         img.appendChild(pic);
       } else img.appendChild(icon(c.icon || "i-box"));
       if (free) img.appendChild(el("span", "prod-badge free", "GRATIS"));
