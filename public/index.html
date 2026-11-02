@@ -24,11 +24,13 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:90px;background:var(--ink)}
 body{margin:0;min-height:100vh;color:var(--txt);font:15px/1.55 var(--body)}
-/* Latar hitam-putih mengkilap, STATIS (ringan): animasi background-position membuat browser repaint layar penuh 60x/detik */
+/* Latar gelap statis dengan kilau perak halus di sudut (ringan & teks tetap terbaca) */
 body:before{
   content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
-  background:linear-gradient(125deg,#060608 0%,#16161b 14%,#4a4a54 28%,#d9d9e3 38%,#5a5a64 46%,#15151b 60%,#060608 72%,#33333b 86%,#060608 100%);
-  background-size:320% 320%;background-position:35% 40%;
+  background:
+    radial-gradient(70% 55% at 90% -8%,#52525e 0%,#24242b 42%,transparent 72%),
+    radial-gradient(60% 45% at -6% 108%,#32323b 0%,transparent 70%),
+    #060608;
 }
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
@@ -109,6 +111,13 @@ a{color:var(--silver)}
 .pbar select{width:auto;min-width:170px}
 .prod-badge.free{background:#0f766e;color:#ecfeff}
 .prod-badge.tagb{left:auto;right:12px}
+.prod-act{display:flex;flex-wrap:wrap;gap:8px}
+.prod-act button,.prod-act a{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);background:#ffffff0d;color:var(--txt);border-radius:10px;padding:8px 12px;font-weight:700;font-size:12.5px;text-decoration:none;cursor:pointer}
+.prod-act button:hover,.prod-act a:hover{background:#ffffff1c}
+.prod-act .ok{color:var(--ok);border-color:var(--ok)}
+.prod-act .dl{background:linear-gradient(100deg,#2dd4bf,#5eead4);color:#04201c;border-color:transparent}
+.prod-act .dl:hover{filter:brightness(.94);background:linear-gradient(100deg,#2dd4bf,#5eead4)}
+.prod-act .ico{width:15px;height:15px}
 .prod-btn.free{background:linear-gradient(100deg,#2dd4bf,#5eead4);color:#04201c}
 .prod-price.free{color:var(--ok)}
 .pm-mesh{--pi:linear-gradient(135deg,#7c3aed,#c026d3)}
@@ -443,6 +452,8 @@ html[data-dt] #dtGuard{display:flex}
     <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Zm0 0v5h5"/></symbol>
     <symbol id="i-text" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></symbol>
     <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Zm-3 9 2 2 4-4"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v12m0 0 5-5m-5 5-5-5M4 20h16"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16V5a2 2 0 0 1 2-2h11"/></symbol>
     <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5V8ZM3 8l9 5 9-5M12 13v8"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M14.8 9.2a3.4 3.4 0 1 0 0 5.6"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
@@ -2917,6 +2928,27 @@ html[data-dt] #dtGuard{display:flex}
     if (p.pricing === "free" || p.pricing === "paid") return p.pricing;
     return Number(p.price) > 0 ? "paid" : "free";
   }
+  function idOf(p) {
+    var v = String(p.copyId || "").trim();
+    if (v) return v;
+    var m = /\d{8,20}/.exec(p.desc || "");   // fallback: angka panjang pertama di deskripsi
+    return m ? m[0] : "";
+  }
+  function copyText(t, done) {
+    function legacy() {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = t; ta.setAttribute("readonly", "");
+        ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+        document.body.appendChild(ta); ta.select();
+        var ok = document.execCommand("copy");
+        ta.remove(); done(ok);
+      } catch (e) { done(false); }
+    }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).then(function () { done(true); }, legacy);
+    else legacy();
+  }
+  function fmtSize(b) { return b >= 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB"; }
   function priceNum(p) { return pricingOf(p) === "free" ? 0 : Number(p.price) || 0; }
   function priceText(p) {
     return pricingOf(p) === "free" ? "Gratis" : "Rp " + priceNum(p).toLocaleString("id-ID");
@@ -3015,7 +3047,28 @@ html[data-dt] #dtGuard{display:flex}
         a.href = p.url; a.target = "_blank"; a.rel = "noopener noreferrer";
         foot.appendChild(a);
       }
-      body.append(el("span", "prod-cat", c.label), el("h3", "prod-name", p.name), el("p", "prod-desc", p.desc || ""), foot);
+      var act = el("div", "prod-act");
+      var cid = idOf(p);
+      if (cid) {
+        var cb = el("button", ""); cb.type = "button";
+        var cl = document.createTextNode("Salin ID");
+        cb.append(icon("i-clip"), cl);
+        cb.addEventListener("click", function () {
+          copyText(cid, function (ok) {
+            cb.classList.toggle("ok", ok); cl.textContent = ok ? "Tersalin!" : "Gagal, salin manual";
+            setTimeout(function () { cb.classList.remove("ok"); cl.textContent = "Salin ID"; }, 1800);
+          });
+        });
+        act.appendChild(cb);
+      }
+      if (p.file && p.file.url) {
+        var dl = el("a", "dl"); dl.href = p.file.url; dl.setAttribute("download", p.file.name || "");
+        dl.append(icon("i-down"), document.createTextNode("Unduh" + (p.file.size ? " (" + fmtSize(p.file.size) + ")" : "")));
+        act.appendChild(dl);
+      }
+      body.append(el("span", "prod-cat", c.label), el("h3", "prod-name", p.name), el("p", "prod-desc", p.desc || ""));
+      if (act.childNodes.length) body.appendChild(act);
+      body.appendChild(foot);
       card.append(img, body);
       gridEl.appendChild(card);
     });
