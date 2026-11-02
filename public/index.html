@@ -439,6 +439,28 @@ html[data-dt] body>*:not(#dtGuard){display:none!important}
 html[data-dt] #dtGuard{display:flex}
 @media (max-width:980px){.pricegrid{grid-template-columns:repeat(2,1fr)}.pstrip .btn{margin-left:0}}
 @media (max-width:520px){.pricegrid{grid-template-columns:1fr}.pc-price{font-size:26px}}
+/* ── Spoof Sound ── */
+.ss-grid{display:grid;gap:12px}
+.ss-row{border:1px solid var(--line);border-radius:16px;padding:16px;background:#0a0a0d;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
+.ss-row .ss-id{font:700 13px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--txt)}
+.ss-row .ss-status{font-size:12px;color:var(--mut);margin-top:3px}
+.ss-row .ss-status.ok{color:var(--ok)}.ss-row .ss-status.bad{color:var(--bad)}.ss-row .ss-status.spin{color:var(--violet)}
+.ss-row .ss-new{font:700 13px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ok);word-break:break-all}
+.ss-btns{display:flex;gap:6px;flex:none}
+.ss-btns button{border:1px solid var(--line2);background:#ffffff0d;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--mut)}
+.ss-btns button:hover:not(:disabled){border-color:#fff;color:#fff}
+.ss-btns button.ok{border-color:var(--ok);color:var(--ok)}
+.ss-btns button:disabled{opacity:.4;cursor:not-allowed}
+.ss-bar{height:3px;background:#2c2c34;border-radius:4px;margin-top:8px;overflow:hidden;grid-column:1/-1}
+.ss-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7c3aed,var(--pink));transition:width .3s}
+.ss-ids-wrap textarea{min-height:100px}
+.c-spoof-sound{--glow:#38bdf8;--ic:linear-gradient(135deg,#0ea5e9,#7c3aed)}
+.ss-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.ss-actions button{flex:1 1 130px;border:1px solid var(--line2);border-radius:12px;background:#ffffff0a;color:var(--txt);padding:11px;font-weight:700;font-size:13px}
+.ss-actions button:hover:not(:disabled){border-color:#fff;background:#ffffff14}
+.ss-actions button.primary{border:0;background:var(--white);color:#111}
+.ss-actions button:disabled{opacity:.4;cursor:not-allowed}
+.ss-result-wrap{margin-top:18px;display:flex;flex-direction:column;gap:10px}
 </style>
 </head>
 <body>
@@ -483,6 +505,7 @@ html[data-dt] #dtGuard{display:flex}
     <button data-tab="audio" data-lock type="button">Konverter Audio<svg class="ico lk"><use href="#i-lock"/></svg></button>
     <button data-tab="bulk" data-lock type="button">ID Audio<svg class="ico lk"><use href="#i-lock"/></svg></button>
     <button data-tab="history" data-lock type="button">Riwayat<svg class="ico lk"><use href="#i-lock"/></svg></button>
+    <button data-tab="spoof-sound" data-lock type="button">Spoof Sound<svg class="ico lk"><use href="#i-lock"/></svg></button>
     <button data-tab="info" type="button">Info</button>
   </nav>
   <span class="live"><i></i>Online</span>
@@ -575,6 +598,14 @@ html[data-dt] #dtGuard{display:flex}
       <strong>Riwayat</strong>
       <span class="d">Lihat upload sebelumnya di browser ini.</span>
       <div class="chips"><em>Asset</em><em>Audio</em></div>
+    </button>
+
+    <button class="tool big c-spoof-sound" data-tab="spoof-sound" type="button">
+      <span class="go-arrow"><svg class="ico"><use href="#i-arrow"/></svg></span>
+      <div class="t-ico">🔊</div>
+      <strong>Spoof Sound</strong>
+      <span class="d">Audio ID yang kena error "not authorized"? Re-upload otomatis ke akunmu lewat Open Cloud, dapet ID baru yang kamu punya aksesnya.</span>
+      <div class="chips"><em>Re-upload</em><em>ID Baru</em><em>Batch</em></div>
     </button>
   </div>
 
@@ -822,6 +853,66 @@ html[data-dt] #dtGuard{display:flex}
 
   
 </div>
+<!-- PANEL: Spoof Sound -->
+<div class="panel" data-panel="spoof-sound" hidden>
+  <section class="sheet" id="spoofSound">
+    <div class="sheet-h">
+      <div class="step">🔊</div>
+      <div>
+        <h2>Spoof Sound</h2>
+        <p>Audio ID yang kena <em>"not authorized"</em> atau <em>"no access permission"</em>? Tool ini fetch audio dari Roblox lalu re-upload ke akunmu lewat Open Cloud — kamu dapet ID baru yang sepenuhnya milikmu.</p>
+      </div>
+    </div>
+
+    <!-- Konfigurasi API -->
+    <div class="card" style="margin-bottom:18px">
+      <div class="field">
+        <label for="ssApiKey"><svg class="ico"><use href="#i-key"/></svg>Open Cloud API Key</label>
+        <input id="ssApiKey" type="password" placeholder="Masukkan API Key Roblox Open Cloud" autocomplete="off"/>
+        <div class="formnote">Butuh permission: <strong>Asset → Write</strong>. Buat di <a href="https://create.roblox.com/dashboard/credentials" target="_blank" rel="noopener">create.roblox.com/dashboard/credentials</a></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field">
+          <label for="ssTarget"><svg class="ico"><use href="#i-user"/></svg>Upload ke</label>
+          <select id="ssTarget">
+            <option value="user">Akun saya (User)</option>
+            <option value="group">Group</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ssOwnerId"><svg class="ico"><use href="#i-hash"/></svg>User ID / Group ID</label>
+          <input id="ssOwnerId" inputmode="numeric" placeholder="Contoh: 123456789" autocomplete="off"/>
+        </div>
+      </div>
+      <div class="field">
+        <label for="ssSuffix"><svg class="ico"><use href="#i-text"/></svg>Nama suffix (opsional)</label>
+        <input id="ssSuffix" placeholder="Contoh: _bypass (akan ditambah ke nama asli)" maxlength="20" autocomplete="off"/>
+      </div>
+    </div>
+
+    <!-- Input ID -->
+    <div class="field ss-ids-wrap">
+      <label for="ssIds"><svg class="ico"><use href="#i-music"/></svg>Audio ID yang error (satu per baris)</label>
+      <textarea id="ssIds" rows="5" placeholder="134540168237062&#10;101962735308655&#10;https://www.roblox.com/library/1234567890/Lagu"></textarea>
+      <div class="formnote">Bisa berupa angka ID atau URL roblox.com/library/...</div>
+    </div>
+
+    <div class="ss-actions">
+      <button class="primary" id="ssBtnRun" onclick="spoofSoundRun()" type="button">⚡ Spoof semua</button>
+      <button id="ssBtnCopyAll" onclick="spoofSoundCopyAll()" disabled type="button">Salin semua ID baru</button>
+      <button onclick="spoofSoundClear()" type="button">Hapus</button>
+    </div>
+
+    <div class="ss-result-wrap" id="ssResults"></div>
+
+    <div class="formnote" style="margin-top:20px">
+      <strong>Cara kerja:</strong> Tool ini download audio dari Roblox CDN lalu re-upload ke akunmu pakai Open Cloud API — persis seperti kamu upload sendiri lewat Creator Dashboard.
+      ID baru sepenuhnya milikmu sehingga game kamu punya akses penuh.<br/>
+      <strong>Catatan:</strong> Audio yang di-spoof akan muncul di inventaris akunmu sebagai aset baru. Pastikan API Key punya izin <em>Asset → Write</em>.
+    </div>
+  </section>
+</div>
+
 <div class="panel" data-panel="info" hidden>
 <!-- NOTES -->
   <div class="sh" id="settings"><div><h2>Info</h2><p>Hal singkat biar upload lancar, plus kontak owner.</p></div></div>
@@ -3226,6 +3317,278 @@ html[data-dt] #dtGuard{display:flex}
 document.querySelectorAll(".links button").forEach(function(b){
   b.addEventListener("click",function(){try{b.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"})}catch(e){}});
 });
+</script>
+<script>
+/* ============================================================
+   SPOOF SOUND ENGINE
+   1. Parse ID dari input
+   2. Fetch audio dari Roblox CDN (via proxy /api/proxy-audio)
+   3. Re-upload ke Open Cloud pakai API key user
+   4. Poll operation sampai assetId keluar
+   ============================================================ */
+(function () {
+  var ROBLOX_API = 'https://apis.roblox.com/assets/v1/assets';
+  var OPS_API    = 'https://apis.roblox.com/assets/v1/operations/';
+
+  /* ── Helpers ── */
+  function extractId(raw) {
+    raw = String(raw || '').trim();
+    var m = /rbxassetid:\/\/(\d+)/i.exec(raw); if (m) return m[1];
+    m = /roblox\.com\/(?:library|catalog)\/(\d+)/i.exec(raw); if (m) return m[1];
+    m = /^\d+$/.exec(raw); if (m) return m[0];
+    m = /\b(\d{7,})\b/.exec(raw); if (m) return m[1];
+    return null;
+  }
+
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  /* ── State per baris ── */
+  var SS = { items: [] };
+
+  function $ (id) { return document.getElementById(id); }
+
+  /* ── Render satu row ── */
+  function makeRow(item, idx) {
+    var row = document.createElement('div');
+    row.className = 'ss-row';
+    row.id = 'ssrow' + idx;
+    row.innerHTML =
+      '<div>' +
+        '<div class="ss-id">ID: ' + item.id + '</div>' +
+        '<div class="ss-status spin" id="ssstatus' + idx + '">Menunggu…</div>' +
+        '<div class="ss-new" id="ssnew' + idx + '" style="display:none"></div>' +
+      '</div>' +
+      '<div class="ss-btns">' +
+        '<button id="sscopy' + idx + '" disabled onclick="ssCopy(' + idx + ')">Salin ID</button>' +
+        '<button id="sscopyrbx' + idx + '" disabled onclick="ssCopyRbx(' + idx + ')">rbxassetid</button>' +
+      '</div>' +
+      '<div class="ss-bar"><i id="ssbar' + idx + '"></i></div>';
+    return row;
+  }
+
+  function setStatus(idx, txt, cls) {
+    var el = $('ssstatus' + idx); if (!el) return;
+    el.textContent = txt;
+    el.className = 'ss-status' + (cls ? ' ' + cls : ' spin');
+  }
+  function setBar(idx, pct) {
+    var el = $('ssbar' + idx); if (!el) return;
+    el.style.width = pct + '%';
+  }
+  function setNewId(idx, newId) {
+    var el = $('ssnew' + idx); if (!el) return;
+    el.style.display = 'block';
+    el.textContent = '→ ID baru: ' + newId;
+    SS.items[idx].newId = newId;
+    var cb = $('sscopy' + idx), cr = $('sscopyrbx' + idx);
+    if (cb) cb.disabled = false;
+    if (cr) cr.disabled = false;
+  }
+
+  window.ssCopy = function (idx) {
+    var item = SS.items[idx]; if (!item || !item.newId) return;
+    navigator.clipboard.writeText(item.newId).then(function () {
+      var btn = $('sscopy' + idx); if (!btn) return;
+      btn.classList.add('ok'); btn.textContent = '✓';
+      setTimeout(function () { btn.classList.remove('ok'); btn.textContent = 'Salin ID'; }, 1500);
+    });
+  };
+  window.ssCopyRbx = function (idx) {
+    var item = SS.items[idx]; if (!item || !item.newId) return;
+    navigator.clipboard.writeText('rbxassetid://' + item.newId).then(function () {
+      var btn = $('sscopyrbx' + idx); if (!btn) return;
+      btn.classList.add('ok'); btn.textContent = '✓';
+      setTimeout(function () { btn.classList.remove('ok'); btn.textContent = 'rbxassetid'; }, 1500);
+    });
+  };
+
+  window.spoofSoundCopyAll = function () {
+    var ids = SS.items.filter(function (i) { return i.newId; }).map(function (i) { return i.newId; });
+    if (!ids.length) return;
+    navigator.clipboard.writeText(ids.join('\n')).then(function () {
+      var btn = $('ssBtnCopyAll'); if (!btn) return;
+      btn.classList.add('ok'); btn.textContent = '✓ Disalin!';
+      setTimeout(function () { btn.classList.remove('ok'); btn.textContent = 'Salin semua ID baru'; }, 1800);
+    });
+  };
+
+  window.spoofSoundClear = function () {
+    SS.items = [];
+    var r = $('ssResults'); if (r) r.innerHTML = '';
+    var btn = $('ssBtnCopyAll'); if (btn) btn.disabled = true;
+    var ta = $('ssIds'); if (ta) ta.value = '';
+  };
+
+  /* ── Fetch audio dari Roblox CDN (asset delivery API) ── */
+  async function fetchAudio(assetId) {
+    /* Roblox Asset Delivery: https://assetdelivery.roblox.com/v1/asset/?id=xxx */
+    var url = 'https://assetdelivery.roblox.com/v1/asset/?id=' + assetId;
+    /* Browser tidak bisa langsung hit ini karena CORS, jadi kita pakai endpoint proxy
+       ringan yang kita buat di /api/proxy-audio */
+    var res = await fetch('/api/proxy-audio?id=' + assetId);
+    if (!res.ok) {
+      var err = await res.json().catch(function () { return {}; });
+      throw new Error(err.error || 'Gagal fetch audio (status ' + res.status + ')');
+    }
+    var ct = res.headers.get('content-type') || 'audio/mpeg';
+    var buf = await res.arrayBuffer();
+    return { buf: buf, mime: ct };
+  }
+
+  /* ── Upload ke Open Cloud ── */
+  async function uploadToCloud(buf, mime, assetId, apiKey, target, ownerId, suffix) {
+    /* Tentukan ekstensi dari mime */
+    var extMap = { 'audio/mpeg': 'mp3', 'audio/mp3': 'mp3', 'audio/ogg': 'ogg', 'audio/wav': 'wav', 'audio/x-wav': 'wav' };
+    var ext = extMap[mime.split(';')[0].trim()] || 'mp3';
+    var fname = 'spoof_' + assetId + (suffix || '') + '.' + ext;
+
+    var meta = {
+      assetType: 'Audio',
+      displayName: fname.replace(/\.[^.]+$/, ''),
+      description: 'Spoofed from ' + assetId,
+      creationContext: {
+        creator: target === 'group' ? { groupId: ownerId } : { userId: ownerId }
+      }
+    };
+
+    var form = new FormData();
+    form.append('request', JSON.stringify(meta));
+    form.append('fileContent', new Blob([buf], { type: mime }), fname);
+
+    var res = await fetch(ROBLOX_API, {
+      method: 'POST',
+      headers: { 'x-api-key': apiKey },
+      body: form
+    });
+    var j = await res.json().catch(function () { return {}; });
+    if (!res.ok) throw new Error(j.message || j.error || 'Upload gagal (status ' + res.status + ')');
+    return j; /* { path, done, response } */
+  }
+
+  /* ── Poll operation ── */
+  async function pollOp(opId, apiKey) {
+    for (var i = 0; i < 20; i++) {
+      await sleep(1500);
+      var res = await fetch(OPS_API + opId, { headers: { 'x-api-key': apiKey } });
+      var j = await res.json().catch(function () { return {}; });
+      if (!res.ok) throw new Error(j.message || 'Poll gagal');
+      if (j.done) {
+        if (j.error) throw new Error(j.error.message || 'Roblox error');
+        if (j.response && j.response.assetId) return String(j.response.assetId);
+        throw new Error('Tidak ada assetId di response');
+      }
+    }
+    throw new Error('Timeout menunggu Roblox memproses audio');
+  }
+
+  /* ── Proses satu item ── */
+  async function processOne(item, idx, apiKey, target, ownerId, suffix) {
+    setStatus(idx, 'Mengambil audio dari Roblox CDN…', 'spin');
+    setBar(idx, 15);
+
+    var audio;
+    try {
+      audio = await fetchAudio(item.id);
+    } catch (e) {
+      setStatus(idx, '✗ ' + e.message, 'bad');
+      setBar(idx, 100);
+      return;
+    }
+    setBar(idx, 40);
+    setStatus(idx, 'Mengupload ke akunmu…', 'spin');
+
+    var created;
+    try {
+      created = await uploadToCloud(audio.buf, audio.mime, item.id, apiKey, target, ownerId, suffix);
+    } catch (e) {
+      setStatus(idx, '✗ ' + e.message, 'bad');
+      setBar(idx, 100);
+      return;
+    }
+    setBar(idx, 60);
+
+    /* Kalau langsung done */
+    if (created.done && created.response && created.response.assetId) {
+      setBar(idx, 100);
+      setStatus(idx, '✓ Selesai!', 'ok');
+      setNewId(idx, String(created.response.assetId));
+      return;
+    }
+
+    /* Poll operation */
+    var opId = (created.path || '').split('/').pop() || created.operationId || '';
+    if (!opId) {
+      setStatus(idx, '✗ Tidak ada operation ID dari Roblox', 'bad');
+      setBar(idx, 100);
+      return;
+    }
+
+    setStatus(idx, 'Menunggu Roblox memproses…', 'spin');
+    setBar(idx, 75);
+
+    var newId;
+    try {
+      newId = await pollOp(opId, apiKey);
+    } catch (e) {
+      setStatus(idx, '✗ ' + e.message, 'bad');
+      setBar(idx, 100);
+      return;
+    }
+
+    setBar(idx, 100);
+    setStatus(idx, '✓ Selesai!', 'ok');
+    setNewId(idx, newId);
+  }
+
+  /* ── Main entry ── */
+  window.spoofSoundRun = async function () {
+    var apiKey  = ($('ssApiKey')  || {}).value || '';
+    var target  = ($('ssTarget')  || {}).value || 'user';
+    var ownerId = ($('ssOwnerId') || {}).value || '';
+    var suffix  = ($('ssSuffix')  || {}).value || '';
+    var idsRaw  = ($('ssIds')     || {}).value || '';
+
+    if (!apiKey)  { alert('API Key wajib diisi!'); return; }
+    if (!ownerId) { alert('User ID / Group ID wajib diisi!'); return; }
+    if (!/^\d+$/.test(ownerId)) { alert('User ID / Group ID harus berupa angka!'); return; }
+
+    /* Parse IDs */
+    var lines = idsRaw.split(/\r?\n/);
+    var ids = [];
+    lines.forEach(function (l) {
+      var id = extractId(l);
+      if (id) ids.push(id);
+    });
+    if (!ids.length) { alert('Tidak ada ID valid yang ditemukan!'); return; }
+
+    /* Build items */
+    SS.items = ids.map(function (id) { return { id: id, newId: null }; });
+
+    /* Render rows */
+    var wrap = $('ssResults');
+    if (wrap) {
+      wrap.innerHTML = '';
+      SS.items.forEach(function (item, idx) {
+        wrap.appendChild(makeRow(item, idx));
+      });
+    }
+
+    var btn = $('ssBtnRun');
+    if (btn) { btn.disabled = true; btn.textContent = 'Memproses…'; }
+
+    /* Proses satu per satu (biar tidak flood API) */
+    for (var i = 0; i < SS.items.length; i++) {
+      await processOne(SS.items[i], i, apiKey, target, ownerId, suffix);
+    }
+
+    if (btn) { btn.disabled = false; btn.textContent = '⚡ Spoof semua'; }
+
+    /* Enable copy all jika ada yang berhasil */
+    var hasDone = SS.items.some(function (item) { return item.newId; });
+    var ca = $('ssBtnCopyAll'); if (ca) ca.disabled = !hasDone;
+  };
+
+})();
 </script>
 </body>
 </html>
