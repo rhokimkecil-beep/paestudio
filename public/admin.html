@@ -182,6 +182,7 @@ input:disabled{opacity:.5;cursor:not-allowed}
           <div class="row2">
             <div class="field"><label for="cat">Kategori</label>
               <select id="cat">
+                <option value="clubkit">Club Kit</option><option value="summitkit">Summit Kit</option>
                 <option value="mesh">Mesh</option><option value="decal">Decal</option>
                 <option value="audio">Audio</option><option value="model">Model</option>
                 <option value="lainnya">Lainnya</option>
@@ -294,7 +295,7 @@ input:disabled{opacity:.5;cursor:not-allowed}
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
-  var CATS = { mesh: "Mesh", decal: "Decal", audio: "Audio", model: "Model", lainnya: "Lainnya" };
+  var CATS = { clubkit: "Club Kit", summitkit: "Summit Kit", mesh: "Mesh", decal: "Decal", audio: "Audio", model: "Model", lainnya: "Lainnya" };
   var products = [], editingId = null, newImage = null, status = {}, filter = "all";
   function pricingOf(p) { return p.pricing === "free" || p.pricing === "paid" ? p.pricing : (Number(p.price) > 0 ? "paid" : "free"); }
 
@@ -498,8 +499,8 @@ input:disabled{opacity:.5;cursor:not-allowed}
   }
   async function compress(file) {
     var im = await loadImage(file);
-    var maxW = 900, scale = Math.min(1, maxW / im.naturalWidth);
-    var LIMIT = 300 * 1024, q = 0.85, blob, canvas = document.createElement("canvas");
+    var maxW = 640, scale = Math.min(1, maxW / im.naturalWidth);
+    var LIMIT = 90 * 1024, q = 0.8, blob, canvas = document.createElement("canvas");
     for (var i = 0; i < 8; i++) {
       canvas.width = Math.max(1, Math.round(im.naturalWidth * scale));
       canvas.height = Math.max(1, Math.round(im.naturalHeight * scale));
