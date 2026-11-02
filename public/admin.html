@@ -64,6 +64,7 @@ input[type=text],input[type=password],input[type=number],input[type=url],select,
 input:hover,select:hover,textarea:hover{border-color:var(--line2)}
 input:focus,select:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 0 3px #a855f733}
 textarea{resize:vertical;min-height:84px}
+input[type=file]{width:100%;padding:11px 12px;border:1px dashed var(--line2);border-radius:12px;background:#ffffff08;color:var(--silver);font-size:13px}
 select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23adadb9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m1 1.5 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
 .note{margin-top:6px;color:var(--dim);font-size:11.5px}
 .msg{margin-top:14px;padding:11px 14px;border-radius:12px;font-size:13px;border:1px solid var(--line2);background:#ffffff0a}
@@ -199,6 +200,12 @@ input:disabled{opacity:.5;cursor:not-allowed}
           <div class="pricehint" id="priceHint"></div>
           <div class="field"><label for="desc">Deskripsi</label><textarea id="desc" maxlength="300" placeholder="Jelaskan singkat produknya…"></textarea></div>
           <div class="field"><label for="url">Link beli / kontak</label><input id="url" type="url" placeholder="https://wa.me/628xxxxxxxxxx"/><div class="note">Tombol "Pesan" di situs mengarah ke sini. Boleh dikosongkan.</div></div>
+          <div class="field"><label for="copyId">ID untuk disalin (opsional)</label><input id="copyId" type="text" maxlength="60" inputmode="numeric" placeholder="118448999977287"/><div class="note">Jadi tombol "Salin ID" di kartu produk. Kalau dikosongkan, otomatis diambil dari angka panjang di deskripsi.</div></div>
+          <div class="field"><label for="dlFile">File untuk diunduh (opsional)</label>
+            <input id="dlFile" type="file" accept=".rbxm,.rbxmx,.rbxl,.rbxlx,.fbx,.obj,.zip,.rar,.7z,.lua,.luau,.txt,.json,.png,.jpg,.jpeg,.webp,.mp3,.ogg"/>
+            <label class="chk" id="rmFileWrap" hidden><input id="rmFile" type="checkbox"/>Hapus file yang ada</label>
+            <div class="note" id="dlInfo"></div>
+          </div>
           <div class="field"><label for="tag">Label (opsional)</label><input id="tag" type="text" maxlength="20" placeholder="Baru, Promo, Best seller"/></div>
           <div id="formMsg" class="msg" hidden></div>
           <button class="btn solid full" id="saveBtn" type="submit">Simpan produk</button>
@@ -305,6 +312,9 @@ input:disabled{opacity:.5;cursor:not-allowed}
     el.className = "msg" + (kind ? " " + kind : "");
     el.hidden = !text;
   }
+  var DL_HINT = "Maks 4 MB. Tombol Unduh hanya tampil di situs untuk produk GRATIS (produk berbayar tidak punya link unduh publik).";
+  var MAX_DL = 4 * 1024 * 1024;
+  function fmtSize(b) { return b >= 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB"; }
   function rupiah(n) { return n > 0 ? "Rp " + Number(n).toLocaleString("id-ID") : "Gratis"; }
 
   async function api(method, url, body) {
@@ -394,7 +404,7 @@ input:disabled{opacity:.5;cursor:not-allowed}
       var b = document.createElement("b"); b.textContent = p.name;
       var kind = pricingOf(p);
       var pill = document.createElement("span"); pill.className = "pill " + kind; pill.textContent = kind === "free" ? "GRATIS" : "BERBAYAR";
-      var s = document.createElement("small"); s.textContent = (CATS[p.cat] || p.cat) + " · " + rupiah(p.price) + (p.tag ? " · " + p.tag : "");
+      var s = document.createElement("small"); s.textContent = (CATS[p.cat] || p.cat) + " · " + rupiah(p.price) + (p.tag ? " · " + p.tag : "") + (p.file ? " · file: " + p.file.name : "");
       meta.append(b, pill, s);
       var acts = document.createElement("div"); acts.className = "acts";
       var ed = document.createElement("button"); ed.type = "button"; ed.className = "btn sm"; ed.textContent = "Edit";
@@ -433,6 +443,7 @@ input:disabled{opacity:.5;cursor:not-allowed}
     $("pf").reset(); setPreview(""); $("imgInfo").textContent = ""; $("priceHint").textContent = "";
     syncPricing();
     show($("rmWrap"), false); show($("cancelBtn"), false);
+    show($("rmFileWrap"), false); $("dlInfo").textContent = DL_HINT;
     $("formTitle").textContent = "Tambah produk";
     $("formSub").textContent = "Isi data lalu simpan. Produk langsung tampil di situs.";
     $("saveBtn").textContent = "Simpan produk";
@@ -445,6 +456,9 @@ input:disabled{opacity:.5;cursor:not-allowed}
     $("name").value = p.name; $("cat").value = p.cat; $("pricing").value = pricingOf(p); $("price").value = p.price;
     syncPricing();
     $("desc").value = p.desc || ""; $("url").value = p.url || ""; $("tag").value = p.tag || "";
+    $("copyId").value = p.copyId || "";
+    $("dlFile").value = ""; $("rmFile").checked = false; show($("rmFileWrap"), !!p.file);
+    $("dlInfo").textContent = p.file ? "File saat ini: " + p.file.name + " (" + fmtSize(p.file.size) + "). Pilih file baru untuk mengganti." : DL_HINT;
     $("rmImg").checked = false; $("imgFile").value = "";
     setPreview(p.img || ""); $("imgInfo").textContent = p.img ? "Pilih gambar baru untuk mengganti." : "";
     show($("rmWrap"), !!p.img); show($("cancelBtn"), true);
@@ -455,6 +469,7 @@ input:disabled{opacity:.5;cursor:not-allowed}
     renderList();
     $("name").scrollIntoView({ behavior: "smooth", block: "center" });
   }
+  $("dlInfo").textContent = DL_HINT;
   $("cancelBtn").addEventListener("click", resetForm);
 
   function updateHint() {
@@ -534,21 +549,49 @@ input:disabled{opacity:.5;cursor:not-allowed}
     }
   });
 
+  async function uploadFile(id, file) {
+    var r = await fetch("/api/file?id=" + encodeURIComponent(id) + "&name=" + encodeURIComponent(file.name), {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/octet-stream", "X-Requested-With": "paestudio" },
+      body: file
+    });
+    var j = {};
+    try { j = await r.json(); } catch (e) {}
+    if (r.status === 401) { showLogin(); }
+    if (!r.ok) throw new Error(j.error || "Gagal (" + r.status + ")");
+    return j;
+  }
+
   $("pf").addEventListener("submit", async function (e) {
     e.preventDefault();
     say($("formMsg"), "");
     var body = {
       name: $("name").value, cat: $("cat").value, pricing: $("pricing").value,
       price: $("pricing").value === "free" ? 0 : $("price").value,
-      desc: $("desc").value, url: $("url").value, tag: $("tag").value
+      desc: $("desc").value, url: $("url").value, tag: $("tag").value, copyId: $("copyId").value
     };
+    var file = $("dlFile").files && $("dlFile").files[0];
+    if (file && file.size > MAX_DL) { say($("formMsg"), "File terlalu besar (" + fmtSize(file.size) + "). Maksimal 4 MB.", "err"); return; }
     if (newImage) body.image = newImage;
     if (editingId && $("rmImg").checked && !newImage) body.removeImage = true;
+    if (editingId && $("rmFile").checked && !file) body.removeFile = true;
     $("saveBtn").disabled = true;
     try {
-      if (editingId) await api("PUT", "/api/products?id=" + encodeURIComponent(editingId), body);
-      else await api("POST", "/api/products", body);
+      var saved = editingId
+        ? await api("PUT", "/api/products?id=" + encodeURIComponent(editingId), body)
+        : await api("POST", "/api/products", body);
       var was = editingId ? "Perubahan disimpan." : "Produk ditambahkan.";
+      if (file) {
+        $("saveBtn").textContent = "Mengunggah file…";
+        try { await uploadFile(saved.product.id, file); was += " File berhasil diunggah."; }
+        catch (upErr) {
+          // Produk sudah tersimpan; hanya filenya yang gagal. Jangan simpan ulang (bisa jadi dobel).
+          resetForm(); await loadList();
+          say($("formMsg"), "Produk tersimpan, tapi file gagal diunggah: " + upErr.message + " Buka Edit pada produk itu untuk mencoba lagi.", "err");
+          return;
+        }
+      }
       resetForm(); await loadList();
       say($("formMsg"), was, "ok");
     } catch (err) {
