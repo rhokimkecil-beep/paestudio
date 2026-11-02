@@ -15,8 +15,15 @@ function imgUrl(p) {
 function pricingOf(p) {
   return p.pricing === "free" || p.pricing === "paid" ? p.pricing : (Number(p.price) > 0 ? "paid" : "free");
 }
-function publicView(p) {
-  return { id: p.id, name: p.name, cat: p.cat, pricing: pricingOf(p), price: pricingOf(p) === "free" ? 0 : p.price, desc: p.desc, url: p.url, tag: p.tag, img: imgUrl(p), createdAt: p.createdAt || 0 };
+// File unduhan hanya ditampilkan ke publik untuk produk GRATIS. Produk berbayar tidak boleh
+// punya link unduh publik (kalau tidak, orang bisa mengambilnya tanpa membayar); admin tetap melihatnya.
+function fileView(p, admin) {
+  if (!p.file) return null;
+  if (pricingOf(p) !== "free" && !admin) return null;
+  return { name: p.file.name, size: p.file.size, url: `/api/file?id=${p.id}&v=${p.file.v}` };
+}
+function publicView(p, admin) {
+  return { id: p.id, name: p.name, cat: p.cat, pricing: pricingOf(p), price: pricingOf(p) === "free" ? 0 : p.price, desc: p.desc, url: p.url, tag: p.tag, copyId: p.copyId || "", img: imgUrl(p), file: fileView(p, admin), createdAt: p.createdAt || 0 };
 }
 
 function sniff(buf) {
@@ -40,6 +47,7 @@ function clean(body) {
   const name = String(body.name || "").trim().slice(0, 80);
   const desc = String(body.desc || "").trim().slice(0, 300);
   const tag = String(body.tag || "").trim().slice(0, 20);
+  const copyId = String(body.copyId || "").trim().slice(0, 60);
   const cat = CATS.includes(body.cat) ? body.cat : "";
   // Jenis produk: "free" (gratis) atau "paid" (berbayar). Kalau tidak dikirim, ditebak dari harga.
   let pricing = body.pricing;
@@ -52,7 +60,7 @@ function clean(body) {
     return { error: "Produk berbayar harus punya harga lebih dari 0" };
   }
   if (url && !/^https?:\/\/[^\s]+$/i.test(url)) return { error: "Link harus diawali http:// atau https://" };
-  return { value: { name, desc, tag, cat, pricing, price, url } };
+  return { value: { name, desc, tag, cat, pricing, price, url, copyId } };
 }
 
 module.exports = async function handler(req, res) {
@@ -62,7 +70,9 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ configured: false, products: [] });
     }
     try {
-      const list = (await store.listProducts()).map(publicView);
+      // Tampilan admin hanya dibuat untuk request fresh (no-store), jangan sampai ikut ter-cache CDN.
+      const admin = Boolean(req.query && req.query.fresh && auth.isAdmin(req));
+      const list = (await store.listProducts()).map((p) => publicView(p, admin));
       res.setHeader("Cache-Control", req.query && req.query.fresh ? "no-store" : "public, s-maxage=10, stale-while-revalidate=30");
       return res.status(200).json({ configured: true, products: list });
     } catch (e) {
@@ -104,7 +114,7 @@ module.exports = async function handler(req, res) {
       const p = { id: crypto.randomBytes(6).toString("hex"), ...c.value, hasImg: false, v: 0, createdAt: Date.now() };
       if (img) { await store.saveImage(p.id, img.mime, img.b64); p.hasImg = true; p.v = Date.now(); }
       await store.saveProduct(p);
-      return res.status(201).json({ ok: true, product: publicView(p) });
+      return res.status(201).json({ ok: true, product: publicView(p, true) });
     }
 
     // PUT
@@ -114,8 +124,10 @@ module.exports = async function handler(req, res) {
     const p = { ...old, ...c.value };
     if (img) { await store.saveImage(id, img.mime, img.b64); p.hasImg = true; p.v = Date.now(); }
     else if (body.removeImage) { await store.cmd(["DEL", store.keyImg(id)]); p.hasImg = false; p.v = Date.now(); }
+    if (body.removeFile && old.file) { p.file = null; }
     await store.saveProduct(p);
-    return res.status(200).json({ ok: true, product: publicView(p) });
+    if (body.removeFile && old.file) { try { await store.deleteFile(id, old.file.v, old.file.n); } catch (e) { console.error("file delete error:", e && e.message); } }
+    return res.status(200).json({ ok: true, product: publicView(p, true) });
   } catch (e) {
     console.error("products error:", e && e.message);
     return res.status(500).json({ error: "Terjadi kesalahan di server" });
