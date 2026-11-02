@@ -4,6 +4,7 @@
 // DELETE /api/products?id=<id>    -> hapus (admin)
 const crypto = require("crypto");
 const store = require("../lib/store");
+const { del: delBlob } = require("@vercel/blob");
 const auth = require("../lib/auth");
 
 const CATS = ["clubkit", "summitkit", "mesh", "decal", "audio", "model", "lainnya"];
@@ -96,7 +97,9 @@ module.exports = async function handler(req, res) {
 
     if (req.method === "DELETE") {
       if (!/^[a-f0-9]{12}$/.test(id)) return res.status(400).json({ error: "ID tidak valid" });
+      const gone = await store.getProduct(id).catch(() => null);
       await store.deleteProduct(id);
+      if (gone && gone.file && gone.file.blob) { try { await delBlob(gone.file.blob); } catch (e) { console.error("blob delete error:", e && e.message); } }
       return res.status(200).json({ ok: true });
     }
 
@@ -126,7 +129,7 @@ module.exports = async function handler(req, res) {
     else if (body.removeImage) { await store.cmd(["DEL", store.keyImg(id)]); p.hasImg = false; p.v = Date.now(); }
     if (body.removeFile && old.file) { p.file = null; }
     await store.saveProduct(p);
-    if (body.removeFile && old.file) { try { await store.deleteFile(id, old.file.v, old.file.n); } catch (e) { console.error("file delete error:", e && e.message); } }
+    if (body.removeFile && old.file) { try { if (old.file.blob) await delBlob(old.file.blob); else await store.deleteFile(id, old.file.v, old.file.n); } catch (e) { console.error("file delete error:", e && e.message); } }
     return res.status(200).json({ ok: true, product: publicView(p, true) });
   } catch (e) {
     console.error("products error:", e && e.message);
