@@ -301,22 +301,42 @@ input:disabled{opacity:.5;cursor:not-allowed}
 <script type="module">
 // Upload langsung ke Vercel Blob (lewati batas 4,5 MB Vercel Functions).
 import { upload } from "https://esm.sh/@vercel/blob@0.27.0/client";
-window.uploadBig = async function (id, file, onPct) {
-  var blob = await upload("products/" + id + "/" + file.name, file, {
-    access: "public",
-    handleUploadUrl: "/api/file",
-    multipart: false,
-    onUploadProgress: function (e) { if (onPct) onPct(Math.round(e.percentage)); }
-  });
-  var r = await fetch("/api/file", {
-    method: "POST",
-    credentials: "same-origin",
-    headers: { "Content-Type": "application/json", "X-Requested-With": "paestudio" },
-    body: JSON.stringify({ action: "attach", id: id, name: file.name, size: file.size, url: blob.url })
-  });
-  var j = {};
-  try { j = await r.json(); } catch (e) {}
-  if (!r.ok) throw new Error(j.error || "Gagal menyimpan file (" + r.status + ")");
+window.uploadBig = async function (id, file, onPct, onStage) {
+  var stage = onStage || function () {};
+  var ctl = new AbortController();
+  var timer = setTimeout(function () { ctl.abort(); }, 5 * 60 * 1000);
+  var blob;
+  try {
+    stage("kirim");
+    blob = await upload("products/" + id + "/" + file.name, file, {
+      access: "public",
+      handleUploadUrl: "/api/file",
+      multipart: false,
+      abortSignal: ctl.signal,
+      onUploadProgress: function (e) { if (onPct) onPct(Math.round(e.percentage)); }
+    });
+  } catch (e) {
+    if (ctl.signal.aborted) throw new Error("Upload ke Blob lebih dari 5 menit, dibatalkan. Koneksi ke server Blob (AS) terlalu lambat.");
+    throw e;
+  } finally { clearTimeout(timer); }
+  stage("simpan");
+  var c2 = new AbortController();
+  var t2 = setTimeout(function () { c2.abort(); }, 30000);
+  try {
+    var r = await fetch("/api/file", {
+      method: "POST",
+      credentials: "same-origin",
+      signal: c2.signal,
+      headers: { "Content-Type": "application/json", "X-Requested-With": "paestudio" },
+      body: JSON.stringify({ action: "attach", id: id, name: file.name, size: file.size, url: blob.url })
+    });
+    var j = {};
+    try { j = await r.json(); } catch (e) {}
+    if (!r.ok) throw new Error(j.error || "Gagal menyimpan file (" + r.status + ")");
+  } catch (e) {
+    if (c2.signal.aborted) throw new Error("File sudah terunggah ke Blob tapi gagal dicatat ke produk (timeout). Coba Simpan lagi.");
+    throw e;
+  } finally { clearTimeout(t2); }
 };
 </script>
 <script>
@@ -573,12 +593,12 @@ window.uploadBig = async function (id, file, onPct) {
   async function uploadFile(id, file) {
     if (!window.uploadBig) throw new Error("Modul upload belum termuat. Refresh halaman lalu coba lagi.");
     try {
-      var t0 = Date.now(), pctNow = 0;
+      var t0 = Date.now(), pctNow = 0, stg = "kirim";
       var tick = setInterval(function () {
-        $("saveBtn").textContent = "Mengunggah file… " + pctNow + "% (" + Math.round((Date.now() - t0) / 1000) + " dtk)";
+        $("saveBtn").textContent = (stg === "simpan" ? "Menyimpan ke produk… (" : "Mengunggah file… " + pctNow + "% (") + Math.round((Date.now() - t0) / 1000) + " dtk)";
       }, 500);
       try {
-        await window.uploadBig(id, file, function (pct) { pctNow = pct; });
+        await window.uploadBig(id, file, function (pct) { pctNow = pct; }, function (s) { stg = s; });
       } finally { clearInterval(tick); }
     } catch (e) {
       if (/belum login|sesi habis/i.test(e.message)) showLogin();
