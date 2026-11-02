@@ -5,6 +5,7 @@
   "description": "Roblox asset uploader (decal, audio, model) untuk Vercel",
   "engines": { "node": ">=18" },
   "dependencies": {
+    "@vercel/blob": "0.27.0",
     "formidable": "^3.5.1"
   }
 }
