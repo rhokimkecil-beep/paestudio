@@ -1,4 +1,4 @@
-// GET /api/discord-login  -> arahkan ke halaman otorisasi Discord (scope: identify)
+// GET /api/discord-login  -> arahkan ke halaman otorisasi Discord (scope: identify + guilds.join)
 const crypto = require("crypto");
 const auth = require("../lib/auth");
 const store = require("../lib/store");
@@ -22,13 +22,13 @@ module.exports = async function handler(req, res) {
   }
   const state = crypto.randomBytes(16).toString("hex");
   auth.setOauthState(req, res, state);
+  // "prompt: none" dihapus supaya user lama tetap diminta menyetujui scope guilds.join.
   const q = new URLSearchParams({
     client_id: clientId,
     response_type: "code",
     redirect_uri: redirectUri(req),
-    scope: "identify",
+    scope: "identify guilds.join",
     state,
-    prompt: "none",
   });
   return res.redirect(302, `https://discord.com/oauth2/authorize?${q}`);
 };
