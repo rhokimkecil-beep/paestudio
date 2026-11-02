@@ -305,7 +305,7 @@ window.uploadBig = async function (id, file, onPct) {
   var blob = await upload("products/" + id + "/" + file.name, file, {
     access: "public",
     handleUploadUrl: "/api/file",
-    multipart: file.size > 8 * 1024 * 1024,
+    multipart: false,
     onUploadProgress: function (e) { if (onPct) onPct(Math.round(e.percentage)); }
   });
   var r = await fetch("/api/file", {
@@ -573,7 +573,13 @@ window.uploadBig = async function (id, file, onPct) {
   async function uploadFile(id, file) {
     if (!window.uploadBig) throw new Error("Modul upload belum termuat. Refresh halaman lalu coba lagi.");
     try {
-      await window.uploadBig(id, file, function (pct) { $("saveBtn").textContent = "Mengunggah file… " + pct + "%"; });
+      var t0 = Date.now(), pctNow = 0;
+      var tick = setInterval(function () {
+        $("saveBtn").textContent = "Mengunggah file… " + pctNow + "% (" + Math.round((Date.now() - t0) / 1000) + " dtk)";
+      }, 500);
+      try {
+        await window.uploadBig(id, file, function (pct) { pctNow = pct; });
+      } finally { clearInterval(tick); }
     } catch (e) {
       if (/belum login|sesi habis/i.test(e.message)) showLogin();
       throw e;
