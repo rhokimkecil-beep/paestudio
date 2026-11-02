@@ -6,7 +6,7 @@ const crypto = require("crypto");
 const store = require("../lib/store");
 const auth = require("../lib/auth");
 
-const CATS = ["mesh", "decal", "audio", "model", "lainnya"];
+const CATS = ["clubkit", "summitkit", "mesh", "decal", "audio", "model", "lainnya"];
 const MAX_IMG_BYTES = 450 * 1024; // setelah dikompres di browser biasanya < 150 KB
 
 function imgUrl(p) {
