@@ -201,10 +201,6 @@ input:disabled{opacity:.5;cursor:not-allowed}
           <div class="field"><label for="desc">Deskripsi</label><textarea id="desc" maxlength="300" placeholder="Jelaskan singkat produknya…"></textarea></div>
           <div class="field"><label for="url">Link beli / kontak</label><input id="url" type="url" placeholder="https://wa.me/628xxxxxxxxxx"/><div class="note">Tombol "Pesan" di situs mengarah ke sini. Boleh dikosongkan.</div></div>
           <div class="field"><label for="copyId">ID untuk disalin (opsional)</label><input id="copyId" type="text" maxlength="60" inputmode="numeric" placeholder="118448999977287"/><div class="note">Jadi tombol "Salin ID" di kartu produk. Kalau dikosongkan, otomatis diambil dari angka panjang di deskripsi.</div></div>
-          <div class="field"><label for="dlFile">File untuk diunduh (opsional)</label>
-            <input id="dlFile" type="file" accept=".rbxm,.rbxmx,.rbxl,.rbxlx,.fbx,.obj,.zip,.rar,.7z,.lua,.luau,.txt,.json,.png,.jpg,.jpeg,.webp,.mp3,.ogg"/>
-            <label class="chk" id="rmFileWrap" hidden><input id="rmFile" type="checkbox"/>Hapus file yang ada</label>
-            <div class="note" id="dlInfo"></div>
           </div>
           <div class="field"><label for="tag">Label (opsional)</label><input id="tag" type="text" maxlength="20" placeholder="Baru, Promo, Best seller"/></div>
           <div id="formMsg" class="msg" hidden></div>
@@ -298,47 +294,6 @@ input:disabled{opacity:.5;cursor:not-allowed}
   </div>
 </div>
 
-<script type="module">
-// Upload langsung ke Vercel Blob (lewati batas 4,5 MB Vercel Functions).
-import { upload } from "https://esm.sh/@vercel/blob@0.27.0/client";
-window.uploadBig = async function (id, file, onPct, onStage) {
-  var stage = onStage || function () {};
-  var ctl = new AbortController();
-  var timer = setTimeout(function () { ctl.abort(); }, 5 * 60 * 1000);
-  var blob;
-  try {
-    stage("kirim");
-    blob = await upload("products/" + id + "/" + file.name, file, {
-      access: "public",
-      handleUploadUrl: "/api/file",
-      multipart: false,
-      abortSignal: ctl.signal,
-      onUploadProgress: function (e) { if (onPct) onPct(Math.round(e.percentage)); }
-    });
-  } catch (e) {
-    if (ctl.signal.aborted) throw new Error("Upload ke Blob lebih dari 5 menit, dibatalkan. Koneksi ke server Blob (AS) terlalu lambat.");
-    throw e;
-  } finally { clearTimeout(timer); }
-  stage("simpan");
-  var c2 = new AbortController();
-  var t2 = setTimeout(function () { c2.abort(); }, 30000);
-  try {
-    var r = await fetch("/api/file", {
-      method: "POST",
-      credentials: "same-origin",
-      signal: c2.signal,
-      headers: { "Content-Type": "application/json", "X-Requested-With": "paestudio" },
-      body: JSON.stringify({ action: "attach", id: id, name: file.name, size: file.size, url: blob.url })
-    });
-    var j = {};
-    try { j = await r.json(); } catch (e) {}
-    if (!r.ok) throw new Error(j.error || "Gagal menyimpan file (" + r.status + ")");
-  } catch (e) {
-    if (c2.signal.aborted) throw new Error("File sudah terunggah ke Blob tapi gagal dicatat ke produk (timeout). Coba Simpan lagi.");
-    throw e;
-  } finally { clearTimeout(t2); }
-};
-</script>
 <script>
 (function () {
   "use strict";
@@ -353,8 +308,6 @@ window.uploadBig = async function (id, file, onPct, onStage) {
     el.className = "msg" + (kind ? " " + kind : "");
     el.hidden = !text;
   }
-  var DL_HINT = "Maks 100 MB. Tombol Unduh hanya tampil di situs untuk produk GRATIS (produk berbayar tidak punya link unduh publik).";
-  var MAX_DL = 100 * 1024 * 1024;
   function fmtSize(b) { return b >= 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB"; }
   function rupiah(n) { return n > 0 ? "Rp " + Number(n).toLocaleString("id-ID") : "Gratis"; }
 
@@ -484,7 +437,6 @@ window.uploadBig = async function (id, file, onPct, onStage) {
     $("pf").reset(); setPreview(""); $("imgInfo").textContent = ""; $("priceHint").textContent = "";
     syncPricing();
     show($("rmWrap"), false); show($("cancelBtn"), false);
-    show($("rmFileWrap"), false); $("dlInfo").textContent = DL_HINT;
     $("formTitle").textContent = "Tambah produk";
     $("formSub").textContent = "Isi data lalu simpan. Produk langsung tampil di situs.";
     $("saveBtn").textContent = "Simpan produk";
@@ -498,8 +450,6 @@ window.uploadBig = async function (id, file, onPct, onStage) {
     syncPricing();
     $("desc").value = p.desc || ""; $("url").value = p.url || ""; $("tag").value = p.tag || "";
     $("copyId").value = p.copyId || "";
-    $("dlFile").value = ""; $("rmFile").checked = false; show($("rmFileWrap"), !!p.file);
-    $("dlInfo").textContent = p.file ? "File saat ini: " + p.file.name + " (" + fmtSize(p.file.size) + "). Pilih file baru untuk mengganti." : DL_HINT;
     $("rmImg").checked = false; $("imgFile").value = "";
     setPreview(p.img || ""); $("imgInfo").textContent = p.img ? "Pilih gambar baru untuk mengganti." : "";
     show($("rmWrap"), !!p.img); show($("cancelBtn"), true);
@@ -510,7 +460,6 @@ window.uploadBig = async function (id, file, onPct, onStage) {
     renderList();
     $("name").scrollIntoView({ behavior: "smooth", block: "center" });
   }
-  $("dlInfo").textContent = DL_HINT;
   $("cancelBtn").addEventListener("click", resetForm);
 
   function updateHint() {
@@ -590,22 +539,6 @@ window.uploadBig = async function (id, file, onPct, onStage) {
     }
   });
 
-  async function uploadFile(id, file) {
-    if (!window.uploadBig) throw new Error("Modul upload belum termuat. Refresh halaman lalu coba lagi.");
-    try {
-      var t0 = Date.now(), pctNow = 0, stg = "kirim";
-      var tick = setInterval(function () {
-        $("saveBtn").textContent = (stg === "simpan" ? "Menyimpan ke produk… (" : "Mengunggah file… " + pctNow + "% (") + Math.round((Date.now() - t0) / 1000) + " dtk)";
-      }, 500);
-      try {
-        await window.uploadBig(id, file, function (pct) { pctNow = pct; }, function (s) { stg = s; });
-      } finally { clearInterval(tick); }
-    } catch (e) {
-      if (/belum login|sesi habis/i.test(e.message)) showLogin();
-      throw e;
-    }
-  }
-
   $("pf").addEventListener("submit", async function (e) {
     e.preventDefault();
     say($("formMsg"), "");
@@ -614,27 +547,14 @@ window.uploadBig = async function (id, file, onPct, onStage) {
       price: $("pricing").value === "free" ? 0 : $("price").value,
       desc: $("desc").value, url: $("url").value, tag: $("tag").value, copyId: $("copyId").value
     };
-    var file = $("dlFile").files && $("dlFile").files[0];
-    if (file && file.size > MAX_DL) { say($("formMsg"), "File terlalu besar (" + fmtSize(file.size) + "). Maksimal " + Math.round(MAX_DL / 1048576) + " MB.", "err"); return; }
     if (newImage) body.image = newImage;
     if (editingId && $("rmImg").checked && !newImage) body.removeImage = true;
-    if (editingId && $("rmFile").checked && !file) body.removeFile = true;
     $("saveBtn").disabled = true;
     try {
       var saved = editingId
         ? await api("PUT", "/api/products?id=" + encodeURIComponent(editingId), body)
         : await api("POST", "/api/products", body);
       var was = editingId ? "Perubahan disimpan." : "Produk ditambahkan.";
-      if (file) {
-        $("saveBtn").textContent = "Mengunggah file…";
-        try { await uploadFile(saved.product.id, file); was += " File berhasil diunggah."; }
-        catch (upErr) {
-          // Produk sudah tersimpan; hanya filenya yang gagal. Jangan simpan ulang (bisa jadi dobel).
-          resetForm(); await loadList();
-          say($("formMsg"), "Produk tersimpan, tapi file gagal diunggah: " + upErr.message + " Buka Edit pada produk itu untuk mencoba lagi.", "err");
-          return;
-        }
-      }
       resetForm(); await loadList();
       say($("formMsg"), was, "ok");
     } catch (err) {
