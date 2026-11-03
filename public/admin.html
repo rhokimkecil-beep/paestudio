@@ -201,7 +201,6 @@ input:disabled{opacity:.5;cursor:not-allowed}
           <div class="field"><label for="desc">Deskripsi</label><textarea id="desc" maxlength="300" placeholder="Jelaskan singkat produknya…"></textarea></div>
           <div class="field"><label for="url">Link beli / kontak</label><input id="url" type="url" placeholder="https://wa.me/628xxxxxxxxxx"/><div class="note">Tombol "Pesan" di situs mengarah ke sini. Boleh dikosongkan.</div></div>
           <div class="field"><label for="copyId">ID untuk disalin (opsional)</label><input id="copyId" type="text" maxlength="60" inputmode="numeric" placeholder="118448999977287"/><div class="note">Jadi tombol "Salin ID" di kartu produk. Kalau dikosongkan, otomatis diambil dari angka panjang di deskripsi.</div></div>
-          </div>
           <div class="field"><label for="tag">Label (opsional)</label><input id="tag" type="text" maxlength="20" placeholder="Baru, Promo, Best seller"/></div>
           <div id="formMsg" class="msg" hidden></div>
           <button class="btn solid full" id="saveBtn" type="submit">Simpan produk</button>
@@ -329,12 +328,12 @@ input:disabled{opacity:.5;cursor:not-allowed}
   function showLogin() {
     show($("boot"), false); show($("dash"), false); show($("loginView"), true); show($("logout"), false);
     if (!status.adminConfigured) {
-      say($("cfgWarn"), "ADMIN_PASSWORD belum diatur di Vercel. Buka Project → Settings → Environment Variables, tambahkan ADMIN_PASSWORD, lalu redeploy.", "warn");
+      say($("cfgWarn"), "ADMIN_PASSWORD belum diatur di Cloudflare. Buka Pages → Settings → Environment variables, tambahkan ADMIN_PASSWORD, lalu redeploy.", "warn");
     } else say($("cfgWarn"), "");
   }
   function showDash() {
     show($("boot"), false); show($("loginView"), false); show($("dash"), true); show($("logout"), true);
-    say($("dbWarn"), status.db ? "" : "Database belum dihubungkan. Di Vercel buka tab Storage → Create Database → Upstash Redis → Connect ke project, lalu redeploy.", "warn");
+    say($("dbWarn"), status.db ? "" : "Database belum dihubungkan. Isi UPSTASH_REDIS_REST_URL dan UPSTASH_REDIS_REST_TOKEN di Cloudflare Pages → Settings → Environment variables, lalu redeploy.", "warn");
     loadList();
   }
 
