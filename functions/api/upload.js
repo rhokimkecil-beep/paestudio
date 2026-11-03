@@ -120,6 +120,7 @@ export async function onRequestPost({ request, env }) {
           : `Roblox menolak upload (status ${create.status})`;
         msg = msg ? `${msg} — ${hint}` : hint;
         if (wa) msg += ` [${wa.slice(0, 120)}]`;
+        if (create.status === 401) msg += ` | Debug: key terkirim diawali "${apiKey.slice(0, 6)}", panjang ${apiKey.length} karakter, tujuan ${target} ID ${ownerId}.`;
       }
       const status = create.status === 401 || create.status === 403 ? create.status : 502;
       accepted = false;
