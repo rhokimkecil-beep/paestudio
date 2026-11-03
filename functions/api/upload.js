@@ -6,7 +6,7 @@ import { createStore } from "../_lib/store.js";
 import { createUsers } from "../_lib/users.js";
 import { json } from "../_lib/http.js";
 
-const MAX_FILE_BYTES = 4 * 1024 * 1024;
+const MAX_FILE_BYTES = 20 * 1024 * 1024;
 
 const ASSET_TYPES = { decal: "Decal", audio: "Audio", file: "Model" };
 
@@ -60,7 +60,7 @@ export async function onRequestPost({ request, env }) {
   if (!["user", "group"].includes(target)) return fail(400, "Target harus user atau group");
   if (!/^\d{1,20}$/.test(ownerId)) return fail(400, "User ID / Group ID harus berupa angka");
   if (!upload || typeof upload === "string") return fail(400, "File tidak ditemukan");
-  if (upload.size > MAX_FILE_BYTES) return fail(413, "File terlalu besar. Maks sekitar 4 MB per file.");
+  if (upload.size > MAX_FILE_BYTES) return fail(413, "File terlalu besar. Maks sekitar 20 MB per file.");
 
   const original = upload.name || "file";
   const ext = (original.split(".").pop() || "").toLowerCase();
