@@ -111,7 +111,16 @@ export async function onRequestPost({ request, env }) {
     const created = await robloxJson(create);
 
     if (!create.ok) {
-      const msg = created.message || created.error || `Roblox menolak upload (status ${create.status})`;
+      const wa = create.headers.get("www-authenticate") || "";
+      console.error("roblox upload rejected:", create.status, wa, JSON.stringify(created).slice(0, 300));
+      let msg = created.message || created.error || "";
+      if (!msg || create.status === 401) {
+        const hint = create.status === 401
+          ? "API key ditolak Roblox (401). Cek: (1) key yang ditempel di Profil benar dan belum di-regenerate, (2) izin Assets punya Read + Write, (3) key dibuat oleh akun/grup yang sama dengan ID tujuan, (4) key belum kedaluwarsa."
+          : `Roblox menolak upload (status ${create.status})`;
+        msg = msg ? `${msg} — ${hint}` : hint;
+        if (wa) msg += ` [${wa.slice(0, 120)}]`;
+      }
       const status = create.status === 401 || create.status === 403 ? create.status : 502;
       accepted = false;
       return fail(status, String(msg));
