@@ -3,7 +3,7 @@
 // Environment variable (Cloudflare Pages > Settings > Environment variables):
 //   CONVERTER_URL     contoh https://converter-kamu.trycloudflare.com
 //   CONVERTER_SECRET  rahasia bersama, dikirim lewat header x-secret
-//   YT_MAX_BYTES      (opsional) batas ukuran hasil, default 4 MB
+//   YT_MAX_BYTES      (opsional) batas ukuran hasil, default 15 MB (maks 25 MB)
 //   YT_HOURLY_FREE    (opsional) batas konversi per jam untuk akun gratis, default 10
 //   YT_HOURLY_PREMIUM (opsional) batas konversi per jam untuk premium, default 40
 import auth from "../_lib/auth.js";
@@ -13,13 +13,24 @@ import { json, readJsonBody } from "../_lib/http.js";
 
 const HOSTS = ["youtube.com", "m.youtube.com", "music.youtube.com", "youtu.be"];
 
+const rlKey = (userId) => `pae:rl:yt:${userId}`;
+
 async function overLimit(store, userId, premium, env) {
   const LIMIT_FREE = Number(env.YT_HOURLY_FREE) || 10;
   const LIMIT_PREMIUM = Number(env.YT_HOURLY_PREMIUM) || 40;
-  const key = `pae:rl:yt:${userId}`;
+  const key = rlKey(userId);
   const n = Number(await store.cmd(["INCR", key]));
   if (n === 1) await store.cmd(["EXPIRE", key, 3600]);
-  return n > (premium ? LIMIT_PREMIUM : LIMIT_FREE);
+  if (n > (premium ? LIMIT_PREMIUM : LIMIT_FREE)) {
+    await store.cmd(["DECR", key]).catch(() => {}); // percobaan yang ditolak tidak ikut dihitung
+    return true;
+  }
+  return false;
+}
+
+// Konversi gagal = jatah per jam dikembalikan (jangan hukum user kalau converter mati / video ditolak).
+async function refundLimit(store, userId) {
+  try { await store.cmd(["DECR", rlKey(userId)]); } catch {}
 }
 
 export async function onRequestPost({ request, env }) {
@@ -67,16 +78,23 @@ export async function onRequestPost({ request, env }) {
       signal: AbortSignal.timeout(100000), // Cloudflare Functions lebih longgar soal waktu daripada Vercel Hobby
     });
   } catch {
-    return json({ message: "Converter tidak merespons.", retryable: true }, 504);
+    await refundLimit(store, me.user.id);
+    return json({ message: "Converter tidak merespons. Pastikan start.bat dan tunnel.bat jalan.", retryable: true }, 504);
   }
-  if (upstream.status === 429) return json({ message: "Server sibuk, coba lagi.", retryable: true }, 429);
+  if (upstream.status === 429) { await refundLimit(store, me.user.id); return json({ message: "Server sibuk, coba lagi.", retryable: true }, 429); }
   if (!upstream.ok) {
+    await refundLimit(store, me.user.id);
     const d = await upstream.json().catch(() => ({}));
-    return json({ message: d.message || "Konversi gagal", retryable: upstream.status >= 500 },
+    // 502/503/504 dan 52x dari Cloudflare = tunnel mati / URL converter salah (balasannya HTML, bukan JSON)
+    const tunnelDown = !d.message && (upstream.status === 502 || upstream.status === 503 || upstream.status === 504 || (upstream.status >= 520 && upstream.status <= 530));
+    const msg = d.message || (tunnelDown
+      ? "Converter offline. Jalankan tunnel.bat, lalu samakan CONVERTER_URL di Cloudflare dengan alamat tunnel yang baru."
+      : "Konversi gagal");
+    return json({ message: msg, retryable: upstream.status >= 500 },
       upstream.status >= 400 && upstream.status < 600 ? upstream.status : 502);
   }
   const len = Number(upstream.headers.get("content-length") || 0);
-  if (len > MAX_BYTES) return json({ message: "Hasil melebihi batas " + Math.floor(MAX_BYTES / 1048576) + " MB" }, 413);
+  if (len > MAX_BYTES) { await refundLimit(store, me.user.id); return json({ message: "Hasil melebihi batas " + Math.floor(MAX_BYTES / 1048576) + " MB" }, 413); }
 
   const out = new Headers({ "content-type": "audio/mpeg", "X-Content-Type-Options": "nosniff" });
   for (const h of ["content-length", "content-disposition", "x-audio-title"]) {
