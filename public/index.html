@@ -505,7 +505,7 @@ html[data-dt] #dtGuard{display:flex}
               </div>
       <ul class="stats">
         <li><svg class="ico"><use href="#i-shield"/></svg><span><strong>Open Cloud</strong> resmi Roblox</span></li>
-        <li><svg class="ico"><use href="#i-box"/></svg><span>Maks <strong>4 MB</strong> / file</span></li>
+        <li><svg class="ico"><use href="#i-box"/></svg><span>Maks <strong>20 MB</strong> / file</span></li>
         <li><svg class="ico"><use href="#i-clock"/></svg><span>Gratis <strong>7 upload</strong> / 24 jam</span></li>
         <li><svg class="ico"><use href="#i-key"/></svg><span>API key <strong>hanya di browser-mu</strong></span></li>
       </ul>
@@ -925,7 +925,7 @@ end"></textarea>
     <div class="note">
       <svg class="ico"><use href="#i-box"/></svg>
       <h3>Ukuran file</h3>
-      <p>Batas server sekitar 4 MB per file. Untuk audio, turunkan kualitas MP3 di konverter kalau file terlalu besar.</p>
+      <p>Batas server sekitar 20 MB per file. Untuk audio, turunkan kualitas MP3 di konverter kalau file terlalu besar.</p>
     </div>
     <div class="note">
       <svg class="ico"><use href="#i-shield"/></svg>
@@ -1213,7 +1213,7 @@ end"></textarea>
                     })
             }
             ));
-            const MAX_UP = 4 * 1024 * 1024;
+            const MAX_UP = 20 * 1024 * 1024;
             const MODL = {
                 reviewing: "Moderasi: menunggu",
                 approved: "Lolos moderasi",
@@ -1378,7 +1378,7 @@ end"></textarea>
                     return
                 }
                 if (file.size > MAX_UP) {
-                    toast(false, "File terlalu besar", "File " + fmtMB(file.size) + " melebihi batas sekitar 4 MB. Kecilkan file (untuk audio: turunkan kualitas atau pakai mono di Konverter Audio).");
+                    toast(false, "File terlalu besar", "File " + fmtMB(file.size) + " melebihi batas sekitar 20 MB. Kecilkan file (untuk audio: turunkan kualitas atau pakai mono di Konverter Audio).");
                     return
                 }
                 $("go").disabled = true;
@@ -2557,7 +2557,7 @@ end"></textarea>
                     }
                     if (it.blob.size > MAX_UP) {
                         it.state = "done";
-                        it.msg = "Dilewati: " + fmtMB(it.blob.size) + " melebihi batas upload sekitar 4 MB. Turunkan kualitas, pakai mono, atau potong durasi lalu proses ulang.";
+                        it.msg = "Dilewati: " + fmtMB(it.blob.size) + " melebihi batas upload sekitar 20 MB. Turunkan kualitas, pakai mono, atau potong durasi lalu proses ulang.";
                         fail++;
                         renderA();
                         continue
