@@ -11,6 +11,9 @@ const users = require("../lib/users");
 
 // Batas body Vercel Functions = 4.5 MB, sisakan sedikit untuk field lain.
 const MAX_FILE_BYTES = 4 * 1024 * 1024;
+// Batas total kalau file dikirim bertahap lewat /api/upload-chunk (batas aset audio Roblox = 20 MB).
+const MAX_TOTAL_BYTES = 20 * 1024 * 1024;
+const UID_RE = /^[a-f0-9]{16,32}$/;
 
 const ASSET_TYPES = { decal: "Decal", audio: "Audio", file: "Model" };
 
@@ -92,7 +95,16 @@ module.exports = async function handler(req, res) {
   const ownerId = String(first(fields.ownerId) || "").trim();
   const displayName = String(first(fields.name) || "").trim().slice(0, 50);
   const description = String(first(fields.description) || "").slice(0, 1000);
-  const upload = first(files.file);
+  let upload = first(files.file);
+  // Mode bertahap: file sudah dikirim lewat /api/upload-chunk, di sini hanya referensinya.
+  const uploadId = String(first(fields.uploadId) || "").trim();
+  const chunkName = String(first(fields.fileName) || "").split(/[\\/]/).pop().slice(0, 150);
+  const chunkSize = Math.floor(Number(first(fields.fileSize)) || 0);
+  const chunked = !upload && UID_RE.test(uploadId);
+  if (chunked) {
+    if (!(chunkSize > 0 && chunkSize <= MAX_TOTAL_BYTES)) return fail(res, 413, "File terlalu besar (maks 20 MB).");
+    upload = { originalFilename: chunkName || "file" };
+  }
 
   if (!ASSET_TYPES[type]) return fail(res, 400, "Tipe aset tidak dikenal");
   if (!apiKey) return fail(res, 400, "API key wajib diisi");
@@ -108,6 +120,11 @@ module.exports = async function handler(req, res) {
 
   const name = displayName || original.replace(/\.[^.]+$/, "").slice(0, 50) || "Asset";
 
+  const cleanup = () => {
+    if (upload.filepath) { try { fs.unlinkSync(upload.filepath); } catch {} }
+    if (chunked) store.deleteUpload(me.user.id, uploadId, chunkSize).catch(() => {});
+  };
+
   // Kuota: akun gratis maks 7 upload / 24 jam. Slot diambil dulu, dikembalikan kalau upload gagal.
   let reserved = false;
   let accepted = false;
@@ -119,7 +136,7 @@ module.exports = async function handler(req, res) {
     try {
       const r = await users.reserve(me.user.id);
       if (!r.allowed) {
-        try { fs.unlinkSync(upload.filepath); } catch {}
+        cleanup();
         const wait = r.quota.resetAt ? ` Kuota kembali dalam ${fmtWait(r.quota.resetAt - Date.now())}.` : "";
         return fail(res, 429, `Batas ${users.FREE_LIMIT} upload per 24 jam sudah habis.${wait} Upgrade ke Premium untuk upload tanpa batas.`, {
           code: "limit",
@@ -129,13 +146,14 @@ module.exports = async function handler(req, res) {
       reserved = true;
     } catch (err) {
       console.error("quota error:", err && err.message);
-      try { fs.unlinkSync(upload.filepath); } catch {}
+      cleanup();
       return fail(res, 500, "Terjadi kesalahan di server");
     }
   }
 
   try {
-    const buffer = fs.readFileSync(upload.filepath);
+    const buffer = chunked ? await store.readUpload(me.user.id, uploadId, chunkSize) : fs.readFileSync(upload.filepath);
+    if (!buffer) return fail(res, 400, "Potongan file tidak lengkap. Coba upload ulang.");
 
     const meta = {
       assetType: ASSET_TYPES[type],
@@ -205,9 +223,7 @@ module.exports = async function handler(req, res) {
     console.error("upload error:", err && err.message);
     return fail(res, 500, "Terjadi kesalahan di server");
   } finally {
-    try {
-      fs.unlinkSync(upload.filepath);
-    } catch {}
+    cleanup();
     // Catat statistik upload sukses (gagal mencatat tidak memengaruhi user).
     if (accepted) {
       try { await users.recordUpload(); } catch (e) { console.error("stats error:", e && e.message); }
