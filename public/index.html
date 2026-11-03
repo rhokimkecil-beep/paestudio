@@ -503,7 +503,7 @@ html[data-dt] #dtGuard{display:flex}
               </div>
       <ul class="stats">
         <li><svg class="ico"><use href="#i-shield"/></svg><span><strong>Open Cloud</strong> resmi Roblox</span></li>
-        <li><svg class="ico"><use href="#i-box"/></svg><span>Maks <strong>4 MB</strong> / file</span></li>
+        <li><svg class="ico"><use href="#i-box"/></svg><span>Maks <strong>20 MB</strong> / file</span></li>
         <li><svg class="ico"><use href="#i-clock"/></svg><span>Gratis <strong>7 upload</strong> / 24 jam</span></li>
         <li><svg class="ico"><use href="#i-key"/></svg><span>API key <strong>hanya di browser-mu</strong></span></li>
       </ul>
@@ -834,7 +834,7 @@ html[data-dt] #dtGuard{display:flex}
     <div class="note">
       <svg class="ico"><use href="#i-box"/></svg>
       <h3>Ukuran file</h3>
-      <p>Batas server sekitar 4 MB per file. Untuk audio, turunkan kualitas MP3 di konverter kalau file terlalu besar.</p>
+      <p>Maksimal 20 MB per file (batas aset audio Roblox). File besar dikirim bertahap otomatis, jadi tidak perlu dikecilkan lagi.</p>
     </div>
     <div class="note">
       <svg class="ico"><use href="#i-shield"/></svg>
@@ -1122,7 +1122,8 @@ html[data-dt] #dtGuard{display:flex}
                     })
             }
             ));
-            const MAX_UP = 4 * 1024 * 1024;
+            const MAX_UP = 20 * 1024 * 1024;
+            const CHUNK = 2 * 1024 * 1024;
             const MODL = {
                 reviewing: "Moderasi: menunggu",
                 approved: "Lolos moderasi",
@@ -1223,7 +1224,7 @@ html[data-dt] #dtGuard{display:flex}
                 else if (!reset)
                     $("go").textContent = "Mengunggah " + Math.round(frac * 100) + "%";
             }
-            function sendUpload(formData, onProg) {
+            function sendForm(formData, onProg) {
                 return new Promise(resolve => {
                     const x = new XMLHttpRequest();
                     x.open("POST", "/api/upload");
@@ -1258,6 +1259,76 @@ html[data-dt] #dtGuard{display:flex}
                 }
                 )
             }
+            function sendChunk(uid, i, blob, onLoaded) {
+                return new Promise(resolve => {
+                    const x = new XMLHttpRequest();
+                    x.open("POST", "/api/upload-chunk?uid=" + uid + "&i=" + i);
+                    x.setRequestHeader("X-Requested-With", "paestudio");
+                    x.setRequestHeader("Content-Type", "application/octet-stream");
+                    x.timeout = 120000;
+                    if (x.upload)
+                        x.upload.onprogress = e => onLoaded(e.loaded);
+                    x.onload = () => {
+                        let j;
+                        try {
+                            j = JSON.parse(x.responseText)
+                        } catch {
+                            j = {
+                                error: "Respons server tidak dapat dibaca"
+                            }
+                        }
+                        resolve({
+                            ok: x.status >= 200 && x.status < 300,
+                            status: x.status,
+                            j
+                        })
+                    }
+                    ;
+                    x.onerror = x.ontimeout = () => resolve({
+                        net: true
+                    });
+                    x.send(blob)
+                }
+                )
+            }
+            /* file <= ~3.5 MB: kirim langsung. Lebih besar: pecah per 2 MB, lalu rakit di server. */
+            async function sendUpload(formData, onProg) {
+                const file = formData.get("file");
+                if (!file || file.size <= 3.5 * 1024 * 1024)
+                    return sendForm(formData, onProg);
+                const uid = Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(16).padStart(2, "0")).join("");
+                const n = Math.ceil(file.size / CHUNK);
+                for (let i = 0; i < n; i++) {
+                    const part = file.slice(i * CHUNK, (i + 1) * CHUNK);
+                    let r = null;
+                    for (let t = 0; t < 3; t++) {
+                        r = await sendChunk(uid, i, part, loaded => {
+                            if (onProg)
+                                onProg(Math.min(0.95, (i * CHUNK + loaded) / file.size))
+                        }
+                        );
+                        if (r.net || r.ok || (r.status >= 400 && r.status < 500))
+                            if (!r.net)
+                                break;
+                    }
+                    if (r.net)
+                        return r;
+                    if (!r.ok) {
+                        afterUpload(r.j);
+                        return r
+                    }
+                }
+                if (onProg)
+                    onProg(1);
+                const d = new FormData();
+                for (const [k, v] of formData.entries())
+                    if (k !== "file")
+                        d.append(k, v);
+                d.append("uploadId", uid);
+                d.append("fileName", file.name);
+                d.append("fileSize", String(file.size));
+                return sendForm(d, null)
+            }
             const dz = document.querySelector(".dropzone");
             ["dragenter", "dragover"].forEach(ev => dz.addEventListener(ev, e => {
                 e.preventDefault();
@@ -1287,7 +1358,7 @@ html[data-dt] #dtGuard{display:flex}
                     return
                 }
                 if (file.size > MAX_UP) {
-                    toast(false, "File terlalu besar", "File " + fmtMB(file.size) + " melebihi batas sekitar 4 MB. Kecilkan file (untuk audio: turunkan kualitas atau pakai mono di Konverter Audio).");
+                    toast(false, "File terlalu besar", "File " + fmtMB(file.size) + " melebihi batas 20 MB. Kecilkan file (untuk audio: turunkan kualitas atau pakai mono di Konverter Audio).");
                     return
                 }
                 $("go").disabled = true;
@@ -2466,7 +2537,7 @@ html[data-dt] #dtGuard{display:flex}
                     }
                     if (it.blob.size > MAX_UP) {
                         it.state = "done";
-                        it.msg = "Dilewati: " + fmtMB(it.blob.size) + " melebihi batas upload sekitar 4 MB. Turunkan kualitas, pakai mono, atau potong durasi lalu proses ulang.";
+                        it.msg = "Dilewati: " + fmtMB(it.blob.size) + " melebihi batas upload 20 MB. Turunkan kualitas, pakai mono, atau potong durasi lalu proses ulang.";
                         fail++;
                         renderA();
                         continue
