@@ -481,6 +481,8 @@ html[data-dt] #dtGuard{display:flex}
     <button data-tab="premium" type="button">Harga Key</button>
     <button data-tab="upload" data-lock type="button">Upload<svg class="ico lk"><use href="#i-lock"/></svg></button>
     <button data-tab="audio" data-lock type="button">Konverter Audio<svg class="ico lk"><use href="#i-lock"/></svg></button>
+    <button data-tab="obfus" type="button">Lua Obfuscator</button>
+    <button data-tab="youtube" data-lock type="button">YouTube → MP3<svg class="ico lk"><use href="#i-lock"/></svg></button>
     <button data-tab="bulk" data-lock type="button">ID Audio<svg class="ico lk"><use href="#i-lock"/></svg></button>
     <button data-tab="history" data-lock type="button">Riwayat<svg class="ico lk"><use href="#i-lock"/></svg></button>
     <button data-tab="info" type="button">Info</button>
@@ -503,7 +505,7 @@ html[data-dt] #dtGuard{display:flex}
               </div>
       <ul class="stats">
         <li><svg class="ico"><use href="#i-shield"/></svg><span><strong>Open Cloud</strong> resmi Roblox</span></li>
-        <li><svg class="ico"><use href="#i-box"/></svg><span>Maks <strong>20 MB</strong> / file</span></li>
+        <li><svg class="ico"><use href="#i-box"/></svg><span>Maks <strong>4 MB</strong> / file</span></li>
         <li><svg class="ico"><use href="#i-clock"/></svg><span>Gratis <strong>7 upload</strong> / 24 jam</span></li>
         <li><svg class="ico"><use href="#i-key"/></svg><span>API key <strong>hanya di browser-mu</strong></span></li>
       </ul>
@@ -775,6 +777,95 @@ html[data-dt] #dtGuard{display:flex}
 
     
 </div>
+<div class="panel" data-panel="obfus" hidden>
+<!-- Lua Obfuscator -->
+    <section class="sheet" id="obfusTool">
+      <div class="sheet-h">
+        <div class="step">Lua</div>
+        <div>
+          <h2>Lua Obfuscator</h2>
+          <p>Samarkan nama variabel lokal dan rapikan kode Lua (Roblox). Diproses di browser, tidak dikirim ke server. Gratis, tanpa login.</p>
+        </div>
+      </div>
+      <style>
+.obfus-tool * {box-sizing:border-box}.obfus-tool {color:#f2f2f4;font:15px/1.6 system-ui,sans-serif;background:#0b0b0d;border-radius:16px;padding:20px}.obfus-tool .wrap {max-width:980px;margin:0 auto}.obfus-tool h1 {font-size:24px;margin:0 0 4px}.obfus-tool .sub {color:#9a9aa2;font-size:13.5px;margin-bottom:20px}.obfus-tool .grid {display:grid;grid-template-columns:1fr 1fr;gap:16px}@media (max-width:800px) {.obfus-tool .grid {grid-template-columns:1fr}}.obfus-tool .card {background:#151518;border:1px solid #26262b;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px}.obfus-tool .label {font-size:11.5px;font-weight:600;color:#9a9aa2;text-transform:uppercase;letter-spacing:.08em}.obfus-tool textarea {width:100%;min-height:380px;background:#0f0f12;border:1px solid #2c2c32;border-radius:12px;color:#d8e2ff;
+    padding:12px;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;outline:none;resize:vertical;tab-size:2}.obfus-tool textarea:focus {border-color:#777}.obfus-tool .opts {display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:12px;border:1px solid #26262b;border-radius:14px;background:#0f0f12}.obfus-tool .opt {display:flex;align-items:center;gap:7px;font-size:13px;color:#c8c8d0;cursor:pointer}.obfus-tool .opt input {accent-color:#f2f2f4}.obfus-tool .row {display:flex;gap:8px;flex-wrap:wrap;align-items:center}.obfus-tool button {background:#f2f2f4;color:#0b0b0d;border:0;border-radius:12px;padding:10px 18px;font:600 14px inherit;cursor:pointer}.obfus-tool button.ghost {background:#1c1c20;color:#f2f2f4;border:1px solid #2c2c32}.obfus-tool button:disabled {opacity:.4;cursor:not-allowed}.obfus-tool .stat {font-size:12.5px;color:#8a8a92}.obfus-tool .warn {font-size:12px;color:#c9a227;background:#1c1708;border:1px solid #3a2f0c;border-radius:10px;padding:8px 10px;margin-top:4px}.obfus-tool .err {font-size:12.5px;color:#ff8a8a;background:#1c0f0f;border:1px solid #3a1818;border-radius:10px;padding:8px 10px}
+
+      </style>
+<div class="obfus-tool">
+<div class="wrap">
+  <h1>Obfus — Lua Obfuscator</h1>
+  <div class="sub">Samarkan nama variabel lokal dan rapikan kode Lua (Roblox). Semua pemrosesan berjalan di browser, tidak dikirim ke server mana pun.</div>
+
+  <div class="opts">
+    <label class="opt"><input type="checkbox" id="obfOptRename" checked> Samarkan nama variabel lokal</label>
+    <label class="opt"><input type="checkbox" id="obfOptCleanup" checked> Hapus komentar &amp; rapikan baris kosong</label>
+    <div style="margin-left:auto" class="row">
+      <button id="obfRun" type="button">Obfuscate</button>
+      <button id="obfSample" type="button" class="ghost">Isi contoh</button>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:14px">
+    <div class="card">
+      <div class="label">Kode asli</div>
+      <textarea id="obfSrc" spellcheck="false" placeholder="-- Tempel kode Lua kamu di sini
+local function greet(name)
+    local message = &quot;Halo, &quot; .. name
+    print(message)
+end
+
+for i = 1, 5 do
+    greet(&quot;Pemain&quot; .. i)
+end"></textarea>
+    </div>
+    <div class="card">
+      <div class="label">Hasil</div>
+      <textarea id="obfOut" spellcheck="false" readonly placeholder="Hasil obfuscate muncul di sini..."></textarea>
+      <div class="row">
+        <button id="obfCopy" type="button" class="ghost" disabled>Salin</button>
+        <button id="obfDl" type="button" class="ghost" disabled>Unduh .lua</button>
+        <span class="stat" id="obfStat"></span>
+      </div>
+      <div id="obfErr"></div>
+    </div>
+  </div>
+  <div class="warn">Alat best-effort: tidak mem-parse Lua 100% (kasus langka seperti <code>goto</code>/label atau ekspresi rumit di dalam <code>repeat...until</code> bisa meleset). Selalu uji ulang kode setelah diobfuscate.</div>
+</div>
+</div>
+    </section>
+
+</div>
+<div class="panel" data-panel="youtube" data-lock hidden>
+<!-- YouTube to MP3 -->
+    <section class="sheet" id="ytTool">
+      <div class="sheet-h">
+        <div class="step">Y</div>
+        <div>
+          <h2>YouTube → MP3</h2>
+          <p>Tempel tautan YouTube, hasilnya MP3 yang bisa diputar dan diunduh.</p>
+        </div>
+      </div>
+      <div class="field">
+        <label for="ytUrl"><svg class="ico"><use href="#i-music"/></svg>Tautan YouTube</label>
+        <input id="ytUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://www.youtube.com/watch?v=..."/>
+        <div class="formnote" id="ytTitle" hidden></div>
+      </div>
+      <div class="aactions">
+        <button class="primary" id="ytGo" type="button">Konversi ke MP3</button>
+      </div>
+      <div class="formnote" id="ytMsg" aria-live="polite"></div>
+      <div class="alist" id="ytOut" hidden>
+        <div class="arow">
+          <div class="info"><strong id="ytName">audio</strong></div>
+          <audio controls id="ytPlayer" style="width:100%"></audio>
+          <div class="aactions"><a class="abtn" id="ytSave" download="audio.mp3">↓ Download MP3</a></div>
+        </div>
+      </div>
+      <div class="formnote">Gunakan hanya untuk konten milikmu atau yang berlisensi bebas. Kamu bertanggung jawab atas hak cipta file yang kamu konversi. Maks. sekitar 4 MB per file (± 4 menit di 128 kbps).</div>
+    </section>
+
+</div>
 <div class="panel" data-panel="bulk" data-lock hidden>
 <!-- ID library -->
     <section class="sheet" id="idLib">
@@ -834,7 +925,7 @@ html[data-dt] #dtGuard{display:flex}
     <div class="note">
       <svg class="ico"><use href="#i-box"/></svg>
       <h3>Ukuran file</h3>
-      <p>Maksimal 20 MB per file (batas aset audio Roblox). File besar dikirim bertahap otomatis, jadi tidak perlu dikecilkan lagi.</p>
+      <p>Batas server sekitar 4 MB per file. Untuk audio, turunkan kualitas MP3 di konverter kalau file terlalu besar.</p>
     </div>
     <div class="note">
       <svg class="ico"><use href="#i-shield"/></svg>
@@ -1122,8 +1213,7 @@ html[data-dt] #dtGuard{display:flex}
                     })
             }
             ));
-            const MAX_UP = 20 * 1024 * 1024;
-            const CHUNK = 2 * 1024 * 1024;
+            const MAX_UP = 4 * 1024 * 1024;
             const MODL = {
                 reviewing: "Moderasi: menunggu",
                 approved: "Lolos moderasi",
@@ -1224,7 +1314,7 @@ html[data-dt] #dtGuard{display:flex}
                 else if (!reset)
                     $("go").textContent = "Mengunggah " + Math.round(frac * 100) + "%";
             }
-            function sendForm(formData, onProg) {
+            function sendUpload(formData, onProg) {
                 return new Promise(resolve => {
                     const x = new XMLHttpRequest();
                     x.open("POST", "/api/upload");
@@ -1259,76 +1349,6 @@ html[data-dt] #dtGuard{display:flex}
                 }
                 )
             }
-            function sendChunk(uid, i, blob, onLoaded) {
-                return new Promise(resolve => {
-                    const x = new XMLHttpRequest();
-                    x.open("POST", "/api/upload-chunk?uid=" + uid + "&i=" + i);
-                    x.setRequestHeader("X-Requested-With", "paestudio");
-                    x.setRequestHeader("Content-Type", "application/octet-stream");
-                    x.timeout = 120000;
-                    if (x.upload)
-                        x.upload.onprogress = e => onLoaded(e.loaded);
-                    x.onload = () => {
-                        let j;
-                        try {
-                            j = JSON.parse(x.responseText)
-                        } catch {
-                            j = {
-                                error: "Respons server tidak dapat dibaca"
-                            }
-                        }
-                        resolve({
-                            ok: x.status >= 200 && x.status < 300,
-                            status: x.status,
-                            j
-                        })
-                    }
-                    ;
-                    x.onerror = x.ontimeout = () => resolve({
-                        net: true
-                    });
-                    x.send(blob)
-                }
-                )
-            }
-            /* file <= ~3.5 MB: kirim langsung. Lebih besar: pecah per 2 MB, lalu rakit di server. */
-            async function sendUpload(formData, onProg) {
-                const file = formData.get("file");
-                if (!file || file.size <= 3.5 * 1024 * 1024)
-                    return sendForm(formData, onProg);
-                const uid = Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(16).padStart(2, "0")).join("");
-                const n = Math.ceil(file.size / CHUNK);
-                for (let i = 0; i < n; i++) {
-                    const part = file.slice(i * CHUNK, (i + 1) * CHUNK);
-                    let r = null;
-                    for (let t = 0; t < 3; t++) {
-                        r = await sendChunk(uid, i, part, loaded => {
-                            if (onProg)
-                                onProg(Math.min(0.95, (i * CHUNK + loaded) / file.size))
-                        }
-                        );
-                        if (r.net || r.ok || (r.status >= 400 && r.status < 500))
-                            if (!r.net)
-                                break;
-                    }
-                    if (r.net)
-                        return r;
-                    if (!r.ok) {
-                        afterUpload(r.j);
-                        return r
-                    }
-                }
-                if (onProg)
-                    onProg(1);
-                const d = new FormData();
-                for (const [k, v] of formData.entries())
-                    if (k !== "file")
-                        d.append(k, v);
-                d.append("uploadId", uid);
-                d.append("fileName", file.name);
-                d.append("fileSize", String(file.size));
-                return sendForm(d, null)
-            }
             const dz = document.querySelector(".dropzone");
             ["dragenter", "dragover"].forEach(ev => dz.addEventListener(ev, e => {
                 e.preventDefault();
@@ -1358,7 +1378,7 @@ html[data-dt] #dtGuard{display:flex}
                     return
                 }
                 if (file.size > MAX_UP) {
-                    toast(false, "File terlalu besar", "File " + fmtMB(file.size) + " melebihi batas 20 MB. Kecilkan file (untuk audio: turunkan kualitas atau pakai mono di Konverter Audio).");
+                    toast(false, "File terlalu besar", "File " + fmtMB(file.size) + " melebihi batas sekitar 4 MB. Kecilkan file (untuk audio: turunkan kualitas atau pakai mono di Konverter Audio).");
                     return
                 }
                 $("go").disabled = true;
@@ -2537,7 +2557,7 @@ html[data-dt] #dtGuard{display:flex}
                     }
                     if (it.blob.size > MAX_UP) {
                         it.state = "done";
-                        it.msg = "Dilewati: " + fmtMB(it.blob.size) + " melebihi batas upload 20 MB. Turunkan kualitas, pakai mono, atau potong durasi lalu proses ulang.";
+                        it.msg = "Dilewati: " + fmtMB(it.blob.size) + " melebihi batas upload sekitar 4 MB. Turunkan kualitas, pakai mono, atau potong durasi lalu proses ulang.";
                         fail++;
                         renderA();
                         continue
@@ -3211,7 +3231,7 @@ html[data-dt] #dtGuard{display:flex}
 
 </script>
 <script>(function(){
-  var LOCK={upload:1,audio:1,bulk:1,history:1};
+  var LOCK={upload:1,audio:1,youtube:1,bulk:1,history:1};
   var panels=[].slice.call(document.querySelectorAll("[data-panel]"));
   var gate=document.getElementById("gatePanel");
   var cur="home";
@@ -3276,6 +3296,337 @@ html[data-dt] #dtGuard{display:flex}
 })();
 </script>
 <script>(function(){
+/* ════════════════════════════════════════════════════════════
+   TOKENIZER
+   ════════════════════════════════════════════════════════════ */
+const KEYWORDS = new Set(['and','break','do','else','elseif','end','false','for','function',
+  'goto','if','in','local','nil','not','or','repeat','return','then','true','until','while']);
+
+function matchLongBracketOpen(src, pos) {
+  if (src[pos] !== '[') return null;
+  let j = pos + 1, level = 0;
+  while (src[j] === '=') { level++; j++; }
+  if (src[j] === '[') return { level, end: j + 1 };
+  return null;
+}
+function findLongBracketClose(src, from, level) {
+  const closer = ']' + '='.repeat(level) + ']';
+  const idx = src.indexOf(closer, from);
+  return idx === -1 ? src.length : idx + closer.length;
+}
+
+function tokenize(src) {
+  const tokens = [];
+  const n = src.length;
+  let i = 0;
+  const isNameStart = c => /[A-Za-z_]/.test(c);
+  const isNameChar = c => /[A-Za-z0-9_]/.test(c);
+  const isDigit = c => c >= '0' && c <= '9';
+
+  while (i < n) {
+    const c = src[i];
+    if (c === ' ' || c === '\t' || c === '\r') {
+      let j = i + 1; while (j < n && (src[j] === ' ' || src[j] === '\t' || src[j] === '\r')) j++;
+      tokens.push({ t: 'ws', v: src.slice(i, j) }); i = j; continue;
+    }
+    if (c === '\n') { tokens.push({ t: 'nl', v: '\n' }); i++; continue; }
+    if (c === '-' && src[i + 1] === '-') {
+      let j = i + 2;
+      const lm = matchLongBracketOpen(src, j);
+      if (lm) { const close = findLongBracketClose(src, lm.end, lm.level); tokens.push({ t: 'comment', v: src.slice(i, close) }); i = close; continue; }
+      let k = j; while (k < n && src[k] !== '\n') k++;
+      tokens.push({ t: 'comment', v: src.slice(i, k) }); i = k; continue;
+    }
+    if (c === '[') {
+      const lm = matchLongBracketOpen(src, i);
+      if (lm) { const close = findLongBracketClose(src, lm.end, lm.level); tokens.push({ t: 'string', v: src.slice(i, close) }); i = close; continue; }
+    }
+    if (c === "'" || c === '"') {
+      let j = i + 1;
+      while (j < n) {
+        if (src[j] === '\\') { j += 2; continue; }
+        if (src[j] === c) { j++; break; }
+        if (src[j] === '\n') break;
+        j++;
+      }
+      tokens.push({ t: 'string', v: src.slice(i, j) }); i = j; continue;
+    }
+    if (isDigit(c) || (c === '.' && isDigit(src[i + 1]))) {
+      let j = i;
+      if (c === '0' && (src[i + 1] === 'x' || src[i + 1] === 'X')) {
+        j = i + 2; while (j < n && /[0-9a-fA-F]/.test(src[j])) j++;
+      } else {
+        while (j < n && isDigit(src[j])) j++;
+        if (src[j] === '.') { j++; while (j < n && isDigit(src[j])) j++; }
+        if (src[j] === 'e' || src[j] === 'E') { j++; if (src[j] === '+' || src[j] === '-') j++; while (j < n && isDigit(src[j])) j++; }
+      }
+      tokens.push({ t: 'number', v: src.slice(i, j) }); i = j; continue;
+    }
+    if (isNameStart(c)) {
+      let j = i + 1; while (j < n && isNameChar(src[j])) j++;
+      const v = src.slice(i, j);
+      tokens.push({ t: KEYWORDS.has(v) ? 'keyword' : 'name', v }); i = j; continue;
+    }
+    if (c === '.' && src[i + 1] === '.' && src[i + 2] === '.') { tokens.push({ t: 'op', v: '...' }); i += 3; continue; }
+    if (c === '.' && src[i + 1] === '.') { tokens.push({ t: 'op', v: '..' }); i += 2; continue; }
+    const two = src.slice(i, i + 2);
+    if (['==', '~=', '<=', '>=', '::'].includes(two)) { tokens.push({ t: 'op', v: two }); i += 2; continue; }
+    tokens.push({ t: 'op', v: c }); i++; continue;
+  }
+  tokens.push({ t: 'eof', v: '' });
+  return tokens;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SCOPE-AWARE LOCAL-VARIABLE RENAMER
+   ════════════════════════════════════════════════════════════ */
+const STOP_KEYWORDS = new Set(['local','if','for','while','repeat','do','return','break','goto','end','else','elseif']);
+
+function peekSignificant(tokens, from) {
+  let j = from;
+  while (j < tokens.length && (tokens[j].t === 'ws' || tokens[j].t === 'nl' || tokens[j].t === 'comment')) j++;
+  return tokens[j] || null;
+}
+
+function renameLocals(tokens) {
+  const usedNames = new Set();
+  for (const tk of tokens) if (tk.t === 'name') usedNames.add(tk.v);
+  const ALPHA = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const ALNUM = ALPHA + '0123456789';
+  let counter = 0;
+  function rawName(n) {
+    let s = '', x = n;
+    s += ALPHA[x % ALPHA.length]; x = Math.floor(x / ALPHA.length);
+    while (x > 0) { x -= 1; s += ALNUM[x % ALNUM.length]; x = Math.floor(x / ALNUM.length); }
+    return s;
+  }
+  function nextFreshName() {
+    let name;
+    do { name = '_' + rawName(counter++); } while (usedNames.has(name));
+    usedNames.add(name);
+    return name;
+  }
+
+  const scopeStack = [new Map()]; // base/chunk frame
+  const pushFrame = () => scopeStack.push(new Map());
+  const popFrame = () => { if (scopeStack.length > 1) scopeStack.pop(); };
+  const currentFrame = () => scopeStack[scopeStack.length - 1];
+  function lookup(name) {
+    for (let k = scopeStack.length - 1; k >= 0; k--) {
+      if (scopeStack[k].has(name)) return scopeStack[k].get(name);
+    }
+    return null;
+  }
+
+  let collectingLocalNames = false;
+  let pendingLocalFunction = false;
+  let collectingForVars = false;
+  let tempForNames = [];
+  let pendingUntilPop = false;
+  let untilBaseDepth = 0;
+  let bracketDepth = 0;
+  let renamedCount = 0;
+
+  let idx = 0;
+  let lastSig = null; // last significant token (for '.'/':' field-access detection)
+
+  while (idx < tokens.length) {
+    const token = tokens[idx];
+
+    // stop collecting-local-names mode on anything that's not a name or comma
+    if (collectingLocalNames && !(token.t === 'name' || (token.t === 'op' && token.v === ','))) {
+      collectingLocalNames = false;
+    }
+
+    // pending 'until <expr>' pop check
+    if (pendingUntilPop && bracketDepth === untilBaseDepth) {
+      const isStop = token.t === 'eof' || (token.t === 'keyword' && STOP_KEYWORDS.has(token.v)) || (token.t === 'op' && token.v === ';');
+      if (isStop) { popFrame(); pendingUntilPop = false; }
+    }
+
+    if (token.t === 'keyword') {
+      switch (token.v) {
+        case 'local': {
+          const nxt = peekSignificant(tokens, idx + 1);
+          if (nxt && nxt.t === 'keyword' && nxt.v === 'function') pendingLocalFunction = true;
+          else collectingLocalNames = true;
+          break;
+        }
+        case 'function': {
+          const isLocalFn = pendingLocalFunction; pendingLocalFunction = false;
+          idx++; // past 'function'
+          let hasColon = false, sawFirstName = false, firstNameTok = null;
+          while (idx < tokens.length) {
+            const tk = tokens[idx];
+            if (tk.t === 'ws' || tk.t === 'nl' || tk.t === 'comment') { idx++; continue; }
+            if (tk.t === 'name') { if (!sawFirstName) { firstNameTok = tk; sawFirstName = true; } idx++; continue; }
+            if (tk.t === 'op' && (tk.v === '.' || tk.v === ':')) { if (tk.v === ':') hasColon = true; idx++; continue; }
+            break;
+          }
+          if (isLocalFn && firstNameTok) {
+            const orig = firstNameTok.v, fresh = nextFreshName();
+            currentFrame().set(orig, fresh);
+            firstNameTok.v = fresh;
+            renamedCount++;
+          }
+          pushFrame();
+          if (hasColon) currentFrame().set('self', nextFreshName());
+          // consume '(' ... ')'
+          if (tokens[idx] && tokens[idx].t === 'op' && tokens[idx].v === '(') idx++;
+          let depth = 1;
+          while (idx < tokens.length && depth > 0) {
+            const tk = tokens[idx];
+            if (tk.t === 'op' && tk.v === '(') { depth++; idx++; continue; }
+            if (tk.t === 'op' && tk.v === ')') { depth--; idx++; continue; }
+            if (depth === 1 && tk.t === 'name') {
+              const orig = tk.v, fresh = nextFreshName();
+              currentFrame().set(orig, fresh);
+              tk.v = fresh; renamedCount++;
+              idx++; continue;
+            }
+            idx++;
+          }
+          lastSig = token;
+          continue; // idx already positioned right after ')'
+        }
+        case 'do': {
+          pushFrame();
+          if (tempForNames.length) {
+            for (const tk of tempForNames) {
+              const orig = tk.v, fresh = nextFreshName();
+              currentFrame().set(orig, fresh);
+              tk.v = fresh; renamedCount++;
+            }
+            tempForNames = [];
+          }
+          break;
+        }
+        case 'for': { collectingForVars = true; tempForNames = []; break; }
+        case 'in': { collectingForVars = false; break; }
+        case 'then': { pushFrame(); break; }
+        case 'elseif': { const top = scopeStack.length > 1; if (top) popFrame(); break; }
+        case 'else': { if (scopeStack.length > 1) popFrame(); pushFrame(); break; }
+        case 'end': { popFrame(); break; }
+        case 'repeat': { pushFrame(); break; }
+        case 'until': { pendingUntilPop = true; untilBaseDepth = bracketDepth; break; }
+        default: break;
+      }
+      lastSig = token;
+    } else if (token.t === 'name') {
+      const precededByDotOrColon = lastSig && lastSig.t === 'op' && (lastSig.v === '.' || lastSig.v === ':');
+      if (collectingForVars) {
+        tempForNames.push(token);
+      } else if (collectingLocalNames) {
+        const orig = token.v, fresh = nextFreshName();
+        currentFrame().set(orig, fresh);
+        token.v = fresh; renamedCount++;
+      } else if (!precededByDotOrColon) {
+        const mapped = lookup(token.v);
+        if (mapped) { token.v = mapped; renamedCount++; }
+      }
+      lastSig = token;
+    } else if (token.t === 'op') {
+      if (token.v === '(' || token.v === '[' || token.v === '{') bracketDepth++;
+      else if (token.v === ')' || token.v === ']' || token.v === '}') bracketDepth--;
+      if (collectingForVars && token.v === '=') collectingForVars = false;
+      lastSig = token;
+    } else if (token.t === 'string' || token.t === 'number') {
+      lastSig = token;
+    }
+    // ws / nl / comment: no lastSig update, no state change
+    idx++;
+  }
+  return renamedCount;
+}
+
+/* ════════════════════════════════════════════════════════════
+   RECONSTRUCT + CLEANUP
+   ════════════════════════════════════════════════════════════ */
+function reconstruct(tokens, stripComments) {
+  let out = '';
+  for (const tk of tokens) {
+    if (tk.t === 'eof') continue;
+    if (tk.t === 'comment' && stripComments) { out += ' '; continue; } // space avoids accidental token merge
+    out += tk.v;
+  }
+  return out;
+}
+function cleanup(text) {
+  return text
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/^\n+/, '')
+    .trimEnd() + '\n';
+}
+
+/* ════════════════════════════════════════════════════════════
+   UI WIRING
+   ════════════════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+
+function runObfuscate() {
+  const src = $('obfSrc').value;
+  $('obfErr').innerHTML = '';
+  $('obfStat').textContent = '';
+  $('obfOut').value = '';
+  $('obfCopy').disabled = true; $('obfDl').disabled = true;
+  if (!src.trim()) return;
+
+  try {
+    const doRename = $('obfOptRename').checked;
+    const doCleanup = $('obfOptCleanup').checked;
+    const tokens = tokenize(src);
+    let renamedCount = 0;
+    if (doRename) renamedCount = renameLocals(tokens);
+    let out = reconstruct(tokens, doCleanup);
+    if (doCleanup) out = cleanup(out);
+    $('obfOut').value = out;
+    $('obfCopy').disabled = false; $('obfDl').disabled = false;
+    $('obfStat').textContent = doRename ? renamedCount + ' nama variabel/parameter lokal disamarkan' : 'Rename nama lokal dimatikan';
+  } catch (e) {
+    $('obfErr').innerHTML = '<div class="err">Gagal memproses: ' + (e && e.message ? e.message : 'error tidak diketahui') + '</div>';
+  }
+}
+
+$('obfRun').addEventListener('click', runObfuscate);
+$('obfCopy').addEventListener('click', () => {
+  navigator.clipboard.writeText($('obfOut').value);
+  const b = $('obfCopy'); const old = b.textContent; b.textContent = 'Tersalin!'; setTimeout(() => b.textContent = old, 1200);
+});
+$('obfDl').addEventListener('click', () => {
+  const blob = new Blob([$('obfOut').value], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'obfuscated.lua'; a.click();
+  URL.revokeObjectURL(url);
+});
+$('obfSample').addEventListener('click', () => {
+  $('obfSrc').value = [
+    'local function greet(name)',
+    '    local message = "Halo, " .. name',
+    '    print(message)',
+    '    return message',
+    'end',
+    '',
+    'local Players = game:GetService("Players")',
+    '',
+    'for i = 1, 3 do',
+    '    local msg = greet("Pemain" .. i)',
+    '    if i == 2 then',
+    '        local extra = msg .. "!"',
+    '        print(extra)',
+    '    end',
+    'end',
+    '',
+    'local Obj = {}',
+    'function Obj:setName(n)',
+    '    self.name = n',
+    'end'
+  ].join('\n');
+});
+})();
+</script>
+<script>(function(){
   var open=false;
   function stop(e){e.preventDefault();e.stopPropagation();return false}
   document.addEventListener("contextmenu",function(e){var t=e.target;if(t&&t.closest&&t.closest("input,textarea"))return;stop(e)},true);
@@ -3291,6 +3642,54 @@ html[data-dt] #dtGuard{display:flex}
     if(hit!==open){open=hit;document.documentElement.toggleAttribute("data-dt",hit)}
   }
   setInterval(tick,1000);
+})();
+</script>
+<script>(function(){
+  var g=function(i){return document.getElementById(i)};
+  var url=g("ytUrl"),go=g("ytGo"),msg=g("ytMsg"),ttl=g("ytTitle"),out=g("ytOut"),ply=g("ytPlayer"),sv=g("ytSave"),nm=g("ytName");
+  if(!url)return;
+  var blobUrl="",busy=false,lastTitleFor="",warmed=false;
+  var H={"Content-Type":"application/json","X-Requested-With":"paestudio"};
+  function say(t,bad){msg.textContent=t||"";msg.style.color=bad?"#ff8a8a":""}
+  function post(path,data){return fetch(path,{method:"POST",headers:H,body:JSON.stringify(data)})}
+  function clean(s){return String(s||"audio").replace(/[\\/:*?"<>|]+/g," ").replace(/\s+/g," ").trim().slice(0,80)||"audio"}
+  function valid(v){try{var u=new URL(v);return /^(www\.|m\.|music\.)?(youtube\.com|youtu\.be)$/i.test(u.hostname)}catch(e){return false}}
+  async function fetchTitle(){
+    var v=url.value.trim();
+    if(!valid(v)||v===lastTitleFor)return;
+    lastTitleFor=v;ttl.hidden=true;
+    try{
+      var r=await post("/api/youtube-title",{url:v}),d=await r.json().catch(function(){return{}});
+      if(r.ok&&d.ok&&d.title){ttl.textContent="Judul: "+d.title;ttl.hidden=false}
+    }catch(e){}
+  }
+  url.addEventListener("change",fetchTitle);
+  url.addEventListener("paste",function(){setTimeout(fetchTitle,50)});
+  url.addEventListener("focus",function(){ /* bangunkan converter sekali saja */
+    if(warmed)return;warmed=true;post("/api/youtube-download",{warm:true}).catch(function(){});
+  });
+  go.addEventListener("click",async function(){
+    if(busy)return;
+    var v=url.value.trim();
+    if(!valid(v)){say("Masukkan tautan YouTube yang valid.",true);return}
+    busy=true;go.disabled=true;out.hidden=true;say("Mengonversi… ini bisa memakan waktu sampai 1 menit.");
+    try{
+      var r=await post("/api/youtube-download",{url:v});
+      if(!r.ok){
+        var d=await r.json().catch(function(){return{}});
+        say((d&&d.message)||("Konversi gagal (status "+r.status+")."),true);return;
+      }
+      var title="audio";
+      try{title=decodeURIComponent(r.headers.get("x-audio-title")||"")||title}catch(e){title=r.headers.get("x-audio-title")||title}
+      if(title==="audio"&&!ttl.hidden)title=ttl.textContent.replace(/^Judul:\s*/,"");
+      var blob=await r.blob();
+      if(blobUrl)URL.revokeObjectURL(blobUrl);
+      blobUrl=URL.createObjectURL(new Blob([blob],{type:"audio/mpeg"}));
+      ply.src=blobUrl;sv.href=blobUrl;sv.download=clean(title)+".mp3";nm.textContent=title;
+      out.hidden=false;say("Selesai. "+(blob.size/1048576).toFixed(2)+" MB");
+    }catch(e){say("Koneksi bermasalah, coba lagi.",true)}
+    finally{busy=false;go.disabled=false}
+  });
 })();
 </script>
 <script>
