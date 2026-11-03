@@ -57,7 +57,7 @@ export async function onRequestPost({ request, env }) {
     return json({ message: "Terjadi kesalahan di server" }, 500);
   }
 
-  const MAX_BYTES = Math.min(Number(env.YT_MAX_BYTES) || 4 * 1024 * 1024, 4.4 * 1024 * 1024);
+  const MAX_BYTES = Math.min(Number(env.YT_MAX_BYTES) || 15 * 1024 * 1024, 25 * 1024 * 1024);
 
   let upstream;
   try {
