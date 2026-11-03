@@ -631,30 +631,30 @@ html[data-dt] #dtGuard{display:flex}
     </article></div>
     <div class="formnote" style="margin-bottom:6px">Tombol beli membuka WhatsApp dengan pesan siap kirim berisi paket, nama, dan Discord ID-mu. Wajib login Discord dulu.</div>
     <div class="sh"><div><h2>Akun &amp; kuota</h2><p>Status premium dan sisa upload hari ini.</p></div></div>
-    <div class="prem-grid">
-      <div>
-      <div class="acard" id="acctCard"><p>Memuat akun…</p></div>
-      <div class="acard" id="robloxCard" style="margin-top:14px">
-        <h3>Pengaturan Roblox</h3>
-        <p>Simpan API key dan ID sekali, dipakai otomatis di Upload dan Konverter Audio.</p>
-        <div class="field">
+    <div class="acard" id="robloxProfile" hidden style="margin-bottom:14px">
+      <h3>Data Roblox</h3>
+      <p>Simpan API key dan ID sekali saja. Dipakai otomatis untuk Upload, Konverter Audio, dan cek moderasi.</p>
+      <div class="formgrid" style="margin-top:14px">
+        <div class="field full">
           <label for="key"><svg class="ico"><use href="#i-key"/></svg>Roblox API key</label>
           <input autocomplete="off" id="key" placeholder="Tempel API key Roblox" type="password"/>
         </div>
-        <div class="field">
+        <div class="field full">
           <label for="target"><svg class="ico"><use href="#i-user"/></svg>Upload ke</label>
           <div class="targetrow">
             <select id="target"><option value="user">Akun</option><option value="group">Grup</option></select>
-            <input aria-label="User ID" id="owner" inputmode="numeric" placeholder="User ID"/>
+            <input aria-label="User ID" id="owner" inputmode="numeric" placeholder="User ID" autocomplete="off"/>
           </div>
         </div>
-        <div class="pbtns">
-          <button class="btn violet" id="credSave" type="button">Simpan</button>
-          <button class="btn" id="credClear" type="button">Hapus data tersimpan</button>
-        </div>
-        <div class="formnote" id="credMsg" aria-live="polite">Tersimpan di browser ini saja (tidak terenkripsi), jadi pakai hanya di perangkat pribadi. Pastikan API key punya izin Assets (Read &amp; Write).</div>
       </div>
+      <div class="pbtns" style="margin-top:14px">
+        <button class="btn violet" id="rbSave" type="button">Simpan</button>
+        <button class="btn" id="rbClear" type="button">Hapus data</button>
       </div>
+      <div class="formnote" id="rbMsg" aria-live="polite">Tersimpan hanya di browser ini (tidak terenkripsi, tidak dikirim ke server sampai kamu upload). Pakai hanya di perangkat pribadi.</div>
+    </div>
+    <div class="prem-grid">
+      <div class="acard" id="acctCard"><p>Memuat akun…</p></div>
       <div>
         <div class="plan">
           <h3>Gratis</h3>
@@ -702,7 +702,7 @@ html[data-dt] #dtGuard{display:flex}
             <input id="file" required type="file"/>
           </div>
           <div class="field full">
-            <div class="formnote" id="credNote" style="margin:0">API key dan User ID diambil dari <b>profil</b> (tab Harga Key → Pengaturan Roblox). <a href="#premium" id="credLink">Atur sekarang</a></div>
+            <div class="formnote" id="credNote" style="margin:0"></div>
           </div>
           <div class="field">
             <label for="name"><svg class="ico"><use href="#i-pen"/></svg>Nama aset</label>
@@ -725,7 +725,7 @@ html[data-dt] #dtGuard{display:flex}
         <div class="uprog" id="uProg" hidden><i id="uBar"></i></div>
 
         <button class="submit" id="go" type="submit">⇧ Upload sekarang</button>
-        <div class="formnote">Jangan bagikan API key ke orang lain.</div>
+        <div class="formnote">Pastikan API key punya izin Assets (Read &amp; Write). Jangan bagikan API key ke orang lain.</div>
       </form>
     </section>
   
@@ -778,14 +778,14 @@ html[data-dt] #dtGuard{display:flex}
 
       <div class="alist" id="aList"></div>
 
-      <label class="chk"><input id="oConfirm" type="checkbox"/>Saya punya hak atau lisensi untuk mengunggah semua audio ini</label>
       <label class="chk"><input checked id="oAuto" type="checkbox"/>Langsung upload ke Roblox setelah "Proses semua" selesai</label>
+      <label class="chk"><input id="oConfirm" type="checkbox"/>Saya punya hak atau lisensi untuk mengunggah semua audio ini</label>
       <div class="aactions">
         <button class="primary" disabled id="aProc" type="button">Proses semua</button>
         <button disabled id="aZip" type="button">↓ Download ZIP</button>
         <button disabled id="aUp" type="button">⇧ Upload semua</button>
       </div>
-      <div class="formnote">Upload memakai API key dan ID dari profil (tab Harga Key → Pengaturan Roblox) dan deskripsi dari form Upload. Auto-upload butuh lisensi tiap file dan centang pernyataan hak di atas. Gunakan hanya audio milikmu atau yang berlisensi bebas; Roblox tetap memeriksa hak cipta pada setiap upload.</div>
+      <div class="formnote">Upload memakai API key dan ID dari Profil (tab Harga Key → Data Roblox), serta deskripsi dari form Upload. Gunakan hanya audio milikmu atau yang berlisensi bebas; Roblox tetap memeriksa hak cipta pada setiap upload.</div>
     </section>
 
     
@@ -1237,7 +1237,7 @@ end"></textarea>
                 const key = $("key").value.trim();
                 if (!key)
                     return {
-                        error: "Isi Roblox API key di profil (tab Harga Key → Pengaturan Roblox) dulu."
+                        error: "Isi Roblox API key di Profil dulu."
                     };
                 try {
                     const r = await fetch("/api/status", {
@@ -1391,10 +1391,10 @@ end"></textarea>
                     return
                 }
                 if (!$("key").value.trim() || !/^\d{1,20}$/.test($("owner").value.trim())) {
-                    toast(false, "Data Roblox belum diisi", "Isi dan simpan API key serta User ID/Group ID di profil (tab Harga Key → Pengaturan Roblox) dulu.");
-                    $("robloxCard").scrollIntoView({
+                    toast(false, "Data Roblox belum diisi", "Isi Roblox API key dan ID di Profil (tab Harga Key → Data Roblox) dulu.");
+                    $("robloxProfile").scrollIntoView({
                         behavior: "smooth",
-                        block: "center"
+                        block: "start"
                     });
                     return
                 }
@@ -1615,6 +1615,7 @@ end"></textarea>
                         style: "margin-top:12px;font-size:12px;color:var(--dim)"
                     }))
                 }
+                $("robloxProfile").hidden = !me.loggedIn;
                 /* gate + kuota di form upload */
                 $("upGate").hidden = !loggedOut;
                 $("f").classList.toggle("locked", loggedOut);
@@ -1719,31 +1720,22 @@ end"></textarea>
             renderAccount();
             loadMe();
             $("tm").style.whiteSpace = "pre-line";
-            /* Simpan API key + ID di profil (hanya di browser ini) */
+            /* Data Roblox (API key, tipe target, ID) disimpan di browser ini lewat tab Profil */
             const KS = "paeSaved";
-            function credMsg(t, ok) {
-                const m = $("credMsg");
-                m.textContent = t;
-                m.style.color = ok === true ? "var(--ok)" : ok === false ? "var(--bad)" : ""
-            }
-            function credSaved() {
-                try {
-                    const sv = JSON.parse(localStorage.getItem(KS) || "null");
-                    return !!(sv && sv.key && sv.owner)
-                } catch {
-                    return false
-                }
-            }
             function credNote() {
-                const n = $("credNote");
-                if (n)
-                    n.hidden = credSaved()
+                const ok = $("key").value.trim() && $("owner").value.trim();
+                $("credNote").textContent = ok ? "Upload memakai API key dan ID yang tersimpan di Profil (tab Harga Key → Data Roblox)." : "API key dan ID belum diisi. Isi dulu di Profil (tab Harga Key → Data Roblox).";
+                $("credNote").style.color = ok ? "" : "#ffcf5a"
             }
-            $("credSave").onclick = () => {
+            function rbMsg(t, bad) {
+                $("rbMsg").textContent = t;
+                $("rbMsg").style.color = bad ? "#ff8a8a" : ""
+            }
+            $("rbSave").addEventListener("click", () => {
                 const key = $("key").value.trim()
                   , owner = $("owner").value.trim();
                 if (!key || !/^\d{1,20}$/.test(owner)) {
-                    credMsg("Isi API key dan User/Group ID (angka) dulu.", false);
+                    rbMsg("Isi API key dan ID (angka saja) dulu.", true);
                     return
                 }
                 try {
@@ -1751,16 +1743,15 @@ end"></textarea>
                         key,
                         target: $("target").value,
                         owner
-                    }))
+                    }));
+                    rbMsg("Tersimpan. Sekarang form Upload dan Konverter Audio tidak perlu meminta API key lagi.")
                 } catch {
-                    credMsg("Gagal menyimpan di browser ini.", false);
-                    return
+                    rbMsg("Gagal menyimpan di browser ini.", true)
                 }
-                credMsg("Tersimpan. Upload dan Konverter Audio akan memakainya otomatis.", true);
                 credNote()
             }
-            ;
-            $("credClear").onclick = () => {
+            );
+            $("rbClear").addEventListener("click", () => {
                 try {
                     localStorage.removeItem(KS)
                 } catch {}
@@ -1768,10 +1759,12 @@ end"></textarea>
                 $("owner").value = "";
                 $("target").value = "user";
                 $("target").dispatchEvent(new Event("change"));
-                credMsg("Data tersimpan dihapus.", true);
+                rbMsg("Data Roblox dihapus dari browser ini.");
                 credNote()
             }
-            ;
+            );
+            [$("key"), $("owner")].forEach(el => el.addEventListener("input", credNote));
+            $("target").addEventListener("change", credNote);
             try {
                 const sv = JSON.parse(localStorage.getItem(KS) || "null");
                 if (sv && sv.key) {
@@ -1785,14 +1778,6 @@ end"></textarea>
                 }
             } catch {}
             credNote();
-            $("credLink").addEventListener("click", e => {
-                e.preventDefault();
-                $("robloxCard").scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
-                })
-            }
-            );
             setType("decal");
             renderHistory();
             /* ===== Konverter audio (di browser) ===== */
@@ -2547,11 +2532,11 @@ end"></textarea>
                 renderA();
                 const ok = A.items.filter(i => i.blob).length
                   , bad = A.items.filter(i => i.state === "err").length;
-                if ($("oAuto").checked && A.items.some(i => i.blob && i.fmt !== "wav" && i.state !== "up")) {
+                const auto = $("oAuto").checked && A.items.some(i => i.blob && i.fmt !== "wav" && i.state !== "up");
+                if (!auto)
+                    toast(bad === 0, bad ? "Selesai dengan catatan" : "Konversi selesai", `${ok} file siap${bad ? `, ${bad} gagal (lihat keterangan di daftar)` : ""}.`);
+                else
                     await uploadAll();
-                    return
-                }
-                toast(bad === 0, bad ? "Selesai dengan catatan" : "Konversi selesai", `${ok} file siap${bad ? `, ${bad} gagal (lihat keterangan di daftar)` : ""}.`);
             }
             async function zipAll() {
                 try {
@@ -2590,11 +2575,11 @@ end"></textarea>
             async function uploadAll() {
                 const key = $("key").value.trim()
                   , owner = $("owner").value.trim();
-                if (!key || !owner) {
-                    toast(false, "Data belum lengkap", "Isi dan simpan Roblox API key serta User ID/Group ID di profil (tab Harga Key → Pengaturan Roblox) dulu.");
-                    $("robloxCard").scrollIntoView({
+                if (!key || !/^\d{1,20}$/.test(owner)) {
+                    toast(false, "Data belum lengkap", "Isi Roblox API key dan ID di Profil (tab Harga Key → Data Roblox) dulu.");
+                    $("robloxProfile").scrollIntoView({
                         behavior: "smooth",
-                        block: "center"
+                        block: "start"
                     });
                     return
                 }
@@ -3350,7 +3335,7 @@ end"></textarea>
     if(amBusy)return;
     var pend=getHistory().filter(function(x){return x.assetId&&x.mod!=="approved"&&x.mod!=="rejected"});
     if(!pend.length){amNote(false);return}
-    if(!$("key").value.trim()){amNote(true,"Ada "+pend.length+" upload yang statusnya belum final. Isi Roblox API key di profil (tab Harga Key) supaya status diperbarui otomatis.");return}
+    if(!$("key").value.trim()){amNote(true,"Ada "+pend.length+" upload yang statusnya belum final. Isi Roblox API key di Profil supaya status diperbarui otomatis.");return}
     amBusy=true;amNote(true,"Memperbarui status moderasi ("+pend.length+")…");
     try{
       for(var i=0;i<pend.length&&i<10;i++){
