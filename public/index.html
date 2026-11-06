@@ -2012,7 +2012,8 @@ body.menu-open .drawer{transform:none;visibility:visible;transition:transform .2
                             out: "",
                             mime: "",
                             msg: "Menunggu diproses",
-                            pct: 0
+                            pct: 0,
+                            bypass: false /* <-- FITUR BYPASS BARU */
                         };
                         A.items.push(it);
                         probeDuration(f).then(d => {
@@ -2148,7 +2149,7 @@ body.menu-open .drawer{transform:none;visibility:visible;transition:transform .2
                 u.sinfo.textContent = sInfo(it);
                 u.vinfo.textContent = it.vol + "%";
                 u.pos.textContent = (P.cur === it ? fmtT(aud.currentTime) : "0:00") + " / " + fmtT(it.dur);
-                const need = fitSemi(selSecs(it) / speedOf(it) * speedOf(it), Math.max(1, Math.min(3600, +$("oMax").value || 420)));
+                const need = fitSemi(selSecs(it), Math.max(1, Math.min(3600, +$("oMax").value || 420)));
                 u.fit.hidden = need === null || (it.semi >= need);
                 u.dl.hidden = u.use.hidden = !it.blob;
                 u.use.hidden = !it.blob || it.fmt === "wav";
@@ -2336,6 +2337,30 @@ body.menu-open .drawer{transform:none;visibility:visible;transition:transform .2
                 const prs = el("div", "erow");
                 prs.append(el("span", "elab", "PRESET"));
                 const prBtns = [];
+                
+                // FITUR BYPASS BARU
+                const byp = el("button", "mini pv" + (it.bypass ? " on" : ""), "BYPASS");
+                byp.type = "button";
+                byp.title = "Bypass Moderasi: Acak pitch & suntik noise halus";
+                byp.onclick = () => {
+                    it.bypass = !it.bypass;
+                    byp.classList.toggle("on", it.bypass);
+                    if (it.bypass) {
+                        it.semi = (Math.random() * 1.5 + 0.5).toFixed(1) * (Math.random() > 0.5 ? 1 : -1);
+                        it.fadeIn = 0.05;
+                        it.fadeOut = 0.05;
+                        sl.value = it.semi;
+                    } else {
+                        it.semi = 0;
+                        it.fadeIn = 0;
+                        it.fadeOut = 0;
+                        sl.value = 0;
+                    }
+                    applyPreview(it);
+                    markDirty(it);
+                };
+                prs.append(byp);
+
                 [3.5, -2, -1.1].forEach(v => {
                     const sp = Math.pow(2, v / 12);
                     const b = el("button", "mini pv", (v > 0 ? "+" : "") + v.toFixed(1) + " st · " + sp.toFixed(2) + "×");
@@ -2511,6 +2536,13 @@ body.menu-open .drawer{transform:none;visibility:visible;transition:transform .2
                                 d[i] *= i / fi;
                             for (let i = 0; i < fo; i++)
                                 d[len - 1 - i] *= i / fo
+                        }
+                    }
+                    if (it.bypass) {
+                        for (const d of data) {
+                            for (let i = 0; i < len; i++) {
+                                d[i] += (Math.random() - 0.5) * 0.0003;
+                            }
                         }
                     }
                     if (norm) {
